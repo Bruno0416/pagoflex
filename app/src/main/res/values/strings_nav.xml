@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_home">Inicio</string>
+    <string name="nav_historial">Historial</string>
+    <string name="nav_ayuda">Ayuda</string>
+    <string name="nav_avisos">Avisos</string>
+</resources>
