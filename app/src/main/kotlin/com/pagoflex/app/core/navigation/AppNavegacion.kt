@@ -1,5 +1,6 @@
 package com.pagoflex.app.core.navigation
 
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -18,14 +19,15 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.pagoflex.app.R
+import com.pagoflex.app.features.home.ui.screens.HomeScreen
 
 @Composable
 fun AppNavegacion() {
+    // TODO: agregar tipos de usuario y cambiar rutas segun tipo
 
     val navController = rememberNavController()
 
-    val entradaActual by
-    navController.currentBackStackEntryAsState()
+    val entradaActual by navController.currentBackStackEntryAsState()
 
     val rutaActual = entradaActual?.destination?.route
 
@@ -89,11 +91,13 @@ fun AppNavegacion() {
         NavHost(
             navController = navController,
             startDestination = Ruta.Home.ruta,
-            modifier = Modifier.padding(padding)
+            modifier = Modifier
+                .padding(padding)
+                .consumeWindowInsets(padding)
         ) {
 
             composable(Ruta.Home.ruta) {
-                Text("Inicio")
+                HomeScreen {  }
             }
 
             composable(Ruta.Historial.ruta) {
