@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -71,13 +72,16 @@ fun TonalButton(
 // ----------------- PREVIEWS -----------------
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
 )
 @Composable
 private fun PrimaryTonalButtonPreview() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             TonalButton(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
@@ -95,13 +99,16 @@ private fun PrimaryTonalButtonPreview() {
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
 )
 @Composable
 private fun SecondaryTonalButtonPreview() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             TonalButton(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
@@ -116,13 +123,16 @@ private fun SecondaryTonalButtonPreview() {
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
 )
 @Composable
 private fun DestructiveTonalButtonPreview() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             TonalButton(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
@@ -138,13 +148,16 @@ private fun DestructiveTonalButtonPreview() {
 
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
 )
 @Composable
 private fun PrimaryTonalButtonPreviewSmall() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             TonalButton(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
@@ -160,13 +173,16 @@ private fun PrimaryTonalButtonPreviewSmall() {
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
 )
 @Composable
 private fun SecondaryTonalButtonPreviewSmall() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             TonalButton(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
@@ -181,13 +197,16 @@ private fun SecondaryTonalButtonPreviewSmall() {
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
 )
 @Composable
 private fun DestructiveTonalButtonPreviewSmall() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             TonalButton(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},

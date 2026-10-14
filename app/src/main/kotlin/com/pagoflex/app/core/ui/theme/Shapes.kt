@@ -21,7 +21,10 @@ val AppShapes = Shapes(
 
 
 // ------ formas extra ------
+val CardShapeSmall = RoundedCornerShape(radiusXS)
 val CardShape = RoundedCornerShape(radiusS)
+val CardShapeMedium = RoundedCornerShape(radiusM)
+val CardShapeLarge = RoundedCornerShape(radiusL)
 
 val ButtonShape = RoundedCornerShape(radiusXXL)
 

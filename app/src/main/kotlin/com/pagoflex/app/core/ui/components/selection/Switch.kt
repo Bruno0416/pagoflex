@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch as MaterialSwitch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -82,13 +83,19 @@ fun Switch(
 
 // ----------------- PREVIEWS -----------------
 
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(
+    showBackground = true
+)
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
+)
 @Composable
 private fun SwitchPreview() {
     var checked by remember { mutableStateOf(true) }
 
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             Switch(
                 modifier = Modifier.padding(16.dp),
                 checked = checked,

@@ -2,10 +2,9 @@ package com.pagoflex.app.core.ui.components.containers
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -55,14 +54,19 @@ fun ListItem(
         ),
     )
 }
-
 // ----------------- PREVIEWS -----------------
 
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(
+    showBackground = true
+)
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
+)
 @Composable
 private fun ListItemPreview() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             ListItem(
                 modifier = Modifier.padding(16.dp),
                 headlineContent = { Text("Pago de tarjeta") },

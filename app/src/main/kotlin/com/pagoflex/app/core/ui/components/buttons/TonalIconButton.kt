@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -79,14 +80,16 @@ fun TonalIconButton(
 // ----------------- PREVIEWS -----------------
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
-    name = "Botón primario Default"
+    showBackground = true
 )
 @Composable
 private fun PrimaryTonalIconButtonPreview() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             TonalIconButton(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
@@ -100,14 +103,16 @@ private fun PrimaryTonalIconButtonPreview() {
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
-    name = "Botón secundario Default"
+    showBackground = true
 )
 @Composable
 private fun SecondaryTonalIconButtonPreview() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             TonalIconButton(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
@@ -121,14 +126,16 @@ private fun SecondaryTonalIconButtonPreview() {
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
-    name = "Botón destructivo Default"
+    showBackground = true
 )
 @Composable
 private fun DestructiveTonalIconButtonPreview() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             TonalIconButton(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
@@ -142,14 +149,16 @@ private fun DestructiveTonalIconButtonPreview() {
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
-    name = "Botón primario Small"
+    showBackground = true
 )
 @Composable
 private fun PrimaryTonalIconButtonPreviewSmall() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             TonalIconButton(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
@@ -163,14 +172,16 @@ private fun PrimaryTonalIconButtonPreviewSmall() {
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
-    name = "Botón secundario Small"
+    showBackground = true
 )
 @Composable
 private fun SecondaryTonalIconButtonPreviewSmall() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             TonalIconButton(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
@@ -184,14 +195,16 @@ private fun SecondaryTonalIconButtonPreviewSmall() {
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
-    name = "Botón destructivo Small"
+    showBackground = true
 )
 @Composable
 private fun DestructiveTonalIconButtonPreviewSmall() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             TonalIconButton(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},

@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -69,11 +70,17 @@ fun IconButton(
 
 // ----------------- PREVIEWS -----------------
 
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(
+    showBackground = true
+)
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
+)
 @Composable
 private fun PrimaryIconButtonPreview() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             IconButton(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
@@ -86,11 +93,17 @@ private fun PrimaryIconButtonPreview() {
     }
 }
 
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(
+    showBackground = true
+)
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
+)
 @Composable
 private fun SecondaryIconButtonPreview() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             IconButton(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
@@ -103,11 +116,17 @@ private fun SecondaryIconButtonPreview() {
     }
 }
 
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(
+    showBackground = true
+)
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
+)
 @Composable
 private fun DestructiveIconButtonPreview() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             IconButton(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
@@ -120,11 +139,17 @@ private fun DestructiveIconButtonPreview() {
     }
 }
 
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(
+    showBackground = true
+)
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
+)
 @Composable
 private fun PrimaryIconButtonPreviewSmall() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             IconButton(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
@@ -137,11 +162,17 @@ private fun PrimaryIconButtonPreviewSmall() {
     }
 }
 
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(
+    showBackground = true
+)
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
+)
 @Composable
 private fun SecondaryIconButtonPreviewSmall() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             IconButton(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
@@ -154,11 +185,17 @@ private fun SecondaryIconButtonPreviewSmall() {
     }
 }
 
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(
+    showBackground = true
+)
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
+)
 @Composable
 private fun DestructiveIconButtonPreviewSmall() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             IconButton(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},

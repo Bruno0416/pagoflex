@@ -8,6 +8,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Snackbar as MaterialSnackbar
 import androidx.compose.material3.SnackbarHost as MaterialSnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -88,14 +89,18 @@ fun SnackbarHost(
 
 // ----------------- PREVIEWS -----------------
 
+
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
 )
 @Composable
 private fun SnackbarPreview() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             Snackbar(
                 modifier = Modifier.padding(16.dp),
                 message = "Los cambios se guardaron correctamente",
@@ -106,14 +111,18 @@ private fun SnackbarPreview() {
     }
 }
 
+
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
 )
 @Composable
 private fun DestructiveSnackbarPreview() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             Snackbar(
                 modifier = Modifier.padding(16.dp),
                 message = "No fue posible completar la operación",

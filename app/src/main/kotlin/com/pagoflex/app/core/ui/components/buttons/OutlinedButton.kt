@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -79,20 +80,23 @@ fun OutlinedButton(
 // ----------------- PREVIEWS -----------------
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
 )
 @Composable
 private fun PrimaryOutlinedButtonPreview() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             OutlinedButton(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
                 enabled = true,
                 variant = ComponentVariant.Primary,
                 size = ComponentSize.Default,
-                ){
+            ) {
                 Text("Botón preview")
             }
         }
@@ -103,20 +107,23 @@ private fun PrimaryOutlinedButtonPreview() {
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
 )
 @Composable
 private fun SecondaryOutlinedButtonPreview() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             OutlinedButton(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
                 enabled = true,
                 variant = ComponentVariant.Secondary,
                 size = ComponentSize.Default,
-                ){
+            ) {
                 Text("Botón preview")
             }
         }
@@ -124,20 +131,23 @@ private fun SecondaryOutlinedButtonPreview() {
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
 )
 @Composable
 private fun DestructiveOutlinedButtonPreview() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             OutlinedButton(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
                 enabled = true,
                 variant = ComponentVariant.Destructive,
                 size = ComponentSize.Default,
-                ){
+            ) {
                 Text("Botón preview")
             }
         }
@@ -146,20 +156,23 @@ private fun DestructiveOutlinedButtonPreview() {
 
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
 )
 @Composable
 private fun PrimaryOutlinedButtonPreviewSmall() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             OutlinedButton(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
                 enabled = true,
                 variant = ComponentVariant.Primary,
                 size = ComponentSize.Small,
-                ){
+            ) {
                 Text("Botón preview")
             }
         }
@@ -168,20 +181,23 @@ private fun PrimaryOutlinedButtonPreviewSmall() {
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
 )
 @Composable
 private fun SecondaryOutlinedButtonPreviewSmall() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             OutlinedButton(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
                 enabled = true,
                 variant = ComponentVariant.Secondary,
                 size = ComponentSize.Small,
-                ){
+            ) {
                 Text("Botón preview")
             }
         }
@@ -189,20 +205,23 @@ private fun SecondaryOutlinedButtonPreviewSmall() {
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
 )
 @Composable
 private fun DestructiveOutlinedButtonPreviewSmall() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             OutlinedButton(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
                 enabled = true,
                 variant = ComponentVariant.Destructive,
                 size = ComponentSize.Small,
-            ){
+            ) {
                 Text("Botón preview")
             }
         }

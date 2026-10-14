@@ -23,7 +23,8 @@ import androidx.compose.material3.Card as MaterialCard
 @Composable
 fun Card(
     modifier: Modifier = Modifier,
-    variant: ComponentVariant = ComponentVariant.Primary,
+    variant: ComponentVariant? = null,
+    colors: CardColors = CardDefaults.cardColors(),
     shape: Shape = CardShape,
     border: BorderStroke? = null,
     elevation: CardElevation = CardDefaults.cardElevation(),
@@ -46,6 +47,8 @@ fun Card(
             containerColor = Theme.colores.errorContainer,
             contentColor = Theme.colores.onErrorContainer
         )
+
+        else -> colors
     }
 
     if (onClick != null) {
@@ -74,8 +77,11 @@ fun Card(
 // ----------------- PREVIEWS -----------------
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
 )
 @Composable
 private fun PrimaryCardPreview() {
@@ -90,8 +96,11 @@ private fun PrimaryCardPreview() {
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
 )
 @Composable
 private fun SecondaryCardPreview() {
@@ -106,8 +115,11 @@ private fun SecondaryCardPreview() {
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
 )
 @Composable
 private fun DestructiveCardPreview() {

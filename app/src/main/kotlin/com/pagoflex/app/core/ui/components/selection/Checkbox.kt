@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox as MaterialCheckbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -81,13 +82,19 @@ fun Checkbox(
 
 // ----------------- PREVIEWS -----------------
 
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(
+    showBackground = true
+)
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
+)
 @Composable
 private fun CheckboxPreview() {
     var checked by remember { mutableStateOf(true) }
 
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             Checkbox(
                 modifier = Modifier.padding(16.dp),
                 checked = checked,

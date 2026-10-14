@@ -22,6 +22,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -233,8 +234,11 @@ private fun TextFieldPreview() {
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
 )
 @Composable
 private fun TextFieldPasswordPreview() {
@@ -263,16 +267,16 @@ private fun TextFieldPasswordPreview() {
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
 )
 @Composable
 private fun TextFieldErrorPreview() {
     PagoFlexTheme {
-        Card(
-            variant = ComponentVariant.Primary,
-            shape = RoundedCornerShape(0),
-        ) {
+        Surface  {
             TextField(
                 value = "correo_invalido",
                 onValueChange = {},

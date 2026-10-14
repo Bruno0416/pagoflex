@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.ContainedLoadingIndicator as MaterialContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Surface
 import androidx.compose.material3.LoadingIndicator as MaterialLoadingIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -87,13 +88,16 @@ fun LoadingIndicator(
 // ----------------- PREVIEWS -----------------
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
 )
 @Composable
 private fun LoadingIndicatorPreview() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             Column(
                 modifier = Modifier.padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(24.dp),
@@ -124,13 +128,16 @@ private fun LoadingIndicatorPreview() {
 }
 
 @Preview(
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    showBackground = true
+)
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
 )
 @Composable
 private fun DeterminateLoadingIndicatorPreview() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             Row(
                 modifier = Modifier.padding(24.dp),
                 horizontalArrangement = Arrangement.spacedBy(24.dp),

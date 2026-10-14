@@ -3,15 +3,14 @@ package com.pagoflex.app.core.ui.components.inputs
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenu
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.ExposedDropdownMenu
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -83,13 +82,20 @@ fun SelectField(
 
 // ----------------- PREVIEWS -----------------
 
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+
+@Preview(
+    showBackground = true
+)
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
+)
 @Composable
 private fun SelectFieldPreview() {
     var selected by remember { mutableStateOf("Mensual") }
 
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             SelectField(
                 modifier = Modifier.padding(16.dp),
                 selectedOption = selected,

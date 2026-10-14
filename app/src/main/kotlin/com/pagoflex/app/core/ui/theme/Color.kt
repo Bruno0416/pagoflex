@@ -50,6 +50,41 @@ val LightOutlineVariant = Color(0xFFC1C5CB)
 val LightScrim = Color(0xFF000000)
 
 
+// ----------- colores chips claros -----------
+val LightChipPendienteContainer = Color(0xFFE7EFFD)
+val LightChipPendienteContent = Color(0xFF2457A6)
+
+val LightChipExpiradoContainer = Color(0xFFF8E8C8)
+val LightChipExpiradoContent = Color(0xFF8A5300)
+
+val LightChipPagadoContainer = Color(0xFFE4F3EA)
+val LightChipPagadoContent = Color(0xFF1E7B46)
+
+val LightChipEnReviewContainer = Color(0xFFF0EBFA)
+val LightChipEnReviewContent = Color(0xFF6B4BA8)
+
+val LightChipCanceladoContainer = Color(0xFFECEEF1)
+val LightChipCanceladoContent = Color(0xFF5B6474)
+
+val LightChipAbiertoContainer = Color(0xFFE7EFFD)
+val LightChipAbiertoContent = Color(0xFF2457A6)
+
+val LightChipEnProgresoContainer = Color(0xFFF0EBFA)
+val LightChipEnProgresoContent = Color(0xFF6B4BA8)
+
+val LightChipResueltoContainer = Color(0xFFE4F3EA)
+val LightChipResueltoContent = Color(0xFF1E7B46)
+
+val LightChipAtrasadoContainer = Color(0xFFFBE7E1)
+val LightChipAtrasadoContent = Color(0xFFA23B1C)
+
+val LightChipATiempoContainer = Color(0xFFE4F3EA)
+val LightChipATiempoContent = Color(0xFF1E7B46)
+
+val LightChipDemoraContainer = Color(0xFFF8E8C8)
+val LightChipDemoraContent = Color(0xFF8A5300)
+
+
 // ----------- tema oscuro -----------
 val DarkPrimary = Color(0xFF126D5D)
 val DarkOnPrimary = Color(0xFFFFFFFF)
@@ -97,36 +132,36 @@ val DarkOutlineVariant = Color(0xFF414754)
 val DarkScrim = Color(0xFF000000)
 
 
-// ----------- colores chips -----------
-val ChipPendienteContainer = Color(0xFFE6EEFA)
-val ChipPendienteContent = Color(0xFF2457A6)
+// ----------- colores chips oscuros -----------
+val DarkChipPendienteContainer = Color(0xFF162B4D)
+val DarkChipPendienteContent = Color(0xFF8AB4F8)
 
-val ChipExpiradoContainer = Color(0xFFFDF0D8)
-val ChipExpiradoContent = Color(0xFF8A5300)
+val DarkChipExpiradoContainer = Color(0xFF4A3519)
+val DarkChipExpiradoContent = Color(0xFFFDE293)
 
-val ChipPagadoContainer = Color(0xFFE3F4EA)
-val ChipPagadoContent = Color(0xFF1E7B46)
+val DarkChipPagadoContainer = Color(0xFF133822)
+val DarkChipPagadoContent = Color(0xFF81C995)
 
-val ChipEnReviewContainer = Color(0xFFEFEAFA)
-val ChipEnReviewContent = Color(0xFF6B4BA8)
+val DarkChipEnReviewContainer = Color(0xFF2D224C)
+val DarkChipEnReviewContent = Color(0xFFD7AEFB)
 
-val ChipCanceladoContainer = Color(0xFFECEEF1)
-val ChipCanceladoContent = Color(0xFF5B6474)
+val DarkChipCanceladoContainer = Color(0xFF2C323B)
+val DarkChipCanceladoContent = Color(0xFFBDC1C6)
 
-val ChipAbiertoContainer = Color(0xFFE6EEFA)
-val ChipAbiertoContent = Color(0xFF2457A6)
+val DarkChipAbiertoContainer = Color(0xFF162B4D)
+val DarkChipAbiertoContent = Color(0xFF8AB4F8)
 
-val ChipEnProgresoContainer = Color(0xFFEFEAFA)
-val ChipEnProgresoContent = Color(0xFF6B4BA8)
+val DarkChipEnProgresoContainer = Color(0xFF2D224C)
+val DarkChipEnProgresoContent = Color(0xFFD7AEFB)
 
-val ChipResueltoContainer = Color(0xFFE3F4EA)
-val ChipResueltoContent = Color(0xFF1E7B46)
+val DarkChipResueltoContainer = Color(0xFF133822)
+val DarkChipResueltoContent = Color(0xFF81C995)
 
-val ChipAtrasadoContainer = Color(0xFFFBE7E1)
-val ChipAtrasadoContent = Color(0xFFA23B1C)
+val DarkChipAtrasadoContainer = Color(0xFF4C2216)
+val DarkChipAtrasadoContent = Color(0xFFF28B82)
 
-val ChipATiempoContainer = Color(0xFFE3F4EA)
-val ChipATiempoContent = Color(0xFF1E7B46)
+val DarkChipATiempoContainer = Color(0xFF133822)
+val DarkChipATiempoContent = Color(0xFF81C995)
 
-val ChipDemoraContainer = Color(0xFFFDF0D8)
-val ChipDemoraContent = Color(0xFF8A5300)
+val DarkChipDemoraContainer = Color(0xFF4A3519)
+val DarkChipDemoraContent = Color(0xFFFDE293)

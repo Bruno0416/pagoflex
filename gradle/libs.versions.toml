@@ -1,6 +1,7 @@
 [versions]
 # --- compilación y herramientas ---
 agp = "9.4.1"
+desugar_jdk_libs = "2.1.5"
 kotlin = "2.4.21"
 
 # --- android base ---
@@ -19,6 +20,7 @@ navigationCompose = "2.10.2"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
+annotation = "1.11.0"
 
 
 [libraries]
@@ -46,6 +48,7 @@ androidx-compose-material3 = { group = "androidx.compose.material3", name = "mat
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 
 # --- pruebas unitarias ---
+desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 
 # --- pruebas instrumentadas ---
@@ -53,6 +56,7 @@ androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "j
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotation" }
 
 
 [plugins]

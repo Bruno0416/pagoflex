@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.Button as MaterialButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -18,6 +18,7 @@ import com.pagoflex.app.core.ui.components.model.buttonSize
 import com.pagoflex.app.core.ui.theme.ButtonShape
 import com.pagoflex.app.core.ui.theme.PagoFlexTheme
 import com.pagoflex.app.core.ui.theme.Theme
+import androidx.compose.material3.Button as MaterialButton
 
 
 @Composable
@@ -28,7 +29,7 @@ fun Button(
     variant: ComponentVariant = ComponentVariant.Primary,
     size: ComponentSize = ComponentSize.Default,
     content: @Composable RowScope.() -> Unit,
-           ){
+) {
     val colores = when (variant) {
         ComponentVariant.Primary -> ButtonDefaults.buttonColors(
             containerColor = Theme.colores.primary,
@@ -63,7 +64,7 @@ fun Button(
             ComponentSize.Default -> Theme.dimens.paddingButton
             ComponentSize.Small -> Theme.dimens.paddingButtonSmall
         },
-    ){
+    ) {
         content()
     }
 }
@@ -71,20 +72,23 @@ fun Button(
 // ----------------- PREVIEWS -----------------
 
 @Preview(
-    showBackground = true,
-    uiMode =  Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
+)
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
 )
 @Composable
-private fun PrimaryButtonPreview(){
+private fun PrimaryButtonPreview() {
     PagoFlexTheme {
-        Card(shape = RoundedCornerShape(0)) {
+        Surface {
             Button(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
                 enabled = true,
                 variant = ComponentVariant.Primary,
                 size = ComponentSize.Default,
-                ){
+            ) {
                 Text("Botón preview")
             }
         }
@@ -93,20 +97,23 @@ private fun PrimaryButtonPreview(){
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
 )
 @Composable
-private fun SecondaryButtonPreview(){
-    PagoFlexTheme{
-        Card(shape = RoundedCornerShape(0)){
+private fun SecondaryButtonPreview() {
+    PagoFlexTheme {
+        Surface {
             Button(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
                 enabled = true,
                 variant = ComponentVariant.Secondary,
                 size = ComponentSize.Default,
-                ){
+            ) {
                 Text("Botón preview")
             }
         }
@@ -114,20 +121,23 @@ private fun SecondaryButtonPreview(){
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
 )
 @Composable
-private fun DestructiveButtonPreview(){
-    PagoFlexTheme{
-        Card(shape = RoundedCornerShape(0)){
+private fun DestructiveButtonPreview() {
+    PagoFlexTheme {
+        Surface {
             Button(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
                 enabled = true,
                 variant = ComponentVariant.Destructive,
                 size = ComponentSize.Default,
-                ){
+            ) {
                 Text("Botón preview")
             }
         }
@@ -136,20 +146,23 @@ private fun DestructiveButtonPreview(){
 
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
 )
 @Composable
-private fun PrimaryButtonPreviewSmall(){
-    PagoFlexTheme{
-        Card(shape = RoundedCornerShape(0)){
+private fun PrimaryButtonPreviewSmall() {
+    PagoFlexTheme {
+        Surface {
             Button(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
                 enabled = true,
                 variant = ComponentVariant.Primary,
                 size = ComponentSize.Small,
-                ){
+            ) {
                 Text("Botón preview")
             }
         }
@@ -158,20 +171,23 @@ private fun PrimaryButtonPreviewSmall(){
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
 )
 @Composable
-private fun SecondaryButtonPreviewSmall(){
-    PagoFlexTheme{
-        Card(shape = RoundedCornerShape(0)){
+private fun SecondaryButtonPreviewSmall() {
+    PagoFlexTheme {
+        Surface {
             Button(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
                 enabled = true,
                 variant = ComponentVariant.Secondary,
                 size = ComponentSize.Small,
-            ){
+            ) {
                 Text("Botón preview")
             }
         }
@@ -179,20 +195,23 @@ private fun SecondaryButtonPreviewSmall(){
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
 )
 @Composable
-private fun DestructiveButtonPreviewSmall(){
-    PagoFlexTheme{
-        Card(shape = RoundedCornerShape(0)){
+private fun DestructiveButtonPreviewSmall() {
+    PagoFlexTheme {
+        Surface {
             Button(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
                 enabled = true,
                 variant = ComponentVariant.Destructive,
                 size = ComponentSize.Small,
-            ){
+            ) {
                 Text("Botón preview")
             }
         }

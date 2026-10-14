@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton as MaterialTextButton
 import androidx.compose.runtime.Composable
@@ -68,9 +69,11 @@ fun TextButton(
 // ----------------- PREVIEWS -----------------
 
 @Preview(
-    showBackground = true,
-    uiMode =  Configuration.UI_MODE_NIGHT_YES,
-    name = "Botón primario Default"
+    showBackground = true
+)
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
 )
 @Composable
 private fun PrimaryButtonPreview(){
@@ -92,14 +95,16 @@ private fun PrimaryButtonPreview(){
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
-    name = "Botón secundario Default"
+    showBackground = true
 )
 @Composable
 private fun SecondaryButtonPreview(){
     PagoFlexTheme{
-        Card(shape = RoundedCornerShape(0)){
+        Surface {
             TextButton(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
@@ -113,14 +118,16 @@ private fun SecondaryButtonPreview(){
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
-    name = "Botón destructivo Default"
+    showBackground = true
 )
 @Composable
 private fun DestructiveButtonPreview(){
     PagoFlexTheme{
-        Card(shape = RoundedCornerShape(0)){
+        Surface {
             TextButton(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
@@ -135,14 +142,16 @@ private fun DestructiveButtonPreview(){
 
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
-    name = "Botón primario Small"
+    showBackground = true
 )
 @Composable
 private fun PrimaryButtonPreviewSmall(){
     PagoFlexTheme{
-        Card(shape = RoundedCornerShape(0)){
+        Surface {
             TextButton(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
@@ -157,14 +166,16 @@ private fun PrimaryButtonPreviewSmall(){
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
-    name = "Botón primario Small"
+    showBackground = true
 )
 @Composable
 private fun SecondaryButtonPreviewSmall(){
     PagoFlexTheme{
-        Card(shape = RoundedCornerShape(0)){
+        Surface {
             TextButton(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},
@@ -178,14 +189,16 @@ private fun SecondaryButtonPreviewSmall(){
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = true
+)
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
-    name = "Botón primario Small"
+    showBackground = true
 )
 @Composable
 private fun DestructiveButtonPreviewSmall(){
     PagoFlexTheme{
-        Card(shape = RoundedCornerShape(0)){
+        Surface {
             TextButton(
                 modifier = Modifier.padding(16.dp),
                 onClick = {},

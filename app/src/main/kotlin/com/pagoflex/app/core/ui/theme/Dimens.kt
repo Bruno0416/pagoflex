@@ -32,9 +32,10 @@ object Dimens {
     // ---- padding ----
     val paddingSides = PaddingValues(horizontal = spacingM)
     val paddingCards = PaddingValues(horizontal = spacingL, vertical = spacingXS)
+    val paddingCardsCompromiso = PaddingValues(horizontal = spacingM, vertical = spacingM)
     val paddingButton = PaddingValues(horizontal = spacingL, vertical = spacingS)
     val paddingButtonSmall = PaddingValues(horizontal = spacingM, vertical = spacingXS)
 
     // ---- tamaño avatar ----
-    val avatarRadius = 50.dp
+    val avatarRadius = 64.dp
 }
