@@ -16,6 +16,13 @@ material3 = "1.5.0-beta01"
 activityCompose = "1.13.0"
 navigationCompose = "2.10.2"
 
+# --- base de datos ---
+room3 = "3.0.3"
+sqlite = "2.7.1"
+
+# --- procesamiento (complementaria de room) ---
+ksp = "2.3.12"
+
 # --- tests ---
 junit = "4.13.2"
 junitVersion = "1.3.0"
@@ -47,6 +54,14 @@ androidx-compose-material3 = { group = "androidx.compose.material3", name = "mat
 # --- navegación ---
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 
+# --- room  ---
+androidx-room3-runtime = { module = "androidx.room3:room3-runtime", version.ref = "room3" }
+androidx-room3-compiler = { module = "androidx.room3:room3-compiler", version.ref = "room3" }
+
+# --- SQLite ---
+androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
+
+
 # --- pruebas unitarias ---
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -65,3 +80,10 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 
 # --- kotlin ---
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+
+
+# --- room ---
+androidx-room3 = { id = "androidx.room3", version.ref = "room3" }
+
+# --- KSP ---
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

@@ -19,24 +19,39 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.pagoflex.app.R
+import com.pagoflex.app.core.profiles.model.PerfilUsuario
 import com.pagoflex.app.features.home.ui.screens.HomeScreen
 
 @Composable
-fun AppNavegacion() {
-    // TODO: agregar tipos de usuario y cambiar rutas segun tipo
-
+fun AppNavegacion(
+    perfilUsuario: PerfilUsuario = PerfilUsuario.USUARIO_FINAL
+) {
     val navController = rememberNavController()
-
     val entradaActual by navController.currentBackStackEntryAsState()
-
     val rutaActual = entradaActual?.destination?.route
 
-    val rutasPrincipales = listOf(
-        Ruta.Home,
-        Ruta.Historial,
-        Ruta.Ayuda,
-        Ruta.Avisos
-    )
+    val rutaInicio = when (perfilUsuario) {
+        PerfilUsuario.USUARIO_FINAL -> Ruta.Home.ruta
+        PerfilUsuario.AGENTE -> Ruta.BandejaReportes.ruta
+        PerfilUsuario.EJECUTIVO -> Ruta.ResumenCobranza.ruta
+    }
+
+    val rutasPrincipales: List<Ruta> = when (perfilUsuario) {
+        PerfilUsuario.USUARIO_FINAL -> listOf(
+            Ruta.Home,
+            Ruta.Historial,
+            Ruta.Ayuda,
+            Ruta.Avisos
+        )
+
+        PerfilUsuario.AGENTE -> emptyList()
+
+        PerfilUsuario.EJECUTIVO -> listOf(
+            Ruta.ResumenCobranza,
+            Ruta.CompromisosEmpresa,
+            Ruta.RegistrarCompromiso
+        )
+    }
 
     Scaffold(
         bottomBar = {
@@ -50,7 +65,7 @@ fun AppNavegacion() {
                             selected = rutaActual == destino.ruta,
                             onClick = {
                                 navController.navigate(destino.ruta) {
-                                    popUpTo(Ruta.Home.ruta) {
+                                    popUpTo(rutaInicio) {
                                         saveState = true
                                     }
                                     launchSingleTop = true
@@ -61,11 +76,11 @@ fun AppNavegacion() {
                                 Icon(
                                     painter = painterResource(
                                         when (destino) {
-                                            Ruta.Home -> R.drawable.ic_home
-                                            Ruta.Historial -> R.drawable.ic_history
-                                            Ruta.Ayuda -> R.drawable.ic_help
+                                            Ruta.Home, Ruta.ResumenCobranza -> R.drawable.ic_home
+                                            Ruta.Historial, Ruta.CompromisosEmpresa -> R.drawable.ic_history
+                                            Ruta.Ayuda, Ruta.RegistrarCompromiso -> R.drawable.ic_help
                                             else -> R.drawable.ic_notifications
-                                        },
+                                        }
                                     ),
                                     contentDescription = null, // TODO: cambiar
 
@@ -77,7 +92,13 @@ fun AppNavegacion() {
                                         Ruta.Home -> stringResource(R.string.nav_home)
                                         Ruta.Historial -> stringResource(R.string.nav_historial)
                                         Ruta.Ayuda -> stringResource(R.string.nav_ayuda)
-                                        else -> stringResource(R.string.nav_avisos)
+                                        Ruta.Avisos -> stringResource(R.string.nav_avisos)
+
+                                        Ruta.ResumenCobranza -> "Resumen"
+                                        Ruta.CompromisosEmpresa -> "Compromisos"
+                                        Ruta.RegistrarCompromiso -> "Registrar"
+
+                                        else -> ""
                                     }
                                 )
                             }
@@ -90,41 +111,64 @@ fun AppNavegacion() {
 
         NavHost(
             navController = navController,
-            startDestination = Ruta.Home.ruta,
+            startDestination = rutaInicio,
             modifier = Modifier
                 .padding(padding)
                 .consumeWindowInsets(padding)
         ) {
-
-            composable(Ruta.Home.ruta) {
-                HomeScreen {  }
-            }
-
-            composable(Ruta.Historial.ruta) {
-                Text("Historial pendiente")
-            }
-
-            composable(Ruta.Ayuda.ruta) {
-                Text("Ayuda")
-            }
-            composable(Ruta.Avisos.ruta) {
-                Text("Avisos")
-            }
-
-            composable(
-                route = Ruta.DetalleCompromiso.ruta,
-                arguments = listOf(
-                    navArgument("id") {
-                        type = NavType.StringType
+            when (perfilUsuario) {
+                PerfilUsuario.USUARIO_FINAL -> {
+                    composable(Ruta.Home.ruta) {
+                        HomeScreen { }
                     }
-                )
-            ) { entrada ->
 
-                val id = entrada.arguments
-                    ?.getString("id")
-                    .orEmpty()
+                    composable(Ruta.Historial.ruta) {
+                        Text("Historial pendiente")
+                    }
 
-                Text("Detalle del compromiso $id")
+                    composable(Ruta.Ayuda.ruta) {
+                        Text("Ayuda")
+                    }
+                    composable(Ruta.Avisos.ruta) {
+                        Text("Avisos")
+                    }
+
+                    composable(
+                        route = Ruta.DetalleCompromiso.ruta,
+                        arguments = listOf(
+                            navArgument("id") {
+                                type = NavType.StringType
+                            }
+                        )
+                    ) { entrada ->
+
+                        val id = entrada.arguments
+                            ?.getString("id")
+                            .orEmpty()
+
+                        Text("Detalle del compromiso $id")
+                    }
+                }
+
+                PerfilUsuario.AGENTE -> {
+                    composable(Ruta.BandejaReportes.ruta) {
+                        Text("Bandeja de reportes pendiente")
+                    }
+                }
+
+                PerfilUsuario.EJECUTIVO -> {
+                    composable(Ruta.ResumenCobranza.ruta) {
+                        Text("Resumen de cobranza pendiente")
+                    }
+
+                    composable(Ruta.CompromisosEmpresa.ruta) {
+                        Text("Compromisos de empresa pendiente")
+                    }
+
+                    composable(Ruta.RegistrarCompromiso.ruta) {
+                        Text("Registrar compromiso pendiente")
+                    }
+                }
             }
         }
     }
