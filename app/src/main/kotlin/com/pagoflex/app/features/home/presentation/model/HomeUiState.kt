@@ -1,5 +1,4 @@
-
-package com.pagoflex.app.features.home.model
+package com.pagoflex.app.features.home.presentation.model
 
 import java.time.LocalDateTime
 import java.time.YearMonth
@@ -10,7 +9,7 @@ data class HomeUiState(
     val resumen: ResumenInicio = ResumenInicio(),
     val compromisos: List<CompromisoInicio> = emptyList(),
     val ultimaActualizacion: LocalDateTime? = null,
-    
+
     val cargando: Boolean = false,
-    val mensajeError: String? = null
+    val mensajeError: Int? = null
 )

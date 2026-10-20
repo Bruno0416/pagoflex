@@ -1,4 +1,4 @@
-package com.pagoflex.app.features.home.ui.components
+package com.pagoflex.app.features.home.presentation.components
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
@@ -13,16 +13,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import com.pagoflex.app.R
 import com.pagoflex.app.core.ui.components.chips.StatusChip
 import com.pagoflex.app.core.ui.components.containers.Card
 import com.pagoflex.app.core.ui.components.model.ComponentVariant
 import com.pagoflex.app.core.ui.styles.coloresCard
 import com.pagoflex.app.core.ui.theme.PagoFlexTheme
 import com.pagoflex.app.core.ui.theme.Theme
-import com.pagoflex.app.features.home.model.CompromisoInicio
-import com.pagoflex.app.features.home.model.EstadoCompromiso
+import com.pagoflex.app.features.home.presentation.model.CompromisoInicio
+import com.pagoflex.app.features.home.presentation.model.EstadoCompromiso
 import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -38,7 +40,11 @@ fun CardCompromiso(
         compromiso.numeroCuota != null &&
         compromiso.totalCuotas != null
     ) {
-        "  •  ${compromiso.numeroCuota}/${compromiso.totalCuotas}"
+        stringResource(
+            R.string.home_detalle_numero_cuota,
+            compromiso.numeroCuota,
+            compromiso.totalCuotas
+        )
     } else {
         ""
     }
@@ -53,7 +59,9 @@ fun CardCompromiso(
                 Modifier.size(Theme.dimens.spacingS)
             )
 
-            Column {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
                 Text(
                     compromiso.organizacion,
                     style = Theme.type.titleMedium
@@ -75,7 +83,7 @@ fun CardCompromiso(
             }
 
             Spacer(
-                Modifier.weight(1F)
+                Modifier.size(Theme.dimens.spacingS)
             )
 
             Column(
@@ -86,9 +94,11 @@ fun CardCompromiso(
                 )
             ) {
                 Text(
-                    compromiso.monto.toCLP(),
+                    compromiso.total.toCLP(),
                     style = Theme.type.titleMedium
-                        .copy(fontWeight = FontWeight.Bold)
+                        .copy(fontWeight = FontWeight.Bold),
+                    maxLines = 1,
+                    softWrap = false
                 )
 
                 Spacer(
@@ -96,7 +106,7 @@ fun CardCompromiso(
                 )
 
                 StatusChip(
-                    label = compromiso.estado.label,
+                    label = stringResource(compromiso.estado.labelRes),
                     colores = colores,
 
                     )

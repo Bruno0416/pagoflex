@@ -1,4 +1,4 @@
-package com.pagoflex.app.features.home.ui.components
+package com.pagoflex.app.features.home.presentation.components
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Row
@@ -10,8 +10,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.pagoflex.app.R
 import com.pagoflex.app.core.ui.components.buttons.TextButton
 import com.pagoflex.app.core.ui.components.containers.Card
 import com.pagoflex.app.core.ui.components.model.ComponentSize
@@ -31,12 +33,12 @@ fun SeccionCompromisos(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            "Tus Compromisos",
+            stringResource(R.string.home_tus_compromisos),
             style = Theme.type.titleMedium.copy(color = Theme.colores.onSurface)
         )
         Spacer(Modifier.weight(1F))
         TextButton(onClick = onVerTodos, size = ComponentSize.Small) {
-            Text("Ver todos")
+            Text(stringResource(R.string.home_ver_todos))
         }
     }
 }

@@ -1,16 +1,17 @@
-package com.pagoflex.app.features.home.ui.components
+package com.pagoflex.app.features.home.presentation.components
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -20,9 +21,9 @@ import com.pagoflex.app.core.ui.components.model.ComponentVariant
 import com.pagoflex.app.core.ui.styles.ChipColors
 import com.pagoflex.app.core.ui.theme.PagoFlexTheme
 import com.pagoflex.app.core.ui.theme.Theme
-import com.pagoflex.app.features.home.model.CompromisoInicio
-import com.pagoflex.app.features.home.model.EstadoCompromiso
-import com.pagoflex.app.features.home.model.ResumenInicio
+import com.pagoflex.app.features.home.presentation.model.CompromisoInicio
+import com.pagoflex.app.features.home.presentation.model.EstadoCompromiso
+import com.pagoflex.app.features.home.presentation.model.ResumenInicio
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
@@ -51,19 +52,27 @@ fun AvisoVencimiento(
                 containerColor = ChipColors.expiradoContainer,
                 contentColor = ChipColors.expiradoContent,
             ),
-            
+
             icono = painterResource(R.drawable.ic_priority_high),
 
             contenido = {
                 Text(
-                    "Te falta $cantidadVencidos pago para quedar al dia",
+                    pluralStringResource(
+                        R.plurals.home_aviso_pagos_vencidos,
+                        cantidadVencidos,
+                        cantidadVencidos
+                    ),
                     style = Theme.type.bodyMedium.copy(fontWeight = FontWeight.SemiBold)
                 )
                 Spacer(
                     Modifier.size(Theme.dimens.spacingXXS)
                 )
                 Text(
-                    "Cuota de $mes del ${vencidoDestacado.organizacion}",
+                    stringResource(
+                        R.string.home_aviso_cuota,
+                        mes,
+                        vencidoDestacado.organizacion
+                    ),
                     style = Theme.type.bodyMedium
                 )
 

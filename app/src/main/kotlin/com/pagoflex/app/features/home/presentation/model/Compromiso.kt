@@ -1,13 +1,15 @@
-package com.pagoflex.app.features.home.model
+package com.pagoflex.app.features.home.presentation.model
 
+import androidx.annotation.StringRes
+import com.pagoflex.app.R
 import java.time.LocalDate
 
-enum class EstadoCompromiso(val label: String) {
-    PENDIENTE("Pendiente"),
-    VENCIDO("Vencido"),
-    PAGADO("Pagado"),
-    EN_REVISION("En revisión"),
-    ANULADO("Anulado")
+enum class EstadoCompromiso(@StringRes val labelRes: Int) {
+    PENDIENTE(R.string.home_estado_pendiente),
+    VENCIDO(R.string.home_estado_vencido),
+    PAGADO(R.string.home_estado_pagado),
+    EN_REVISION(R.string.home_estado_en_revision),
+    ANULADO(R.string.home_estado_anulado)
 }
 
 data class CompromisoInicio(

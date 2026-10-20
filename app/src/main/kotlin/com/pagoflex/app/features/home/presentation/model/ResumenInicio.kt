@@ -1,4 +1,4 @@
-package com.pagoflex.app.features.home.model
+package com.pagoflex.app.features.home.presentation.model
 
 data class ResumenInicio(
     val totalPorPagar: Long = 0L,
@@ -6,7 +6,7 @@ data class ResumenInicio(
     val cantidadCompromisos: Int = 0,
     val cantidadOrganizaciones: Int = 0,
     val cantidadVencidos: Int = 0,
-    val porcentajeCumplimiento: Double = 0.0,
+    val porcentajeCumplimiento: Double? = null,
     val proximoCompromiso: CompromisoInicio? = null,
     val vencidoDestacado: CompromisoInicio? = null
 )

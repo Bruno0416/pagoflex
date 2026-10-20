@@ -1,4 +1,4 @@
-package com.pagoflex.app.features.home.ui.components
+package com.pagoflex.app.features.home.presentation.components
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Box

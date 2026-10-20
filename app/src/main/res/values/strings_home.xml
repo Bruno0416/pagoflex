@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- encabezado y cumplimiento -->
+    <string name="home_saludo">Hola, %1$s</string>
+    <string name="home_cumplimiento_ejemplar">Ejemplar</string>
+    <string name="home_cumplimiento_al_dia">Al día</string>
+    <string name="home_cumplimiento_en_camino">En camino</string>
+    <string name="home_cumplimiento_historial_parcial">Historial parcial</string>
+    <string name="home_cumplimiento_porcentaje">%1$s%% · %2$s</string>
+
+    <!-- resumen mensual -->
+    <string name="home_por_pagar_mes">Por pagar en %1$s</string>
+    <string name="home_separador_cantidades">%1$s - %2$s</string>
+    <plurals name="home_cantidad_compromisos">
+        <item quantity="one">%d compromiso</item>
+        <item quantity="other">%d compromisos</item>
+    </plurals>
+    <plurals name="home_cantidad_organizaciones">
+        <item quantity="one">%d organización</item>
+        <item quantity="other">%d organizaciones</item>
+    </plurals>
+    <string name="home_proximo_vencimiento">Próximo vencimiento: %1$s</string>
+    <string name="home_proximo_detalle">%1$s %2$s %3$s</string>
+
+    <!-- avisos y compromisos -->
+    <plurals name="home_aviso_pagos_vencidos">
+        <item quantity="one">Te falta %d pago para quedar al día</item>
+        <item quantity="other">Te faltan %d pagos para quedar al día</item>
+    </plurals>
+    <string name="home_aviso_cuota">Cuota de %1$s del %2$s</string>
+    <string name="home_tus_compromisos">Tus Compromisos</string>
+    <string name="home_ver_todos">Ver todos</string>
+    <string name="home_detalle_numero_cuota">"  •  %1$d/%2$d"</string>
+
+    <!-- estados de compromiso -->
+    <string name="home_estado_pendiente">Pendiente</string>
+    <string name="home_estado_vencido">Vencido</string>
+    <string name="home_estado_pagado">Pagado</string>
+    <string name="home_estado_en_revision">En revisión</string>
+    <string name="home_estado_anulado">Anulado</string>
+
+    <!-- errores de carga -->
+    <string name="home_error_usuario_no_encontrado">Usuario no encontrado</string>
+    <string name="home_error_cargar">No se pudo cargar el inicio</string>
+</resources>

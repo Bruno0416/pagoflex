@@ -1,4 +1,4 @@
-package com.pagoflex.app.features.home.ui.screens
+package com.pagoflex.app.features.home.presentation.screens
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
@@ -13,117 +13,82 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.pagoflex.app.core.data.local.LocalDatabase
 import com.pagoflex.app.core.ui.theme.PagoFlexTheme
 import com.pagoflex.app.core.ui.theme.Theme
-import com.pagoflex.app.features.home.model.CompromisoInicio
-import com.pagoflex.app.features.home.model.EstadoCompromiso
-import com.pagoflex.app.features.home.model.HomeUiState
-import com.pagoflex.app.features.home.ui.components.AvisoVencimiento
-import com.pagoflex.app.features.home.ui.components.CardCompromiso
-import com.pagoflex.app.features.home.ui.components.CardResumen
-import com.pagoflex.app.features.home.ui.components.HomeAppBar
-import com.pagoflex.app.features.home.ui.components.SeccionCompromisos
-import com.pagoflex.app.features.home.viewmodel.HomeViewModel
+import com.pagoflex.app.features.home.data.HomeRepository
+import com.pagoflex.app.features.home.presentation.components.AvisoVencimiento
+import com.pagoflex.app.features.home.presentation.components.CardCompromiso
+import com.pagoflex.app.features.home.presentation.components.CardResumen
+import com.pagoflex.app.features.home.presentation.components.HomeAppBar
+import com.pagoflex.app.features.home.presentation.components.SeccionCompromisos
+import com.pagoflex.app.features.home.presentation.model.CompromisoInicio
+import com.pagoflex.app.features.home.presentation.model.EstadoCompromiso
+import com.pagoflex.app.features.home.presentation.model.HomeUiState
+import com.pagoflex.app.features.home.presentation.model.ResumenInicio
+import com.pagoflex.app.features.home.presentation.viewmodel.HomeViewModel
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.YearMonth
 
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel = viewModel(),
-    onVerTodos: () -> Unit = {
-        println("Home: Ver todos")
-    },
-    onVerCompromiso: (String) -> Unit = { id ->
-        println("Home: Compromiso seleccionado: $id")
-    }
+    db: LocalDatabase,
+    usuarioId: Int,
+    onVerTodos: () -> Unit = {},
+    onVerCompromiso: (String) -> Unit = {}
 ) {
-
+    // ---------- dependencias ----------
+    val repositorio = remember(db) { HomeRepository(db) }
+    val viewModel: HomeViewModel = viewModel(
+        factory = viewModelFactory {
+            initializer { HomeViewModel(repositorio) }
+        }
+    )
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(viewModel) {
-
-        // ----- mock temporal (hasta que tengamos bd) -----
-        val compromisosMock = listOf(
-
-            CompromisoInicio(
-                id = "comp-001",
-                organizacion = "Club Los Halcones",
-                siglaOrganizacion = "CH",
-                concepto = "Cuota social oct.",
-                numeroCuota = 10,
-                totalCuotas = 12,
-                fechaVencimiento = LocalDate.of(2026, 10, 5),
-                monto = 17_000L,
-                estado = EstadoCompromiso.PENDIENTE
-            ),
-
-            CompromisoInicio(
-                id = "comp-002",
-                organizacion = "Plaza Oriente",
-                siglaOrganizacion = "PO",
-                concepto = "Arriendo oct.",
-                numeroCuota = 10,
-                totalCuotas = 12,
-                fechaVencimiento = LocalDate.of(2026, 10, 10),
-                monto = 520_000L,
-                estado = EstadoCompromiso.PENDIENTE
-            ),
-
-            CompromisoInicio(
-                id = "comp-003",
-                organizacion = "Manos Abiertas",
-                siglaOrganizacion = "MA",
-                concepto = "Aporte octubre",
-                fechaVencimiento = LocalDate.of(2026, 10, 15),
-                monto = 10_000L,
-                estado = EstadoCompromiso.PENDIENTE
-            ),
-
-            CompromisoInicio(
-                id = "comp-004",
-                organizacion = "Crédito Andino",
-                siglaOrganizacion = "CA",
-                concepto = "Crédito",
-                numeroCuota = 8,
-                totalCuotas = 24,
-                fechaVencimiento = LocalDate.of(2026, 10, 25),
-                monto = 86_400L,
-                estado = EstadoCompromiso.PENDIENTE
-            )
-        )
-
-        // ----- entregar datos al viewmodel -----
-
-        viewModel.cargarInicio(
-            nombreUsuario = "Camila",
-            ultimaActualizacion = LocalDateTime.of(
-                2026, 10, 6, 8, 12
-            ),
-            fechaReferencia = LocalDate.of(2026, 10, 6),
-            porcentajeCumplimiento = 91.7,
-            compromisos = compromisosMock
-        )
+    LaunchedEffect(usuarioId) {
+        viewModel.cargarInicio(usuarioId)
     }
 
-// ----- mostrar contenido -----
+    // ---------- contenido ----------
+    when {
+        uiState.cargando -> Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
 
-    HomeContent(
-        uiState = uiState,
-        onVerTodos = onVerTodos,
-        onVerCompromiso = onVerCompromiso
-    )
+        uiState.mensajeError != null -> Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(stringResource(uiState.mensajeError!!))
+        }
 
+        else -> HomeContent(
+            uiState = uiState,
+            onVerTodos = onVerTodos,
+            onVerCompromiso = onVerCompromiso
+        )
+    }
 }
-
 
 @Composable
 private fun HomeContent(
@@ -136,7 +101,7 @@ private fun HomeContent(
         uiState.ultimaActualizacion ?: return
 
     Scaffold(
-        // AppNavegacion ya gestiona los insets del sistema.
+        // AppNavegación ya gestiona los insets del sistema.
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         // ----- appbar -----
         topBar = {
@@ -150,13 +115,13 @@ private fun HomeContent(
                     uiState.resumen.porcentajeCumplimiento
             )
         }
-    ) { paddingInterno ->
+    ) { innerPadding ->
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingInterno)
-                .consumeWindowInsets(paddingInterno)
+                .padding(innerPadding)
+                .consumeWindowInsets(innerPadding)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(
                 Theme.dimens.spacingM
@@ -216,11 +181,8 @@ private fun HomeContent(
 }
 
 
-
-@Preview(
-    showSystemUi = true,
-    showBackground = true
-)
+// ----------------- PREVIEWS -----------------
+@Preview(showSystemUi = true, showBackground = true)
 @Preview(
     showSystemUi = true,
     uiMode = Configuration.UI_MODE_NIGHT_YES,
@@ -228,13 +190,40 @@ private fun HomeContent(
 )
 @Composable
 private fun HomeScreenPreview() {
-
-    val viewModel = remember { HomeViewModel() }
+    // datos solo para visualizar el composable sin acceder a room
+    val ejemplo = CompromisoInicio(
+        id = "CP-2026-0102",
+        organizacion = "Club Los Halcones",
+        siglaOrganizacion = "CL",
+        concepto = "Cuota social octubre",
+        numeroCuota = 10,
+        totalCuotas = 12,
+        fechaVencimiento = LocalDate.of(2026, 10, 5),
+        monto = 15_000L,
+        recargo = 2_000L,
+        estado = EstadoCompromiso.VENCIDO
+    )
 
     PagoFlexTheme {
-        // Este Preview no se renderiza dentro del Scaffold de AppNavegacion.
         Box(Modifier.statusBarsPadding()) {
-            HomeScreen(viewModel = viewModel)
+            HomeContent(
+                uiState = HomeUiState(
+                    nombreUsuario = "Camila",
+                    periodo = YearMonth.of(2026, 10),
+                    resumen = ResumenInicio(
+                        totalPorPagar = ejemplo.total,
+                        totalRecargos = ejemplo.recargo,
+                        cantidadCompromisos = 1,
+                        cantidadOrganizaciones = 1,
+                        cantidadVencidos = 1,
+                        vencidoDestacado = ejemplo
+                    ),
+                    compromisos = listOf(ejemplo),
+                    ultimaActualizacion = LocalDateTime.of(2026, 10, 6, 8, 12)
+                ),
+                onVerTodos = {},
+                onVerCompromiso = {}
+            )
         }
     }
 }

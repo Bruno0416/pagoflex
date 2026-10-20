@@ -1,4 +1,4 @@
-package com.pagoflex.app.features.home.ui.components
+package com.pagoflex.app.features.home.presentation.components
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
@@ -12,6 +12,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -21,13 +23,12 @@ import com.pagoflex.app.core.ui.components.containers.Card
 import com.pagoflex.app.core.ui.components.model.ComponentVariant
 import com.pagoflex.app.core.ui.theme.CardShapeMedium
 import com.pagoflex.app.core.ui.theme.Dimens.radiusM
-import com.pagoflex.app.core.ui.theme.Dimens.spacingM
 import com.pagoflex.app.core.ui.theme.Dimens.spacingS
 import com.pagoflex.app.core.ui.theme.PagoFlexTheme
 import com.pagoflex.app.core.ui.theme.Theme
-import com.pagoflex.app.features.home.model.CompromisoInicio
-import com.pagoflex.app.features.home.model.EstadoCompromiso
-import com.pagoflex.app.features.home.model.ResumenInicio
+import com.pagoflex.app.features.home.presentation.model.CompromisoInicio
+import com.pagoflex.app.features.home.presentation.model.EstadoCompromiso
+import com.pagoflex.app.features.home.presentation.model.ResumenInicio
 import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.YearMonth
@@ -52,16 +53,18 @@ fun CardResumen(
         modifier = modifier,
         shape = CardShapeMedium,
         colors = CardDefaults.cardColors(
-            containerColor = Theme.colores.primaryContainer,
-            contentColor = Theme.colores.onPrimaryContainer
+            containerColor = Theme.colores.primary,
+            contentColor = Theme.colores.onPrimary
         ),
     ) {
-        Column(modifier = Modifier
-            .padding(Theme.dimens.spacingM)
-            .fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .padding(Theme.dimens.spacingM)
+                .fillMaxWidth()
+        ) {
             // ---- sección por pagar ----
             Text(
-                "Por pagar en $nombreMes",
+                stringResource(R.string.home_por_pagar_mes, nombreMes),
                 style = Theme.type.bodyMedium
             )
 
@@ -83,8 +86,20 @@ fun CardResumen(
 
             // ---- cantidades ----
             Text(
-                "${resumen.cantidadCompromisos} compromisos - ${resumen.cantidadOrganizaciones} organizaciones",
-                style = Theme.type.bodySmall.copy(color = Theme.colores.onSurfaceVariant)
+                stringResource(
+                    R.string.home_separador_cantidades,
+                    pluralStringResource(
+                        R.plurals.home_cantidad_compromisos,
+                        resumen.cantidadCompromisos,
+                        resumen.cantidadCompromisos
+                    ),
+                    pluralStringResource(
+                        R.plurals.home_cantidad_organizaciones,
+                        resumen.cantidadOrganizaciones,
+                        resumen.cantidadOrganizaciones
+                    )
+                ),
+                style = Theme.type.bodySmall
             )
 
             Spacer(
@@ -96,20 +111,28 @@ fun CardResumen(
                 CardInfo(
                     shape = RoundedCornerShape(radiusM - spacingS),
                     colores = CardDefaults.cardColors(
-                        containerColor = Theme.colores.secondaryContainer,
-                        contentColor = Theme.colores.onSecondaryContainer
+                        containerColor = Theme.colores.primaryContainer,
+                        contentColor = Theme.colores.onPrimaryContainer
                     ),
                     icono = painterResource(R.drawable.ic_calendar_month),
                     contenido = {
                         Text(
-                            "Proximo vencimiento: ${compromiso.fechaVencimiento.format("dd-MM-yyyy")}",
+                            stringResource(
+                                R.string.home_proximo_vencimiento,
+                                compromiso.fechaVencimiento.format("dd-MM-yyyy")
+                            ),
                             style = Theme.type.bodyMedium
                         )
                         Spacer(
                             Modifier.size(Theme.dimens.spacingXXS)
                         )
                         Text(
-                            "${compromiso.concepto} ${compromiso.organizacion} ${compromiso.monto.toCLP()}",
+                            stringResource(
+                                R.string.home_proximo_detalle,
+                                compromiso.concepto,
+                                compromiso.organizacion,
+                                compromiso.monto.toCLP()
+                            ),
                             style = Theme.type.bodyMedium
                         )
                     }
@@ -131,7 +154,7 @@ private fun Long.toCLP(
 }
 
 
-private fun LocalDate.format(patron:String  = "dd/MM"): String {
+private fun LocalDate.format(patron: String = "dd/MM"): String {
     return this.format(
         DateTimeFormatter.ofPattern(patron)
     )

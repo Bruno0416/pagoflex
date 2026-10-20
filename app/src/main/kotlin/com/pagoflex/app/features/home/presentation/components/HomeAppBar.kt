@@ -1,8 +1,12 @@
-
-package com.pagoflex.app.features.home.ui.components
+package com.pagoflex.app.features.home.presentation.components
 
 import android.content.res.Configuration
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
@@ -11,23 +15,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.pagoflex.app.R
 import com.pagoflex.app.core.ui.theme.PagoFlexTheme
 import com.pagoflex.app.core.ui.theme.Theme
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import com.pagoflex.app.R
 
 @Composable
 fun HomeAppBar(
     modifier: Modifier = Modifier,
     nombreUsuario: String,
     ultimaActualizacion: LocalDateTime,
-    porcentajeCompletado: Double
+    porcentajeCompletado: Double?
 ) {
     // 1. formatear fecha
     val fecha = ultimaActualizacion.format(
@@ -35,11 +40,18 @@ fun HomeAppBar(
     )
 
     // 2. formatear porcentaje
-    val porcentaje = String.format(
-        Locale.forLanguageTag("es-CL"),
-        "%.1f",
-        porcentajeCompletado
-    )
+    val estadoCumplimiento = porcentajeCompletado?.let { porcentaje ->
+        val categoria = when {
+            porcentaje >= 95.0 -> stringResource(R.string.home_cumplimiento_ejemplar)
+            porcentaje >= 80.0 -> stringResource(R.string.home_cumplimiento_al_dia)
+            else -> stringResource(R.string.home_cumplimiento_en_camino)
+        }
+        stringResource(
+            R.string.home_cumplimiento_porcentaje,
+            String.format(Locale.forLanguageTag("es-CL"), "%.1f", porcentaje),
+            categoria
+        )
+    } ?: stringResource(R.string.home_cumplimiento_historial_parcial)
 
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -49,7 +61,7 @@ fun HomeAppBar(
         Column(modifier = Modifier.weight(1f)) {
 
             Text(
-                text = "Hola, $nombreUsuario",
+                text = stringResource(R.string.home_saludo, nombreUsuario),
                 style = Theme.type.headlineLarge.copy(
                     fontWeight = FontWeight.Bold
                 ),
@@ -103,7 +115,7 @@ fun HomeAppBar(
                 Spacer(Modifier.size(Theme.dimens.spacingXS))
 
                 Text(
-                    text = "$porcentaje% · Al día",
+                    text = estadoCumplimiento,
                     style = Theme.type.bodyMedium.copy(
                         fontWeight = FontWeight.SemiBold
                     )
