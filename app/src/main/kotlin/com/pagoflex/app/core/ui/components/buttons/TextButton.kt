@@ -8,7 +8,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton as MaterialTextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,6 +19,7 @@ import com.pagoflex.app.core.ui.components.model.buttonSize
 import com.pagoflex.app.core.ui.theme.ButtonShape
 import com.pagoflex.app.core.ui.theme.PagoFlexTheme
 import com.pagoflex.app.core.ui.theme.Theme
+import androidx.compose.material3.TextButton as MaterialTextButton
 
 
 @Composable
@@ -30,7 +30,7 @@ fun TextButton(
     variant: ComponentVariant = ComponentVariant.Primary,
     size: ComponentSize = ComponentSize.Default,
     content: @Composable RowScope.() -> Unit,
-){
+) {
     val colores = when (variant) {
         ComponentVariant.Primary -> ButtonDefaults.textButtonColors(
             contentColor = Theme.colores.primary,
@@ -61,7 +61,7 @@ fun TextButton(
             ComponentSize.Default -> Theme.dimens.paddingButton
             ComponentSize.Small -> Theme.dimens.paddingButtonSmall
         },
-    ){
+    ) {
         content()
     }
 }
@@ -76,7 +76,7 @@ fun TextButton(
     showBackground = true
 )
 @Composable
-private fun PrimaryButtonPreview(){
+private fun PrimaryButtonPreview() {
     PagoFlexTheme {
         Card(shape = RoundedCornerShape(0)) {
             TextButton(
@@ -102,8 +102,8 @@ private fun PrimaryButtonPreview(){
     showBackground = true
 )
 @Composable
-private fun SecondaryButtonPreview(){
-    PagoFlexTheme{
+private fun SecondaryButtonPreview() {
+    PagoFlexTheme {
         Surface {
             TextButton(
                 modifier = Modifier.padding(16.dp),
@@ -125,8 +125,8 @@ private fun SecondaryButtonPreview(){
     showBackground = true
 )
 @Composable
-private fun DestructiveButtonPreview(){
-    PagoFlexTheme{
+private fun DestructiveButtonPreview() {
+    PagoFlexTheme {
         Surface {
             TextButton(
                 modifier = Modifier.padding(16.dp),
@@ -149,8 +149,8 @@ private fun DestructiveButtonPreview(){
     showBackground = true
 )
 @Composable
-private fun PrimaryButtonPreviewSmall(){
-    PagoFlexTheme{
+private fun PrimaryButtonPreviewSmall() {
+    PagoFlexTheme {
         Surface {
             TextButton(
                 modifier = Modifier.padding(16.dp),
@@ -173,8 +173,8 @@ private fun PrimaryButtonPreviewSmall(){
     showBackground = true
 )
 @Composable
-private fun SecondaryButtonPreviewSmall(){
-    PagoFlexTheme{
+private fun SecondaryButtonPreviewSmall() {
+    PagoFlexTheme {
         Surface {
             TextButton(
                 modifier = Modifier.padding(16.dp),
@@ -196,8 +196,8 @@ private fun SecondaryButtonPreviewSmall(){
     showBackground = true
 )
 @Composable
-private fun DestructiveButtonPreviewSmall(){
-    PagoFlexTheme{
+private fun DestructiveButtonPreviewSmall() {
+    PagoFlexTheme {
         Surface {
             TextButton(
                 modifier = Modifier.padding(16.dp),

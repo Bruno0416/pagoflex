@@ -10,6 +10,7 @@ import androidx.sqlite.driver.AndroidSQLiteDriver
 import com.pagoflex.app.core.data.local.converters.FechaConverters
 import com.pagoflex.app.core.data.local.dao.AnulacionDao
 import com.pagoflex.app.core.data.local.dao.CompromisoDao
+import com.pagoflex.app.core.data.local.dao.CredencialDao
 import com.pagoflex.app.core.data.local.dao.EmpresaClienteDao
 import com.pagoflex.app.core.data.local.dao.PagoDao
 import com.pagoflex.app.core.data.local.dao.RecomendacionDao
@@ -23,6 +24,7 @@ import com.pagoflex.app.core.data.local.entities.Canal
 import com.pagoflex.app.core.data.local.entities.Compromiso
 import com.pagoflex.app.core.data.local.entities.Comuna
 import com.pagoflex.app.core.data.local.entities.ContactoRecomendacion
+import com.pagoflex.app.core.data.local.entities.Credencial
 import com.pagoflex.app.core.data.local.entities.EmpresaCliente
 import com.pagoflex.app.core.data.local.entities.EstadoCompromiso
 import com.pagoflex.app.core.data.local.entities.EstadoRecomendacion
@@ -42,6 +44,7 @@ import com.pagoflex.app.core.data.local.entities.UsuarioReconocimiento
 
 @Database(
     entities = [
+        Credencial::class,
         Rol::class,
         Usuario::class,
         EmpresaCliente::class,
@@ -65,12 +68,13 @@ import com.pagoflex.app.core.data.local.entities.UsuarioReconocimiento
         EstadoReporte::class,
         EstadoRecomendacion::class
     ],
-    version = LocalDatabase.VERSION_INICIAL,
+    version = LocalDatabase.VERSION_DB,
     exportSchema = true
 )
 @ColumnTypeConverters(FechaConverters::class)
 abstract class LocalDatabase : RoomDatabase() {
     // ---------- registro de daos ----------
+    abstract fun credencialDao(): CredencialDao
     abstract fun referenciasDao(): ReferenciaDao
     abstract fun usuarioDao(): UsuarioDao
     abstract fun empresaClienteDao(): EmpresaClienteDao
@@ -83,7 +87,7 @@ abstract class LocalDatabase : RoomDatabase() {
 
     // ---------- instancia compartida ----------
     companion object {
-        const val VERSION_INICIAL = 1
+        const val VERSION_DB = 2
         private const val NOMBRE_DB = "pagoflex.db"
 
         private var instancia: LocalDatabase? = null

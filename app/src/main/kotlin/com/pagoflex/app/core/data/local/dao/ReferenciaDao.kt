@@ -2,6 +2,7 @@ package com.pagoflex.app.core.data.local.dao
 
 import androidx.room3.Dao
 import androidx.room3.Insert
+import androidx.room3.Query
 import com.pagoflex.app.core.data.local.entities.Area
 import com.pagoflex.app.core.data.local.entities.Canal
 import com.pagoflex.app.core.data.local.entities.Comuna
@@ -18,6 +19,14 @@ import com.pagoflex.app.core.data.local.entities.Rubro
 interface ReferenciaDao {
     @Insert
     suspend fun insertarRoles(rol: List<Rol>): List<Long>
+
+    @Query(
+        """
+        SELECT id_rol FROM rol WHERE codigo = :codigo
+    """
+    )
+    suspend fun obtenerIdRolPorCodigo(codigo: String): Int?
+
 
     @Insert
     suspend fun insertarComunas(comuna: List<Comuna>): List<Long>

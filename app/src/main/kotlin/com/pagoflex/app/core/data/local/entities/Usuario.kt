@@ -5,8 +5,8 @@ import androidx.room3.Entity
 import androidx.room3.ForeignKey
 import androidx.room3.Index
 import androidx.room3.PrimaryKey
-import java.time.LocalDateTime
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 // personas que ingresan a la app; los datos propios de cada rol son opcionales
 @Entity(

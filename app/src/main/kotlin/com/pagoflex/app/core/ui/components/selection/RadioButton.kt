@@ -6,9 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.RadioButton as MaterialRadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -22,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.pagoflex.app.core.ui.components.model.ComponentVariant
 import com.pagoflex.app.core.ui.theme.PagoFlexTheme
 import com.pagoflex.app.core.ui.theme.Theme
+import androidx.compose.material3.RadioButton as MaterialRadioButton
 
 @Composable
 fun RadioButton(

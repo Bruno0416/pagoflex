@@ -5,8 +5,8 @@ import androidx.room3.Entity
 import androidx.room3.ForeignKey
 import androidx.room3.Index
 import androidx.room3.PrimaryKey
-import java.time.LocalDateTime
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 // obligacion de pago de un usuario final con una empresa cliente
 @Entity(
@@ -35,7 +35,10 @@ import java.time.LocalDate
     ],
     indices = [
         Index(value = ["folio"], unique = true),
-        Index(value = ["id_usuario_final", "id_empresa", "concepto", "numero_cuota"], unique = true),
+        Index(
+            value = ["id_usuario_final", "id_empresa", "concepto", "numero_cuota"],
+            unique = true
+        ),
         Index(value = ["id_empresa"]),
         Index(value = ["id_estado_compromiso"]),
         Index(value = ["id_ejecutivo_registro"])

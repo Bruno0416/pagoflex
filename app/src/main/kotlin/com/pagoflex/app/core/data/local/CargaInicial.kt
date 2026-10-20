@@ -6,6 +6,7 @@ import com.pagoflex.app.core.data.local.entities.Canal
 import com.pagoflex.app.core.data.local.entities.Compromiso
 import com.pagoflex.app.core.data.local.entities.Comuna
 import com.pagoflex.app.core.data.local.entities.ContactoRecomendacion
+import com.pagoflex.app.core.data.local.entities.Credencial
 import com.pagoflex.app.core.data.local.entities.EmpresaCliente
 import com.pagoflex.app.core.data.local.entities.EstadoCompromiso
 import com.pagoflex.app.core.data.local.entities.EstadoRecomendacion
@@ -21,6 +22,7 @@ import com.pagoflex.app.core.data.local.entities.Rol
 import com.pagoflex.app.core.data.local.entities.Rubro
 import com.pagoflex.app.core.data.local.entities.Usuario
 import com.pagoflex.app.core.profiles.model.PerfilUsuario
+import com.pagoflex.app.core.security.PasswordHasher
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -28,6 +30,12 @@ internal class CargaInicial(
     private val db: LocalDatabase
 ) {
     // ---------- colecciones ----------
+    private val usuariosDemo = listOf(
+        "UF-01",
+        "AG-01",
+        "EJ-01"
+    )
+
     private val roles = listOf(
         Rol(
             codigo = PerfilUsuario.USUARIO_FINAL,
@@ -741,6 +749,16 @@ internal class CargaInicial(
             fecha = "2026-09-23",
             motivo = "La organización ya es cliente de PagoFlex"
         )
+
+        // 9. insertar credenciales usuarios demo
+        usuariosDemo.forEach { cod ->
+            val credencial = Credencial(
+                idUsuario = obtenerIdUsuario(cod),
+                passwordHash = PasswordHasher.genHash(("demo123")),
+            )
+
+            db.credencialDao().insertarCredencial(credencial)
+        }
     }
 
     // ---------- helpers privados ----------

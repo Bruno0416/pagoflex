@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- accesibilidad de componentes comunes -->
+    <string name="ui_ocultar_contrasena">Ocultar contraseña</string>
+    <string name="ui_mostrar_contrasena">Mostrar contraseña</string>
+</resources>
