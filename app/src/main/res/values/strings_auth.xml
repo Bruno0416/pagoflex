@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- login -->
+    <string name="auth_login_titulo">Iniciar sesión</string>
+    <string name="auth_login_descripcion">Ingresa tus datos para continuar en PagoFlex</string>
+    <string name="auth_login_correo">Correo electrónico</string>
+    <string name="auth_login_correo_placeholder">Ingresa tu correo</string>
+    <string name="auth_login_contrasena">Contraseña</string>
+    <string name="auth_login_contrasena_placeholder">Ingresa tu contraseña</string>
+    <string name="auth_login_sin_cuenta">¿Aún no tienes una cuenta?</string>
+    <string name="auth_login_crear_cuenta">Crear cuenta</string>
+    <string name="auth_login_boton">Iniciar sesión</string>
+
+    <!-- registro -->
+    <string name="auth_registro_titulo">Registrarse</string>
+    <string name="auth_registro_descripcion">Ingresa tus datos para registrarte en PagoFlex</string>
+    <string name="auth_registro_rut">RUT</string>
+    <string name="auth_registro_rut_placeholder">Ingresa tu RUT</string>
+    <string name="auth_registro_nombres">Nombres</string>
+    <string name="auth_registro_nombres_placeholder">Ingresa tus nombres</string>
+    <string name="auth_registro_apellidos">Apellidos</string>
+    <string name="auth_registro_apellidos_placeholder">Ingresa tus apellidos</string>
+    <string name="auth_registro_correo">Correo electrónico</string>
+    <string name="auth_registro_correo_placeholder">Ingresa tu correo</string>
+    <string name="auth_registro_contrasena">Contraseña</string>
+    <string name="auth_registro_contrasena_placeholder">Ingresa tu contraseña</string>
+    <string name="auth_registro_confirmar_contrasena">Confirmar contraseña</string>
+    <string name="auth_registro_confirmar_contrasena_placeholder">Confirma tu contraseña</string>
+    <string name="auth_registro_terminos_condiciones">Acepto los términos y condiciones</string>
+    <string name="auth_registro_ya_tengo_cuenta">¿Ya tienes una cuenta?</string>
+    <string name="auth_registro_iniciar_sesion">Iniciar sesión</string>
+    <string name="auth_registro_boton">Registrarse</string>
+
+
+    <!-- validaciones de auth -->
+    <string name="auth_error_correo_obligatorio">El correo es obligatorio</string>
+    <string name="auth_error_correo_invalido">Ingresa un correo válido</string>
+    <string name="auth_error_contrasena_obligatoria">La contraseña es obligatoria</string>
+    <string name="auth_error_contrasena_minima">La contraseña debe tener al menos 6 caracteres</string>
+    <string name="auth_error_confirmacion_obligatoria">La confirmación de contraseña es obligatoria</string>
+    <string name="auth_error_contrasenas_distintas">Las contraseñas no coinciden</string>
+    <string name="auth_error_rut_obligatorio">El RUT es obligatorio</string>
+    <string name="auth_error_rut_invalido">Ingresa un RUT válido</string>
+    <string name="auth_error_nombres_obligatorios">Los nombres son obligatorios</string>
+    <string name="auth_error_apellidos_obligatorios">Los apellidos son obligatorios</string>
+    <string name="auth_error_terminos_y_condiciones">Debes aceptar los términos y condiciones para continuar</string>
+
+    <!-- errores de autenticacion y sesion -->
+    <string name="auth_error_credenciales">Correo o contraseña incorrectos</string>
+    <string name="auth_error_iniciar_sesion">No se pudo iniciar sesión</string>
+    <string name="auth_error_restaurar_sesion">No se pudo obtener la sesión</string>
+    <string name="auth_error_registro">No se pudo registrar el usuario</string>
+</resources>
