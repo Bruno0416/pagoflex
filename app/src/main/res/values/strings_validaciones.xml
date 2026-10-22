@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- rut -->
+    <string name="val_rut_obligatorio">Ingresa el RUT</string>
+    <string name="val_rut_formato">El RUT no tiene un formato válido</string>
+    <string name="val_rut_dv">El dígito verificador no corresponde</string>
+    <string name="val_rut_no_usuario_final">Ese RUT no corresponde a un usuario final</string>
+
+    <!-- montos y fechas -->
+    <string name="val_monto_obligatorio">Ingresa el monto</string>
+    <string name="val_monto_entero">El monto debe ser un número entero, sin decimales</string>
+    <string name="val_monto_mayor_cero">El monto debe ser mayor que cero</string>
+    <string name="val_fecha_obligatoria">Ingresa la fecha</string>
+    <string name="val_fecha_formato">Usa el formato DD-MM-AAAA</string>
+    <string name="val_fecha_pasada">El vencimiento no puede ser anterior a hoy</string>
+
+    <!-- cuotas -->
+    <string name="val_cuota_incompleta">Ingresa la cuota y el total de cuotas</string>
+    <string name="val_cuota_mayor_cero">Las cuotas deben ser mayores que cero</string>
+    <string name="val_cuota_mayor_total">La cuota no puede ser mayor que el total</string>
+
+    <!-- textos -->
+    <string name="val_nombres_obligatorios">Ingresa los nombres</string>
+    <string name="val_apellidos_obligatorios">Ingresa los apellidos</string>
+    <string name="val_concepto_obligatorio">Ingresa el concepto</string>
+    <string name="val_comentario_otro">Cuando eliges \"Otro\" tienes que explicar el motivo</string>
+    <string name="val_correo_obligatorio">Ingresa el correo</string>
+    <string name="val_correo_invalido">El correo no tiene un formato válido</string>
+    <string name="val_telefono_obligatorio">Ingresa el teléfono</string>
+    <string name="val_telefono_invalido">El teléfono no tiene un formato válido</string>
+</resources>

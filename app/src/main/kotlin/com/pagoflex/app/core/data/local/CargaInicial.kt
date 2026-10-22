@@ -33,7 +33,9 @@ internal class CargaInicial(
     private val usuariosDemo = listOf(
         "UF-01",
         "AG-01",
-        "EJ-01"
+        "EJ-01",
+        // ejecutivo del instituto para probar la anulación del arancel (HU-11 CA-3)
+        "EJ-06"
     )
 
     private val roles = listOf(
@@ -759,6 +761,9 @@ internal class CargaInicial(
 
             db.credencialDao().insertarCredencial(credencial)
         }
+
+        // 10. completar la cobranza de septiembre de altos del maipo (HU-12)
+        CargaCobranzaSeptiembre(db).cargarDatos()
     }
 
     // ---------- helpers privados ----------

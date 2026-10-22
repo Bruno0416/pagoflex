@@ -35,4 +35,13 @@ interface UsuarioDao {
     )
     suspend fun obtenerNombreParaHome(usuarioId: Int): String?
 
+
+    // ---------- cobranza y reportes ----------
+
+    @Query("SELECT * FROM usuario WHERE id_usuario = :usuarioId LIMIT 1")
+    suspend fun obtenerPorId(usuarioId: Int): Usuario?
+
+    // el registro guarda el rut con puntos y guion: 15.834.207-3
+    @Query("SELECT * FROM usuario WHERE rut = :rut LIMIT 1")
+    suspend fun obtenerPorRut(rut: String): Usuario?
 }

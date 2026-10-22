@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- estados de reporte (RN-09) -->
+    <string name="cat_reporte_abierto">Abierto</string>
+    <string name="cat_reporte_en_gestion">En gestión</string>
+    <string name="cat_reporte_resuelto">Resuelto</string>
+    <string name="cat_reporte_atrasado">Atrasado</string>
+
+    <!-- motivos de reporte (RN-09) -->
+    <string name="cat_motivo_ya_pague">Ya pagué por otro medio</string>
+    <string name="cat_motivo_no_reconozco">No reconozco este cobro</string>
+    <string name="cat_motivo_monto">El monto no corresponde</string>
+    <string name="cat_motivo_otro">Otro</string>
+
+    <!-- motivos de anulación (RN-21) -->
+    <string name="cat_anulacion_repactacion">Repactación</string>
+    <string name="cat_anulacion_error_registro">Error de registro</string>
+    <string name="cat_anulacion_pagado_directo">Pagado directamente a la empresa</string>
+    <string name="cat_anulacion_otro">Otro</string>
+</resources>

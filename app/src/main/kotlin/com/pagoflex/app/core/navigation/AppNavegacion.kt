@@ -24,7 +24,8 @@ import com.pagoflex.app.core.profiles.model.PerfilUsuario
 fun AppNavegacion(
     perfilUsuario: PerfilUsuario,
     usuarioId: Int,
-    db: LocalDatabase
+    db: LocalDatabase,
+    onCerrarSesion: () -> Unit = {}
 ) {
     // recrear el grafo al cambiar de usuario
     key(perfilUsuario, usuarioId) {
@@ -107,9 +108,9 @@ fun AppNavegacion(
             ) {
                 // Un perfil solo registra sus propias rutas.
                 when (perfilUsuario) {
-                    PerfilUsuario.USUARIO_FINAL -> grafoUsuario(db, usuarioId)
-                    PerfilUsuario.AGENTE -> grafoAgente()
-                    PerfilUsuario.EJECUTIVO -> grafoEjecutivo()
+                    PerfilUsuario.USUARIO_FINAL -> grafoUsuario(db, usuarioId, navController, onCerrarSesion)
+                    PerfilUsuario.AGENTE -> grafoAgente(db, usuarioId, navController, onCerrarSesion)
+                    PerfilUsuario.EJECUTIVO -> grafoEjecutivo(db, usuarioId, navController, onCerrarSesion)
                 }
             }
         }

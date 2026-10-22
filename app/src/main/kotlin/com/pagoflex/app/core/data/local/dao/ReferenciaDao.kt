@@ -57,4 +57,30 @@ interface ReferenciaDao {
 
     @Insert
     suspend fun insertarEstadoRecomendacions(estadoRecomendacion: List<EstadoRecomendacion>): List<Long>
+
+    // ---------- ids de catálogos por nombre ----------
+
+    @Query("SELECT id_estado_compromiso FROM estado_compromiso WHERE nombre = :nombre")
+    suspend fun obtenerIdEstadoCompromiso(nombre: String): Int?
+
+    @Query("SELECT nombre FROM estado_compromiso WHERE id_estado_compromiso = :idEstado")
+    suspend fun obtenerNombreEstadoCompromiso(idEstado: Int): String?
+
+    @Query("SELECT id_estado_reporte FROM estado_reporte WHERE nombre = :nombre")
+    suspend fun obtenerIdEstadoReporte(nombre: String): Int?
+
+    @Query("SELECT id_motivo_reporte FROM motivo_reporte WHERE nombre = :nombre")
+    suspend fun obtenerIdMotivoReporte(nombre: String): Int?
+
+    @Query("SELECT id_motivo_anulacion FROM motivo_anulacion WHERE nombre = :nombre")
+    suspend fun obtenerIdMotivoAnulacion(nombre: String): Int?
+
+    @Query("SELECT id_comuna FROM comuna WHERE nombre = :nombre")
+    suspend fun obtenerIdComuna(nombre: String): Int?
+
+    @Query("SELECT id_canal FROM canal WHERE nombre = :nombre")
+    suspend fun obtenerIdCanal(nombre: String): Int?
+
+    @Query("SELECT id_medio_pago FROM medio_pago WHERE nombre = :nombre")
+    suspend fun obtenerIdMedioPago(nombre: String): Int?
 }

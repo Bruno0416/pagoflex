@@ -12,11 +12,18 @@ sealed class Ruta(val ruta: String) {
         fun crear(id: String) = "compromiso/$id"
     }
 
+    data object ReportarProblema : Ruta("compromiso/{folio}/reportar") {
+        fun crear(folio: String) = "compromiso/$folio/reportar"
+    }
+
 
     // Agente
     data object BandejaReportes : Ruta("agente/reportes")
 
     // --- rutas secundarias ---
+    data object DetalleReporte : Ruta("agente/reporte/{numero}") {
+        fun crear(numero: String) = "agente/reporte/$numero"
+    }
 
     // Ejecutivo
     data object ResumenCobranza : Ruta("ejecutivo/resumen")
@@ -24,5 +31,8 @@ sealed class Ruta(val ruta: String) {
     data object RegistrarCompromiso : Ruta("ejecutivo/registrar")
 
     // --- rutas secundarias ---
+    data object DetalleCompromisoEmpresa : Ruta("ejecutivo/compromiso/{folio}") {
+        fun crear(folio: String) = "ejecutivo/compromiso/$folio"
+    }
 
 }
