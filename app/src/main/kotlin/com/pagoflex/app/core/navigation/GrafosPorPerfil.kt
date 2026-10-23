@@ -14,6 +14,10 @@ import com.pagoflex.app.features.cobranza.presentation.screens.DetalleCompromiso
 import com.pagoflex.app.features.cobranza.presentation.screens.RegistrarCompromisoScreen
 import com.pagoflex.app.features.cobranza.presentation.screens.ResumenCobranzaScreen
 import com.pagoflex.app.features.home.presentation.screens.HomeScreen
+import com.pagoflex.app.features.reportes.presentation.screens.BandejaReportesScreen
+import com.pagoflex.app.features.reportes.presentation.screens.DetalleReporteScreen
+import com.pagoflex.app.features.reportes.presentation.screens.MisReportesScreen
+import com.pagoflex.app.features.reportes.presentation.screens.ReportarProblemaScreen
 
 // Usuarios finales
 fun NavGraphBuilder.grafoUsuario(
@@ -28,8 +32,14 @@ fun NavGraphBuilder.grafoUsuario(
     composable(Ruta.Historial.ruta) {
         Text(stringResource(R.string.nav_historial_pendiente))
     }
+    // ayuda: reportes de problema del usuario (HU-06)
     composable(Ruta.Ayuda.ruta) {
-        Text(stringResource(R.string.nav_ayuda))
+        MisReportesScreen(
+            db = db,
+            usuarioId = usuarioId,
+            onReportar = { folio -> navController.navigate(Ruta.ReportarProblema.crear(folio)) },
+            onCerrarSesion = onCerrarSesion
+        )
     }
     composable(Ruta.Avisos.ruta) {
         Text(stringResource(R.string.nav_avisos))
@@ -41,6 +51,17 @@ fun NavGraphBuilder.grafoUsuario(
         val id = entrada.arguments?.getString("id").orEmpty()
         Text(stringResource(R.string.nav_detalle_compromiso, id))
     }
+    composable(
+        route = Ruta.ReportarProblema.ruta,
+        arguments = listOf(navArgument("folio") { type = NavType.StringType })
+    ) { entrada ->
+        ReportarProblemaScreen(
+            db = db,
+            usuarioId = usuarioId,
+            folio = entrada.arguments?.getString("folio").orEmpty(),
+            onVolver = { navController.popBackStack() }
+        )
+    }
 }
 
 // Agentes
@@ -50,8 +71,25 @@ fun NavGraphBuilder.grafoAgente(
     navController: NavHostController,
     onCerrarSesion: () -> Unit
 ) {
+    // bandeja de reportes (HU-10)
     composable(Ruta.BandejaReportes.ruta) {
-        Text(stringResource(R.string.nav_bandeja_reportes_pendiente))
+        BandejaReportesScreen(
+            db = db,
+            usuarioId = usuarioId,
+            onVerReporte = { numero -> navController.navigate(Ruta.DetalleReporte.crear(numero)) },
+            onCerrarSesion = onCerrarSesion
+        )
+    }
+    composable(
+        route = Ruta.DetalleReporte.ruta,
+        arguments = listOf(navArgument("numero") { type = NavType.StringType })
+    ) { entrada ->
+        DetalleReporteScreen(
+            db = db,
+            usuarioId = usuarioId,
+            numero = entrada.arguments?.getString("numero").orEmpty(),
+            onVolver = { navController.popBackStack() }
+        )
     }
 }
 
