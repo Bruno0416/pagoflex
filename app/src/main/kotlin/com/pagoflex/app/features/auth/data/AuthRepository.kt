@@ -2,11 +2,11 @@ package com.pagoflex.app.features.auth.data
 
 import androidx.room3.withWriteTransaction
 import com.pagoflex.app.core.data.local.LocalDatabase
-import com.pagoflex.app.core.data.local.entities.Credencial
 import com.pagoflex.app.core.data.local.entities.Usuario
 import com.pagoflex.app.core.profiles.model.PerfilUsuario
 import com.pagoflex.app.core.profiles.model.SesionUsuario
-import com.pagoflex.app.core.security.PasswordHasher
+import com.pagoflex.app.core.security.Hasher
+import com.pagoflex.app.features.auth.presentation.validators.AuthValidators
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
@@ -16,23 +16,21 @@ class AuthRepository(
 ) {
     // --------------- login ---------------
     suspend fun iniciarSesion(correo: String, contrasena: String): SesionUsuario? {
-        // 1. buscar credencial por correo
-        val credencial =
-            db.credencialDao().obtenerPorCorreo(correo.trim().lowercase()) ?: return null
+        // 1. buscar acceso por correo
+        val acceso = db.usuarioDao().obtenerAccesoPorCorreo(correo.trim().lowercase())
+            ?: return null
+        val hash = acceso.passwordHash ?: return null
 
-        // 2. verificar contraseña
+        // 2. verificar contrasena
         val esValida = withContext(Dispatchers.Default) {
-            PasswordHasher.verificar(
-                contrasena,
-                credencial.passwordHash
-            )
+            Hasher.verificar(contrasena, hash)
         }
 
-        // 3. retornar null si no es válido
+        // 3. retornar null si no es valido
         if (!esValida) return null
 
-        // 4. retornar sesión del usuario (id + rol)
-        return db.usuarioDao().obtenerSesionUsuario(credencial.idUsuario)
+        // 4. retornar sesion del usuario (id + rol)
+        return db.usuarioDao().obtenerSesionUsuario(acceso.idUsuario)
     }
 
     suspend fun obtenerSesion(usuarioId: Int): SesionUsuario? {
@@ -45,23 +43,27 @@ class AuthRepository(
         nombres: String,
         apellidos: String,
         correo: String,
-        contrasena: String
+        contrasena: String,
+        idPreguntaRecuperacion: Int,
+        respuestaRecuperacion: String
     ) {
-        // 1. hashear contrasena
+        // 1. hashear contrasena y respuesta
         val contrasenaHash = withContext(Dispatchers.Default) {
-            PasswordHasher.genHash(contrasena)
+            Hasher.genHash(contrasena)
+        }
+        val respuestaHash = withContext(Dispatchers.Default) {
+            Hasher.genHash(AuthValidators.normalizarRespuesta(respuestaRecuperacion))
         }
 
-
-        // 3. insertar usuario (en una operación transaccional)
+        // 2. insertar usuario en una operación transaccional
         db.withWriteTransaction {
             // obtener id rol
             val idRol = db.referenciasDao()
                 .obtenerIdRolPorCodigo(PerfilUsuario.USUARIO_FINAL.name)
                 ?: throw Exception("No se encontró el rol USUARIO_FINAL")
 
-            // insertar usuario
-            val idUsuario = db.usuarioDao().insertarUsuario(
+            // insertar usuario con su acceso
+            db.usuarioDao().insertarUsuario(
                 Usuario(
                     idRol = idRol,
                     rut = rut,
@@ -69,17 +71,48 @@ class AuthRepository(
                     apellidos = apellidos,
                     correo = correo,
                     activo = true,
-                    fechaCreacion = LocalDateTime.now()
-                )
-            ).toInt()
-
-            // guardar credencial
-            db.credencialDao().insertarCredencial(
-                Credencial(
-                    idUsuario = idUsuario,
-                    passwordHash = contrasenaHash
+                    fechaCreacion = LocalDateTime.now(),
+                    passwordHash = contrasenaHash,
+                    idPreguntaRecuperacion = idPreguntaRecuperacion,
+                    respuestaRecuperacionHash = respuestaHash
                 )
             )
         }
+    }
+
+    // --------------- recuperación ---------------
+    suspend fun obtenerPreguntas() = db.preguntaRecuperacionDao().obtenerPreguntas()
+
+    suspend fun validarIdentidadRecuperacion(
+        correo: String,
+        idPregunta: Int,
+        respuesta: String
+    ): Boolean {
+        val acceso = db.usuarioDao().obtenerAccesoPorCorreo(correo.trim().lowercase())
+            ?: return false
+        if (acceso.idPreguntaRecuperacion != idPregunta) return false
+        val hashRespuesta = acceso.respuestaRecuperacionHash ?: return false
+
+        return withContext(Dispatchers.Default) {
+            Hasher.verificar(AuthValidators.normalizarRespuesta(respuesta), hashRespuesta)
+        }
+    }
+
+    suspend fun restablecerContrasena(
+        correo: String,
+        idPregunta: Int,
+        respuesta: String,
+        nuevaContrasena: String
+    ): Boolean {
+        // 1. verificar de nuevo la pregunta y respuesta
+        if (!validarIdentidadRecuperacion(correo, idPregunta, respuesta)) return false
+
+        // 2. actualizar la contrasena solo si la identidad coincide
+        val acceso = db.usuarioDao().obtenerAccesoPorCorreo(correo.trim().lowercase())
+            ?: return false
+        val nuevoHash = withContext(Dispatchers.Default) {
+            Hasher.genHash(nuevaContrasena)
+        }
+        return db.usuarioDao().actualizarContrasena(acceso.idUsuario, nuevoHash) > 0
     }
 }

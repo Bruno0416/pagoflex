@@ -46,11 +46,6 @@ class LoginViewModel(private val authRepository: AuthRepository) : ViewModel() {
         _uiState.update { it.copy(errorContrasena = error) }
     }
 
-    fun alternarVisibilidad() {
-        _uiState.update {
-            it.copy(contrasenaVisible = !it.contrasenaVisible)
-        }
-    }
 
     fun iniciarSesion(crearSesion: (SesionUsuario) -> Unit) {
         // 1. congelar estado

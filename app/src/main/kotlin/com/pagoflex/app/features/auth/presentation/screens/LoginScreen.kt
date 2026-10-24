@@ -3,9 +3,9 @@ package com.pagoflex.app.features.auth.presentation.screens
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -15,16 +15,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.pagoflex.app.R
 import com.pagoflex.app.core.profiles.model.SesionUsuario
 import com.pagoflex.app.core.ui.components.buttons.Button
-import com.pagoflex.app.core.ui.components.feedback.LoadingIndicator
 import com.pagoflex.app.core.ui.components.inputs.TextField
 import com.pagoflex.app.core.ui.theme.PagoFlexTheme
 import com.pagoflex.app.core.ui.theme.Theme
+import com.pagoflex.app.features.auth.presentation.components.Logo
 import com.pagoflex.app.features.auth.presentation.components.TextoEnlace
 import com.pagoflex.app.features.auth.presentation.model.LoginUiState
 import com.pagoflex.app.features.auth.presentation.viewmodel.LoginViewModel
@@ -34,6 +33,7 @@ fun LoginScreen(
     viewModel: LoginViewModel,
     crearSesion: (SesionUsuario) -> Unit,
     irARegistro: () -> Unit,
+    irARecuperar: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -45,6 +45,7 @@ fun LoginScreen(
         validarContrasenaField = viewModel::validarContrasenaField,
         iniciarSesion = { viewModel.iniciarSesion(crearSesion) },
         irARegistro = irARegistro,
+        irARecuperar = irARecuperar,
     )
 }
 
@@ -57,7 +58,8 @@ private fun LoginContent(
     setContrasena: (String) -> Unit,
     validarContrasenaField: () -> Unit,
     iniciarSesion: () -> Unit,
-    irARegistro: () -> Unit
+    irARegistro: () -> Unit,
+    irARecuperar: () -> Unit
 ) {
     Scaffold { innerPadding ->
         Column(
@@ -69,6 +71,11 @@ private fun LoginContent(
                 Modifier.size(Theme.dimens.spacingXXL)
             )
 
+            Logo()
+
+            Spacer(
+                Modifier.size(Theme.dimens.spacingXL)
+            )
 
             Text(stringResource(R.string.auth_login_titulo), style = Theme.type.headlineLarge)
 
@@ -135,6 +142,14 @@ private fun LoginContent(
                 )
             }
 
+            Spacer(Modifier.size(Theme.dimens.spacingM))
+
+            TextoEnlace(
+                texto = "",
+                textoEnlace = stringResource(R.string.auth_login_recuperar_contrasena),
+                onClick = irARecuperar
+            )
+
             Spacer(
                 Modifier.size(Theme.dimens.spacingXXL)
             )
@@ -144,7 +159,7 @@ private fun LoginContent(
                 enabled = !uiState.cargando
             ) {
                 if (uiState.cargando) {
-                    LoadingIndicator()
+                    CircularProgressIndicator()
                 } else Text(stringResource(R.string.auth_login_boton))
             }
 
@@ -158,38 +173,12 @@ private fun LoginContent(
                 onClick = irARegistro
             )
 
-            Spacer(
-                Modifier.size(Theme.dimens.spacingXXL)
-            )
-
-            // ---- usuarios demo a usar ----
-            Text(
-                text = "Usuario Final: crojas@correo.ejemplo",
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                style = Theme.type.bodyMedium.copy(
-                    color = Theme.colores.onSurfaceVariant
-                )
-            )
-
-            Spacer(
-                Modifier.size(Theme.dimens.spacingS)
-            )
-
-            Text(
-                text = "Ejecutivo: psaavedra@altosmaipo.ejemplo",
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                style = Theme.type.bodyMedium.copy(
-                    color = Theme.colores.onSurfaceVariant
-                )
-            )
         }
     }
 }
 
 
-// ----------------- PREVIEW -----------------
+// ---------- preview ----------
 @Preview(
     showBackground = true
 )
@@ -207,7 +196,8 @@ private fun PreviewLoginContent() {
             setContrasena = {},
             validarContrasenaField = {},
             iniciarSesion = {},
-            irARegistro = {}
+            irARegistro = {},
+            irARecuperar = {}
         )
     }
 }

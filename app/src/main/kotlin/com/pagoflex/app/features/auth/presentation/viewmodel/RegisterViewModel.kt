@@ -16,6 +16,18 @@ class RegisterViewModel(private val authRepository: AuthRepository) : ViewModel(
     private val _uiState = MutableStateFlow(RegisterUiState())
     val uiState: StateFlow<RegisterUiState> = _uiState
 
+    init {
+        viewModelScope.launch {
+            try {
+                _uiState.update { it.copy(preguntas = authRepository.obtenerPreguntas()) }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                _uiState.update { it.copy(errorRegistro = R.string.auth_error_registro) }
+            }
+        }
+    }
+
     // --- rut ---
     fun setRut(rut: String) {
         _uiState.update { it.copy(rut = rut, errorRut = null, errorRegistro = null) }
@@ -104,6 +116,32 @@ class RegisterViewModel(private val authRepository: AuthRepository) : ViewModel(
     }
 
     // --- terminos y condiciones ---
+    fun setPreguntaRecuperacion(idPregunta: Int) {
+        _uiState.update {
+            it.copy(
+                idPreguntaRecuperacion = idPregunta,
+                errorPreguntaRecuperacion = null,
+                errorRegistro = null
+            )
+        }
+    }
+
+    fun setRespuestaRecuperacion(respuesta: String) {
+        _uiState.update {
+            it.copy(
+                respuestaRecuperacion = respuesta,
+                errorRespuestaRecuperacion = null,
+                errorRegistro = null
+            )
+        }
+    }
+
+    fun validarRespuestaRecuperacionField() {
+        val error = AuthValidators.validarRespuestaRecuperacion(uiState.value.respuestaRecuperacion)
+        _uiState.update { it.copy(errorRespuestaRecuperacion = error) }
+    }
+
+    // --- terminos y condiciones ---
     fun setTerminosYCondiciones(value: Boolean) {
         _uiState.update {
             it.copy(
@@ -124,6 +162,8 @@ class RegisterViewModel(private val authRepository: AuthRepository) : ViewModel(
         val correo = estado.correo.trim()
         val contrasena = estado.contrasena
         val confirmarContrasena = estado.confirmarContrasena
+        val idPreguntaRecuperacion = estado.idPreguntaRecuperacion
+        val respuestaRecuperacion = estado.respuestaRecuperacion
 
         val terminosYCondiciones = estado.terminosYCondiciones
 
@@ -138,9 +178,13 @@ class RegisterViewModel(private val authRepository: AuthRepository) : ViewModel(
         val errorContrasena = AuthValidators.validarContrasena(contrasena)
         val errorConfirmarContrasena =
             AuthValidators.validarConfirmarContrasena(contrasena, confirmarContrasena)
+        val errorPreguntaRecuperacion =
+            AuthValidators.validarPreguntaRecuperacion(idPreguntaRecuperacion)
+        val errorRespuestaRecuperacion =
+            AuthValidators.validarRespuestaRecuperacion(respuestaRecuperacion)
 
         // 4. si alguno de los campos es inválido, mostrar estado y cancelar operación
-        if (errorRut != null || errorNombres != null || errorApellidos != null || errorCorreo != null || errorContrasena != null || errorConfirmarContrasena != null || !terminosYCondiciones) {
+        if (errorRut != null || errorNombres != null || errorApellidos != null || errorCorreo != null || errorContrasena != null || errorConfirmarContrasena != null || errorPreguntaRecuperacion != null || errorRespuestaRecuperacion != null || !terminosYCondiciones) {
             _uiState.update {
                 it.copy(
                     errorRut = errorRut,
@@ -149,6 +193,8 @@ class RegisterViewModel(private val authRepository: AuthRepository) : ViewModel(
                     errorCorreo = errorCorreo,
                     errorContrasena = errorContrasena,
                     errorConfirmarContrasena = errorConfirmarContrasena,
+                    errorPreguntaRecuperacion = errorPreguntaRecuperacion,
+                    errorRespuestaRecuperacion = errorRespuestaRecuperacion,
                     errorTerminosYCondiciones = if (terminosYCondiciones) null else R.string.auth_error_terminos_y_condiciones
                 )
             }
@@ -163,12 +209,14 @@ class RegisterViewModel(private val authRepository: AuthRepository) : ViewModel(
         viewModelScope.launch {
             try {
                 // el repositorio se encarga de hashear la contrasena
-                val usuario = authRepository.registrarUsuario(
+                authRepository.registrarUsuario(
                     AuthValidators.normalizarRut(rut),
                     nombres,
                     apellidos,
                     correo.lowercase(),
-                    contrasena
+                    contrasena,
+                    requireNotNull(idPreguntaRecuperacion),
+                    respuestaRecuperacion
                 )
 
                 // 6. si no hubo errores se usa el callback de registro exitoso

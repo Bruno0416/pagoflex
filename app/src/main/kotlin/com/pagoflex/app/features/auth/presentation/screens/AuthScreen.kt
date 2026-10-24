@@ -22,6 +22,7 @@ import com.pagoflex.app.core.profiles.SesionPreferences
 import com.pagoflex.app.features.auth.data.AuthRepository
 import com.pagoflex.app.features.auth.presentation.viewmodel.AuthViewModel
 import com.pagoflex.app.features.auth.presentation.viewmodel.LoginViewModel
+import com.pagoflex.app.features.auth.presentation.viewmodel.RecuperarContrasenaViewModel
 import com.pagoflex.app.features.auth.presentation.viewmodel.RegisterViewModel
 
 @Composable
@@ -56,6 +57,14 @@ fun AuthScreen(db: LocalDatabase) {
         }
     )
 
+    val recuperarViewModel: RecuperarContrasenaViewModel = viewModel(
+        factory = viewModelFactory {
+            initializer {
+                RecuperarContrasenaViewModel(authRepository)
+            }
+        }
+    )
+
     // ---------- estado de autenticación ----------
     val authState by authViewModel.uiState.collectAsStateWithLifecycle()
     val sesion = authState.sesion
@@ -84,6 +93,9 @@ fun AuthScreen(db: LocalDatabase) {
                         crearSesion = authViewModel::crearSesion,
                         irARegistro = {
                             navController.navigate("registro")
+                        },
+                        irARecuperar = {
+                            navController.navigate("recuperar")
                         }
                     )
                 }
@@ -91,6 +103,15 @@ fun AuthScreen(db: LocalDatabase) {
                 composable("registro") {
                     RegisterScreen(
                         viewModel = registerViewModel,
+                        volverAlLogin = {
+                            navController.popBackStack()
+                        }
+                    )
+                }
+
+                composable("recuperar") {
+                    RecuperarContrasenaScreen(
+                        viewModel = recuperarViewModel,
                         volverAlLogin = {
                             navController.popBackStack()
                         }

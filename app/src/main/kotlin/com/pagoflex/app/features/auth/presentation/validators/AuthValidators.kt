@@ -55,6 +55,16 @@ object AuthValidators {
         }
     }
 
+    fun validarPreguntaRecuperacion(idPregunta: Int?): Int? {
+        return if (idPregunta == null) R.string.auth_error_pregunta_recuperacion else null
+    }
+
+    fun validarRespuestaRecuperacion(respuesta: String): Int? {
+        return if (respuesta.isBlank()) R.string.auth_error_respuesta_recuperacion else null
+    }
+
+    fun normalizarRespuesta(respuesta: String): String = respuesta.trim().lowercase()
+
     fun normalizarNombre(texto: String): String {
         return texto.trim()
             .lowercase()
@@ -96,7 +106,7 @@ object AuthValidators {
             else -> resultado.digitToChar()
         }
 
-        // 4. comparar DVs
+        // 4. comparar dvs
         return if (dv == dvEsperado) null else R.string.auth_error_rut_invalido
     }
 
@@ -109,7 +119,7 @@ object AuthValidators {
         val cuerpo = limpio.dropLast(1)
         val digitoVerificador = limpio.last()
 
-        // agregar puntos cada tres dígitos desde la derecha
+        // agregar puntos cada tres digitos desde la derecha
         val cuerpoFormateado = cuerpo.reversed()
             .chunked(3)
             .joinToString(".")
