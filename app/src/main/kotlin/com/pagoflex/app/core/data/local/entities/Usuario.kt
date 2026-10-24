@@ -31,6 +31,11 @@ import java.time.LocalDateTime
             entity = EmpresaCliente::class,
             parentColumns = ["id_empresa"],
             childColumns = ["id_empresa"]
+        ),
+        ForeignKey(
+            entity = PreguntaRecuperacion::class,
+            parentColumns = ["id_pregunta_recuperacion"],
+            childColumns = ["id_pregunta_recuperacion"]
         )
     ],
     indices = [
@@ -39,7 +44,8 @@ import java.time.LocalDateTime
         Index(value = ["id_rol"]),
         Index(value = ["id_comuna"]),
         Index(value = ["id_area"]),
-        Index(value = ["id_empresa"])
+        Index(value = ["id_empresa"]),
+        Index(value = ["id_pregunta_recuperacion"])
     ]
 )
 data class Usuario(
@@ -93,7 +99,20 @@ data class Usuario(
     val idEmpresa: Int? = null,
 
     // solo para ejecutivos
-    val cargo: String? = null
+    val cargo: String? = null,
+
+    // acceso y recuperación
+    @ColumnInfo(name = "password_hash")
+    val passwordHash: String? = null,
+
+    @ColumnInfo(name = "id_pregunta_recuperacion")
+    val idPreguntaRecuperacion: Int? = null,
+
+    @ColumnInfo(name = "respuesta_recuperacion_hash")
+    val respuestaRecuperacionHash: String? = null,
+
+    // se configura posteriormente desde la feature de perfil
+    val avatar: ByteArray? = null
 ) {
     init {
         require(diasAnticipacion == null || diasAnticipacion in listOf(1, 3, 5))

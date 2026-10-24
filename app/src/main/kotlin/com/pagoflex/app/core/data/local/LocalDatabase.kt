@@ -10,9 +10,9 @@ import androidx.sqlite.driver.AndroidSQLiteDriver
 import com.pagoflex.app.core.data.local.converters.FechaConverters
 import com.pagoflex.app.core.data.local.dao.AnulacionDao
 import com.pagoflex.app.core.data.local.dao.CompromisoDao
-import com.pagoflex.app.core.data.local.dao.CredencialDao
 import com.pagoflex.app.core.data.local.dao.EmpresaClienteDao
 import com.pagoflex.app.core.data.local.dao.PagoDao
+import com.pagoflex.app.core.data.local.dao.PreguntaRecuperacionDao
 import com.pagoflex.app.core.data.local.dao.RecomendacionDao
 import com.pagoflex.app.core.data.local.dao.ReconocimientoDao
 import com.pagoflex.app.core.data.local.dao.ReferenciaDao
@@ -21,10 +21,10 @@ import com.pagoflex.app.core.data.local.dao.UsuarioDao
 import com.pagoflex.app.core.data.local.entities.Anulacion
 import com.pagoflex.app.core.data.local.entities.Area
 import com.pagoflex.app.core.data.local.entities.Canal
+import com.pagoflex.app.core.data.local.entities.Comprobante
 import com.pagoflex.app.core.data.local.entities.Compromiso
 import com.pagoflex.app.core.data.local.entities.Comuna
 import com.pagoflex.app.core.data.local.entities.ContactoRecomendacion
-import com.pagoflex.app.core.data.local.entities.Credencial
 import com.pagoflex.app.core.data.local.entities.EmpresaCliente
 import com.pagoflex.app.core.data.local.entities.EstadoCompromiso
 import com.pagoflex.app.core.data.local.entities.EstadoRecomendacion
@@ -34,6 +34,7 @@ import com.pagoflex.app.core.data.local.entities.MedioPago
 import com.pagoflex.app.core.data.local.entities.MotivoAnulacion
 import com.pagoflex.app.core.data.local.entities.MotivoReporte
 import com.pagoflex.app.core.data.local.entities.Pago
+import com.pagoflex.app.core.data.local.entities.PreguntaRecuperacion
 import com.pagoflex.app.core.data.local.entities.Recomendacion
 import com.pagoflex.app.core.data.local.entities.Reconocimiento
 import com.pagoflex.app.core.data.local.entities.Reporte
@@ -44,7 +45,8 @@ import com.pagoflex.app.core.data.local.entities.UsuarioReconocimiento
 
 @Database(
     entities = [
-        Credencial::class,
+        Comprobante::class,
+        PreguntaRecuperacion::class,
         Rol::class,
         Usuario::class,
         EmpresaCliente::class,
@@ -74,7 +76,7 @@ import com.pagoflex.app.core.data.local.entities.UsuarioReconocimiento
 @ColumnTypeConverters(FechaConverters::class)
 abstract class LocalDatabase : RoomDatabase() {
     // ---------- registro de daos ----------
-    abstract fun credencialDao(): CredencialDao
+    abstract fun preguntaRecuperacionDao(): PreguntaRecuperacionDao
     abstract fun referenciasDao(): ReferenciaDao
     abstract fun usuarioDao(): UsuarioDao
     abstract fun empresaClienteDao(): EmpresaClienteDao
@@ -87,7 +89,7 @@ abstract class LocalDatabase : RoomDatabase() {
 
     // ---------- instancia compartida ----------
     companion object {
-        const val VERSION_DB = 2
+        const val VERSION_DB = 4
         private const val NOMBRE_DB = "pagoflex.db"
 
         private var instancia: LocalDatabase? = null
@@ -100,6 +102,7 @@ abstract class LocalDatabase : RoomDatabase() {
                     NOMBRE_DB
                 )
                     .setDriver(AndroidSQLiteDriver())
+                    .fallbackToDestructiveMigration(dropAllTables = true)
                     .build()
             }
 

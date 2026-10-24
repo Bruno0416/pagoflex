@@ -6,7 +6,6 @@ import com.pagoflex.app.core.data.local.entities.Canal
 import com.pagoflex.app.core.data.local.entities.Compromiso
 import com.pagoflex.app.core.data.local.entities.Comuna
 import com.pagoflex.app.core.data.local.entities.ContactoRecomendacion
-import com.pagoflex.app.core.data.local.entities.Credencial
 import com.pagoflex.app.core.data.local.entities.EmpresaCliente
 import com.pagoflex.app.core.data.local.entities.EstadoCompromiso
 import com.pagoflex.app.core.data.local.entities.EstadoRecomendacion
@@ -16,17 +15,18 @@ import com.pagoflex.app.core.data.local.entities.MedioPago
 import com.pagoflex.app.core.data.local.entities.MotivoAnulacion
 import com.pagoflex.app.core.data.local.entities.MotivoReporte
 import com.pagoflex.app.core.data.local.entities.Pago
+import com.pagoflex.app.core.data.local.entities.PreguntaRecuperacion
 import com.pagoflex.app.core.data.local.entities.Recomendacion
 import com.pagoflex.app.core.data.local.entities.Reporte
 import com.pagoflex.app.core.data.local.entities.Rol
 import com.pagoflex.app.core.data.local.entities.Rubro
 import com.pagoflex.app.core.data.local.entities.Usuario
 import com.pagoflex.app.core.profiles.model.PerfilUsuario
-import com.pagoflex.app.core.security.PasswordHasher
+import com.pagoflex.app.core.security.Hasher
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-internal class CargaInicial(
+class CargaInicial(
     private val db: LocalDatabase
 ) {
     // ---------- colecciones ----------
@@ -34,6 +34,13 @@ internal class CargaInicial(
         "UF-01",
         "AG-01",
         "EJ-01"
+    )
+
+    private val preguntasRecuperacion = listOf(
+        PreguntaRecuperacion(pregunta = "¿Cuál era el nombre de tu primera mascota?"),
+        PreguntaRecuperacion(pregunta = "¿En qué ciudad naciste?"),
+        PreguntaRecuperacion(pregunta = "¿Cuál era el nombre de tu escuela primaria?"),
+        PreguntaRecuperacion(pregunta = "¿Cuál era tu apodo de infancia?")
     )
 
     private val roles = listOf(
@@ -246,6 +253,8 @@ internal class CargaInicial(
 
     suspend fun cargarDatos() {
         val referencias = db.referenciasDao()
+        val idsPreguntas = db.preguntaRecuperacionDao()
+            .insertarPreguntas(preguntasRecuperacion)
 
         // 1. insertar las tablas de referencia y conservar sus ids generados
         val nuevosIdsRoles = referencias.insertarRoles(roles)
@@ -750,14 +759,14 @@ internal class CargaInicial(
             motivo = "La organización ya es cliente de PagoFlex"
         )
 
-        // 9. insertar credenciales usuarios demo
+        // 9. configurar acceso a usuarios demo
         usuariosDemo.forEach { cod ->
-            val credencial = Credencial(
-                idUsuario = obtenerIdUsuario(cod),
-                passwordHash = PasswordHasher.genHash(("demo123")),
+            db.usuarioDao().configurarAccesoInicial(
+                usuarioId = obtenerIdUsuario(cod),
+                passwordHash = Hasher.genHash("demo123"),
+                idPregunta = idsPreguntas.first().toInt(),
+                respuestaHash = Hasher.genHash("respuesta-demo")
             )
-
-            db.credencialDao().insertarCredencial(credencial)
         }
     }
 
@@ -891,7 +900,7 @@ internal class CargaInicial(
         monto: Int, canal: String, medio: String
     ) {
         // 1. insertar un pago vinculado a su compromiso
-        db.pagoDao().insertarPago(
+        db.pagoDao().procesarPago(
             Pago(
                 idPago = 0,
                 numeroComprobante = numero,
