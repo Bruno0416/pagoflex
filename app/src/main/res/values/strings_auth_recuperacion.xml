@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- pregunta recuperacion -->
+    <string name="auth_registro_pregunta_recuperacion">Pregunta de recuperación</string>
+    <string name="auth_registro_seleccionar_pregunta">Selecciona una pregunta</string>
+    <string name="auth_registro_respuesta_recuperacion">Respuesta de recuperación</string>
+    <string name="auth_registro_respuesta_placeholder">Ingresa tu respuesta</string>
+    <string name="auth_error_pregunta_recuperacion">Selecciona una pregunta de recuperación</string>
+    <string name="auth_error_respuesta_recuperacion">Ingresa tu respuesta de recuperación</string>
+
+    <string name="auth_pregunta_ejemplo_mascota">¿Cuál era el nombre de tu primera mascota?</string>
+    <string name="auth_pregunta_ejemplo_ciudad">¿En qué ciudad naciste?</string>
+
+    <!-- login y recuperacion -->
+    <string name="auth_login_recuperar_contrasena">¿Olvidaste tu contraseña?</string>
+    <string name="auth_recuperacion_titulo">Recuperar contraseña</string>
+    <string name="auth_recuperacion_descripcion">Ingresa tu correo, selecciona la pregunta que registraste y escribe tu respuesta.</string>
+    <string name="auth_recuperacion_pregunta_titulo">Identidad validada. Ahora puedes crear una nueva contraseña.</string>
+    <string name="auth_recuperacion_continuar">Continuar</string>
+    <string name="auth_recuperacion_nueva_contrasena">Nueva contraseña</string>
+    <string name="auth_recuperacion_guardar">Cambiar contraseña</string>
+    <string name="auth_recuperacion_cambiar_correo">Cambiar datos de recuperación</string>
+    <string name="auth_recuperacion_volver">Volver al inicio de sesión</string>
+    <string name="auth_recuperacion_exito">Tu contraseña se actualizó correctamente. Ya puedes iniciar sesión.</string>
+    <string name="auth_recuperacion_error_respuesta">No pudimos validar los datos de recuperación. Revisa el correo, la pregunta y la respuesta.</string>
+    <string name="auth_recuperacion_error_general">Ocurrió un error. Inténtalo nuevamente.</string>
+</resources>

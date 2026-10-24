@@ -51,7 +51,11 @@ fun CardCompromiso(
     val fechaVencimiento = compromiso.fechaVencimiento.format()
     val colores = compromiso.estado.coloresCard
 
-    Card(variant = ComponentVariant.Primary, modifier = Modifier.fillMaxWidth()) {
+    Card(
+        variant = ComponentVariant.Primary,
+        modifier = modifier.fillMaxWidth(),
+        onClick = onClick
+    ) {
         Row(Modifier.padding(Theme.dimens.paddingCardsCompromiso)) {
             Avatar(fallback = compromiso.siglaOrganizacion, colores = colores)
 
@@ -117,7 +121,7 @@ fun CardCompromiso(
 }
 
 
-// ---- helpers ----
+// ---------- helpers ----------
 private fun Long.toCLP(
     languageTag: String = "es-CL",
     currencySymbol: String = "$"
@@ -134,7 +138,7 @@ private fun LocalDate.format(patron: String = "dd-MM-yyyy"): String {
 }
 
 
-// ----------------- PREVIEWS -----------------
+// ---------- previews ----------
 
 @Preview(showBackground = true)
 @Preview(
@@ -144,7 +148,7 @@ private fun LocalDate.format(patron: String = "dd-MM-yyyy"): String {
 @Composable
 private fun CardCompromisoPreview() {
 
-    // Compromiso vencido
+    // compromiso vencido
     val compromisoVencido = CompromisoInicio(
         id = "comp-001",
         organizacion = "Club Los Halcones",
@@ -157,7 +161,7 @@ private fun CardCompromisoPreview() {
         estado = EstadoCompromiso.VENCIDO
     )
 
-    // Compromiso pendiente
+    // compromiso pendiente
     val compromisoPendiente = CompromisoInicio(
         id = "comp-002",
         organizacion = "Plaza Oriente",

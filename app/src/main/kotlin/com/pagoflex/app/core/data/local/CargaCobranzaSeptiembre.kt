@@ -92,7 +92,7 @@ class CargaCobranzaSeptiembre(private val db: LocalDatabase) {
                 } else {
                     LocalDateTime.of(2026, 10, 2, 12, 0)
                 }
-                db.pagoDao().insertarPago(
+                db.pagoDao().procesarPago(
                     Pago(
                         idPago = 0,
                         numeroComprobante = "CPR-1%05d".format(i),

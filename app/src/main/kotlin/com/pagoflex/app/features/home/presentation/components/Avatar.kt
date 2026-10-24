@@ -23,7 +23,7 @@ import com.pagoflex.app.core.ui.theme.Theme
 @Composable
 fun Avatar(
     modifier: Modifier = Modifier,
-    // TODO: agregar soporte para imágenes
+    // todo: agregar soporte para imagenes
     fallback: String,
     colores: CardColors
 ) {

@@ -62,7 +62,7 @@ fun CardResumen(
                 .padding(Theme.dimens.spacingM)
                 .fillMaxWidth()
         ) {
-            // ---- sección por pagar ----
+            // ---------- seccion por pagar ----------
             Text(
                 stringResource(R.string.home_por_pagar_mes, nombreMes),
                 style = Theme.type.bodyMedium
@@ -84,7 +84,7 @@ fun CardResumen(
                 Modifier.size(Theme.dimens.spacingXS)
             )
 
-            // ---- cantidades ----
+            // ---------- cantidades ----------
             Text(
                 stringResource(
                     R.string.home_separador_cantidades,
@@ -106,7 +106,7 @@ fun CardResumen(
                 Modifier.size(Theme.dimens.spacingS)
             )
 
-            // ---- proximo vencimiento ----
+            // ---------- proximo vencimiento ----------
             proximoCompromiso?.let { compromiso ->
                 CardInfo(
                     shape = RoundedCornerShape(radiusM - spacingS),
@@ -142,7 +142,7 @@ fun CardResumen(
     }
 }
 
-// ---- helpers ----
+// ---------- helpers ----------
 
 private fun Long.toCLP(
     languageTag: String = "es-CL",
@@ -160,7 +160,7 @@ private fun LocalDate.format(patron: String = "dd/MM"): String {
     )
 }
 
-// ----------------- PREVIEWS -----------------
+// ---------- previews ----------
 
 @Preview(
     showBackground = true
@@ -172,7 +172,7 @@ private fun LocalDate.format(patron: String = "dd/MM"): String {
 @Composable
 private fun CardResumenPreview() {
 
-    // Próximo compromiso
+    // proximo compromiso
     val proximoCompromiso = CompromisoInicio(
         id = "comp-002",
         organizacion = "Plaza Oriente",
@@ -185,7 +185,7 @@ private fun CardResumenPreview() {
         estado = EstadoCompromiso.PENDIENTE
     )
 
-    // Compromiso vencido
+    // compromiso vencido
     val vencidoDestacado = CompromisoInicio(
         id = "comp-001",
         organizacion = "Club Los Halcones",
@@ -198,7 +198,7 @@ private fun CardResumenPreview() {
         estado = EstadoCompromiso.VENCIDO
     )
 
-    // Datos ficticios del resumen
+    // datos ficticios del resumen
     val resumen = ResumenInicio(
         totalPorPagar = 633_400L,
         totalRecargos = 0L,

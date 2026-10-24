@@ -1,0 +1,1962 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 3,
+    "identityHash": "0c9ef92cca22cbcd25aa306502f61669",
+    "entities": [
+      {
+        "tableName": "comprobante",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`numero_comprobante` TEXT NOT NULL, `id_pago` INTEGER NOT NULL, `id_usuario_final` INTEGER NOT NULL, `fecha_hora` TEXT NOT NULL, `nombre_pagador` TEXT NOT NULL, `rut` TEXT NOT NULL, `empresa` TEXT NOT NULL, `folio` TEXT NOT NULL, `concepto` TEXT NOT NULL, `numero_cuota` INTEGER, `total_cuotas` INTEGER, `fecha_vencimiento` TEXT NOT NULL, `monto_cuota` INTEGER NOT NULL, `recargo` INTEGER NOT NULL, `monto_pagado` INTEGER NOT NULL, `medio_pago` TEXT NOT NULL, `canal` TEXT NOT NULL, PRIMARY KEY(`numero_comprobante`))",
+        "fields": [
+          {
+            "fieldPath": "numeroComprobante",
+            "columnName": "numero_comprobante",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idPago",
+            "columnName": "id_pago",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idUsuarioFinal",
+            "columnName": "id_usuario_final",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fechaHora",
+            "columnName": "fecha_hora",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombrePagador",
+            "columnName": "nombre_pagador",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rut",
+            "columnName": "rut",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "empresa",
+            "columnName": "empresa",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "folio",
+            "columnName": "folio",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "concepto",
+            "columnName": "concepto",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "numeroCuota",
+            "columnName": "numero_cuota",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "totalCuotas",
+            "columnName": "total_cuotas",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "fechaVencimiento",
+            "columnName": "fecha_vencimiento",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "montoCuota",
+            "columnName": "monto_cuota",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "recargo",
+            "columnName": "recargo",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "montoPagado",
+            "columnName": "monto_pagado",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "medioPago",
+            "columnName": "medio_pago",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "canal",
+            "columnName": "canal",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "numero_comprobante"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_comprobante_id_pago",
+            "unique": true,
+            "columnNames": [
+              "id_pago"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_comprobante_id_pago` ON `${TABLE_NAME}` (`id_pago`)"
+          },
+          {
+            "name": "index_comprobante_id_usuario_final",
+            "unique": false,
+            "columnNames": [
+              "id_usuario_final"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_comprobante_id_usuario_final` ON `${TABLE_NAME}` (`id_usuario_final`)"
+          }
+        ]
+      },
+      {
+        "tableName": "pregunta_recuperacion",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_pregunta_recuperacion` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `pregunta` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "idPreguntaRecuperacion",
+            "columnName": "id_pregunta_recuperacion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pregunta",
+            "columnName": "pregunta",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id_pregunta_recuperacion"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_pregunta_recuperacion_pregunta",
+            "unique": true,
+            "columnNames": [
+              "pregunta"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_pregunta_recuperacion_pregunta` ON `${TABLE_NAME}` (`pregunta`)"
+          }
+        ]
+      },
+      {
+        "tableName": "rol",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_rol` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `codigo` TEXT NOT NULL, `nombre` TEXT NOT NULL, `descripcion` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "idRol",
+            "columnName": "id_rol",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "codigo",
+            "columnName": "codigo",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "descripcion",
+            "columnName": "descripcion",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id_rol"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_rol_codigo",
+            "unique": true,
+            "columnNames": [
+              "codigo"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_rol_codigo` ON `${TABLE_NAME}` (`codigo`)"
+          }
+        ]
+      },
+      {
+        "tableName": "usuario",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_usuario` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `id_rol` INTEGER NOT NULL, `rut` TEXT NOT NULL, `nombres` TEXT NOT NULL, `apellidos` TEXT NOT NULL, `correo` TEXT NOT NULL, `telefono` TEXT, `activo` INTEGER NOT NULL DEFAULT 1, `fecha_creacion` TEXT NOT NULL, `id_comuna` INTEGER, `fecha_incorporacion` TEXT, `avisos_activos` INTEGER, `dias_anticipacion` INTEGER, `id_area` INTEGER, `id_empresa` INTEGER, `cargo` TEXT, `password_hash` TEXT, `id_pregunta_recuperacion` INTEGER, `respuesta_recuperacion_hash` TEXT, `avatar` BLOB, FOREIGN KEY(`id_rol`) REFERENCES `rol`(`id_rol`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`id_comuna`) REFERENCES `comuna`(`id_comuna`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`id_area`) REFERENCES `area`(`id_area`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`id_empresa`) REFERENCES `empresa_cliente`(`id_empresa`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`id_pregunta_recuperacion`) REFERENCES `pregunta_recuperacion`(`id_pregunta_recuperacion`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "idUsuario",
+            "columnName": "id_usuario",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idRol",
+            "columnName": "id_rol",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rut",
+            "columnName": "rut",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombres",
+            "columnName": "nombres",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "apellidos",
+            "columnName": "apellidos",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "correo",
+            "columnName": "correo",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "telefono",
+            "columnName": "telefono",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "activo",
+            "columnName": "activo",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          },
+          {
+            "fieldPath": "fechaCreacion",
+            "columnName": "fecha_creacion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idComuna",
+            "columnName": "id_comuna",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "fechaIncorporacion",
+            "columnName": "fecha_incorporacion",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "avisosActivos",
+            "columnName": "avisos_activos",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "diasAnticipacion",
+            "columnName": "dias_anticipacion",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "idArea",
+            "columnName": "id_area",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "idEmpresa",
+            "columnName": "id_empresa",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "cargo",
+            "columnName": "cargo",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "passwordHash",
+            "columnName": "password_hash",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "idPreguntaRecuperacion",
+            "columnName": "id_pregunta_recuperacion",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "respuestaRecuperacionHash",
+            "columnName": "respuesta_recuperacion_hash",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "avatar",
+            "columnName": "avatar",
+            "affinity": "BLOB"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id_usuario"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_usuario_rut",
+            "unique": true,
+            "columnNames": [
+              "rut"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_usuario_rut` ON `${TABLE_NAME}` (`rut`)"
+          },
+          {
+            "name": "index_usuario_correo",
+            "unique": true,
+            "columnNames": [
+              "correo"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_usuario_correo` ON `${TABLE_NAME}` (`correo`)"
+          },
+          {
+            "name": "index_usuario_id_rol",
+            "unique": false,
+            "columnNames": [
+              "id_rol"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_usuario_id_rol` ON `${TABLE_NAME}` (`id_rol`)"
+          },
+          {
+            "name": "index_usuario_id_comuna",
+            "unique": false,
+            "columnNames": [
+              "id_comuna"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_usuario_id_comuna` ON `${TABLE_NAME}` (`id_comuna`)"
+          },
+          {
+            "name": "index_usuario_id_area",
+            "unique": false,
+            "columnNames": [
+              "id_area"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_usuario_id_area` ON `${TABLE_NAME}` (`id_area`)"
+          },
+          {
+            "name": "index_usuario_id_empresa",
+            "unique": false,
+            "columnNames": [
+              "id_empresa"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_usuario_id_empresa` ON `${TABLE_NAME}` (`id_empresa`)"
+          },
+          {
+            "name": "index_usuario_id_pregunta_recuperacion",
+            "unique": false,
+            "columnNames": [
+              "id_pregunta_recuperacion"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_usuario_id_pregunta_recuperacion` ON `${TABLE_NAME}` (`id_pregunta_recuperacion`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "rol",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_rol"
+            ],
+            "referencedColumns": [
+              "id_rol"
+            ]
+          },
+          {
+            "table": "comuna",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_comuna"
+            ],
+            "referencedColumns": [
+              "id_comuna"
+            ]
+          },
+          {
+            "table": "area",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_area"
+            ],
+            "referencedColumns": [
+              "id_area"
+            ]
+          },
+          {
+            "table": "empresa_cliente",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_empresa"
+            ],
+            "referencedColumns": [
+              "id_empresa"
+            ]
+          },
+          {
+            "table": "pregunta_recuperacion",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_pregunta_recuperacion"
+            ],
+            "referencedColumns": [
+              "id_pregunta_recuperacion"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "empresa_cliente",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_empresa` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `codigo` TEXT NOT NULL, `razon_social` TEXT NOT NULL, `nombre_fantasia` TEXT NOT NULL, `rut` TEXT NOT NULL, `id_rubro` INTEGER NOT NULL, `correo_atencion` TEXT NOT NULL, `telefono_atencion` TEXT NOT NULL, `recargo_atraso` INTEGER NOT NULL, `activa` INTEGER NOT NULL, FOREIGN KEY(`id_rubro`) REFERENCES `rubro`(`id_rubro`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "idEmpresa",
+            "columnName": "id_empresa",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "codigo",
+            "columnName": "codigo",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "razonSocial",
+            "columnName": "razon_social",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombreFantasia",
+            "columnName": "nombre_fantasia",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rut",
+            "columnName": "rut",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idRubro",
+            "columnName": "id_rubro",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "correoAtencion",
+            "columnName": "correo_atencion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "telefonoAtencion",
+            "columnName": "telefono_atencion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "recargoAtraso",
+            "columnName": "recargo_atraso",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "activa",
+            "columnName": "activa",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id_empresa"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_empresa_cliente_codigo",
+            "unique": true,
+            "columnNames": [
+              "codigo"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_empresa_cliente_codigo` ON `${TABLE_NAME}` (`codigo`)"
+          },
+          {
+            "name": "index_empresa_cliente_rut",
+            "unique": true,
+            "columnNames": [
+              "rut"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_empresa_cliente_rut` ON `${TABLE_NAME}` (`rut`)"
+          },
+          {
+            "name": "index_empresa_cliente_id_rubro",
+            "unique": false,
+            "columnNames": [
+              "id_rubro"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_empresa_cliente_id_rubro` ON `${TABLE_NAME}` (`id_rubro`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "rubro",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_rubro"
+            ],
+            "referencedColumns": [
+              "id_rubro"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "compromiso",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_compromiso` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `folio` TEXT NOT NULL, `id_usuario_final` INTEGER NOT NULL, `id_empresa` INTEGER NOT NULL, `concepto` TEXT NOT NULL, `numero_cuota` INTEGER, `total_cuotas` INTEGER, `monto` INTEGER NOT NULL, `fecha_vencimiento` TEXT NOT NULL, `id_estado_compromiso` INTEGER NOT NULL, `recargo_aplicado` INTEGER NOT NULL, `fecha_cambio_estado` TEXT NOT NULL, `id_ejecutivo_registro` INTEGER, `fecha_registro` TEXT NOT NULL, FOREIGN KEY(`id_usuario_final`) REFERENCES `usuario`(`id_usuario`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`id_empresa`) REFERENCES `empresa_cliente`(`id_empresa`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`id_estado_compromiso`) REFERENCES `estado_compromiso`(`id_estado_compromiso`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`id_ejecutivo_registro`) REFERENCES `usuario`(`id_usuario`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "idCompromiso",
+            "columnName": "id_compromiso",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "folio",
+            "columnName": "folio",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idUsuarioFinal",
+            "columnName": "id_usuario_final",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idEmpresa",
+            "columnName": "id_empresa",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "concepto",
+            "columnName": "concepto",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "numeroCuota",
+            "columnName": "numero_cuota",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "totalCuotas",
+            "columnName": "total_cuotas",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "monto",
+            "columnName": "monto",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fechaVencimiento",
+            "columnName": "fecha_vencimiento",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idEstadoCompromiso",
+            "columnName": "id_estado_compromiso",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "recargoAplicado",
+            "columnName": "recargo_aplicado",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fechaCambioEstado",
+            "columnName": "fecha_cambio_estado",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idEjecutivoRegistro",
+            "columnName": "id_ejecutivo_registro",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "fechaRegistro",
+            "columnName": "fecha_registro",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id_compromiso"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_compromiso_folio",
+            "unique": true,
+            "columnNames": [
+              "folio"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_compromiso_folio` ON `${TABLE_NAME}` (`folio`)"
+          },
+          {
+            "name": "index_compromiso_id_usuario_final_id_empresa_concepto_numero_cuota",
+            "unique": true,
+            "columnNames": [
+              "id_usuario_final",
+              "id_empresa",
+              "concepto",
+              "numero_cuota"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_compromiso_id_usuario_final_id_empresa_concepto_numero_cuota` ON `${TABLE_NAME}` (`id_usuario_final`, `id_empresa`, `concepto`, `numero_cuota`)"
+          },
+          {
+            "name": "index_compromiso_id_empresa",
+            "unique": false,
+            "columnNames": [
+              "id_empresa"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_compromiso_id_empresa` ON `${TABLE_NAME}` (`id_empresa`)"
+          },
+          {
+            "name": "index_compromiso_id_estado_compromiso",
+            "unique": false,
+            "columnNames": [
+              "id_estado_compromiso"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_compromiso_id_estado_compromiso` ON `${TABLE_NAME}` (`id_estado_compromiso`)"
+          },
+          {
+            "name": "index_compromiso_id_ejecutivo_registro",
+            "unique": false,
+            "columnNames": [
+              "id_ejecutivo_registro"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_compromiso_id_ejecutivo_registro` ON `${TABLE_NAME}` (`id_ejecutivo_registro`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "usuario",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_usuario_final"
+            ],
+            "referencedColumns": [
+              "id_usuario"
+            ]
+          },
+          {
+            "table": "empresa_cliente",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_empresa"
+            ],
+            "referencedColumns": [
+              "id_empresa"
+            ]
+          },
+          {
+            "table": "estado_compromiso",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_estado_compromiso"
+            ],
+            "referencedColumns": [
+              "id_estado_compromiso"
+            ]
+          },
+          {
+            "table": "usuario",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_ejecutivo_registro"
+            ],
+            "referencedColumns": [
+              "id_usuario"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "anulacion",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_compromiso` INTEGER NOT NULL, `id_ejecutivo` INTEGER NOT NULL, `id_motivo_anulacion` INTEGER NOT NULL, `comentario` TEXT, `fecha` TEXT NOT NULL, PRIMARY KEY(`id_compromiso`), FOREIGN KEY(`id_compromiso`) REFERENCES `compromiso`(`id_compromiso`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`id_ejecutivo`) REFERENCES `usuario`(`id_usuario`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`id_motivo_anulacion`) REFERENCES `motivo_anulacion`(`id_motivo_anulacion`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "idCompromiso",
+            "columnName": "id_compromiso",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idEjecutivo",
+            "columnName": "id_ejecutivo",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idMotivoAnulacion",
+            "columnName": "id_motivo_anulacion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "comentario",
+            "columnName": "comentario",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fecha",
+            "columnName": "fecha",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id_compromiso"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_anulacion_id_ejecutivo",
+            "unique": false,
+            "columnNames": [
+              "id_ejecutivo"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_anulacion_id_ejecutivo` ON `${TABLE_NAME}` (`id_ejecutivo`)"
+          },
+          {
+            "name": "index_anulacion_id_motivo_anulacion",
+            "unique": false,
+            "columnNames": [
+              "id_motivo_anulacion"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_anulacion_id_motivo_anulacion` ON `${TABLE_NAME}` (`id_motivo_anulacion`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "compromiso",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_compromiso"
+            ],
+            "referencedColumns": [
+              "id_compromiso"
+            ]
+          },
+          {
+            "table": "usuario",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_ejecutivo"
+            ],
+            "referencedColumns": [
+              "id_usuario"
+            ]
+          },
+          {
+            "table": "motivo_anulacion",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_motivo_anulacion"
+            ],
+            "referencedColumns": [
+              "id_motivo_anulacion"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "pago",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_pago` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `numero_comprobante` TEXT NOT NULL, `id_compromiso` INTEGER NOT NULL, `fecha_hora` TEXT NOT NULL, `monto_pagado` INTEGER NOT NULL, `id_canal` INTEGER NOT NULL, `id_medio_pago` INTEGER NOT NULL, FOREIGN KEY(`id_compromiso`) REFERENCES `compromiso`(`id_compromiso`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`id_canal`) REFERENCES `canal`(`id_canal`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`id_medio_pago`) REFERENCES `medio_pago`(`id_medio_pago`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "idPago",
+            "columnName": "id_pago",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "numeroComprobante",
+            "columnName": "numero_comprobante",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idCompromiso",
+            "columnName": "id_compromiso",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fechaHora",
+            "columnName": "fecha_hora",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "montoPagado",
+            "columnName": "monto_pagado",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idCanal",
+            "columnName": "id_canal",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idMedioPago",
+            "columnName": "id_medio_pago",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id_pago"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_pago_numero_comprobante",
+            "unique": true,
+            "columnNames": [
+              "numero_comprobante"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_pago_numero_comprobante` ON `${TABLE_NAME}` (`numero_comprobante`)"
+          },
+          {
+            "name": "index_pago_id_compromiso",
+            "unique": true,
+            "columnNames": [
+              "id_compromiso"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_pago_id_compromiso` ON `${TABLE_NAME}` (`id_compromiso`)"
+          },
+          {
+            "name": "index_pago_id_canal",
+            "unique": false,
+            "columnNames": [
+              "id_canal"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_pago_id_canal` ON `${TABLE_NAME}` (`id_canal`)"
+          },
+          {
+            "name": "index_pago_id_medio_pago",
+            "unique": false,
+            "columnNames": [
+              "id_medio_pago"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_pago_id_medio_pago` ON `${TABLE_NAME}` (`id_medio_pago`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "compromiso",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_compromiso"
+            ],
+            "referencedColumns": [
+              "id_compromiso"
+            ]
+          },
+          {
+            "table": "canal",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_canal"
+            ],
+            "referencedColumns": [
+              "id_canal"
+            ]
+          },
+          {
+            "table": "medio_pago",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_medio_pago"
+            ],
+            "referencedColumns": [
+              "id_medio_pago"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "reporte",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_reporte` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `numero` TEXT NOT NULL, `id_compromiso` INTEGER NOT NULL, `id_motivo_reporte` INTEGER NOT NULL, `comentario` TEXT, `fecha_creacion` TEXT NOT NULL, `id_estado_reporte` INTEGER NOT NULL, `id_agente` INTEGER, `fecha_toma` TEXT, `respuesta` TEXT, `fecha_resolucion` TEXT, FOREIGN KEY(`id_compromiso`) REFERENCES `compromiso`(`id_compromiso`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`id_motivo_reporte`) REFERENCES `motivo_reporte`(`id_motivo_reporte`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`id_estado_reporte`) REFERENCES `estado_reporte`(`id_estado_reporte`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`id_agente`) REFERENCES `usuario`(`id_usuario`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "idReporte",
+            "columnName": "id_reporte",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "numero",
+            "columnName": "numero",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idCompromiso",
+            "columnName": "id_compromiso",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idMotivoReporte",
+            "columnName": "id_motivo_reporte",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "comentario",
+            "columnName": "comentario",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fechaCreacion",
+            "columnName": "fecha_creacion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idEstadoReporte",
+            "columnName": "id_estado_reporte",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idAgente",
+            "columnName": "id_agente",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "fechaToma",
+            "columnName": "fecha_toma",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "respuesta",
+            "columnName": "respuesta",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fechaResolucion",
+            "columnName": "fecha_resolucion",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id_reporte"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_reporte_numero",
+            "unique": true,
+            "columnNames": [
+              "numero"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_reporte_numero` ON `${TABLE_NAME}` (`numero`)"
+          },
+          {
+            "name": "index_reporte_id_compromiso",
+            "unique": false,
+            "columnNames": [
+              "id_compromiso"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_reporte_id_compromiso` ON `${TABLE_NAME}` (`id_compromiso`)"
+          },
+          {
+            "name": "index_reporte_id_motivo_reporte",
+            "unique": false,
+            "columnNames": [
+              "id_motivo_reporte"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_reporte_id_motivo_reporte` ON `${TABLE_NAME}` (`id_motivo_reporte`)"
+          },
+          {
+            "name": "index_reporte_id_estado_reporte",
+            "unique": false,
+            "columnNames": [
+              "id_estado_reporte"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_reporte_id_estado_reporte` ON `${TABLE_NAME}` (`id_estado_reporte`)"
+          },
+          {
+            "name": "index_reporte_id_agente",
+            "unique": false,
+            "columnNames": [
+              "id_agente"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_reporte_id_agente` ON `${TABLE_NAME}` (`id_agente`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "compromiso",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_compromiso"
+            ],
+            "referencedColumns": [
+              "id_compromiso"
+            ]
+          },
+          {
+            "table": "motivo_reporte",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_motivo_reporte"
+            ],
+            "referencedColumns": [
+              "id_motivo_reporte"
+            ]
+          },
+          {
+            "table": "estado_reporte",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_estado_reporte"
+            ],
+            "referencedColumns": [
+              "id_estado_reporte"
+            ]
+          },
+          {
+            "table": "usuario",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_agente"
+            ],
+            "referencedColumns": [
+              "id_usuario"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "recomendacion",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_recomendacion` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `numero` TEXT NOT NULL, `id_usuario_final` INTEGER NOT NULL, `nombre_organizacion` TEXT NOT NULL, `rut_organizacion` TEXT, `id_rubro` INTEGER NOT NULL, `id_comuna` INTEGER NOT NULL, `fecha` TEXT NOT NULL, `id_estado_recomendacion` INTEGER NOT NULL, FOREIGN KEY(`id_usuario_final`) REFERENCES `usuario`(`id_usuario`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`id_rubro`) REFERENCES `rubro`(`id_rubro`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`id_comuna`) REFERENCES `comuna`(`id_comuna`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`id_estado_recomendacion`) REFERENCES `estado_recomendacion`(`id_estado_recomendacion`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "idRecomendacion",
+            "columnName": "id_recomendacion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "numero",
+            "columnName": "numero",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idUsuarioFinal",
+            "columnName": "id_usuario_final",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombreOrganizacion",
+            "columnName": "nombre_organizacion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rutOrganizacion",
+            "columnName": "rut_organizacion",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "idRubro",
+            "columnName": "id_rubro",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idComuna",
+            "columnName": "id_comuna",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fecha",
+            "columnName": "fecha",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idEstadoRecomendacion",
+            "columnName": "id_estado_recomendacion",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id_recomendacion"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_recomendacion_numero",
+            "unique": true,
+            "columnNames": [
+              "numero"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_recomendacion_numero` ON `${TABLE_NAME}` (`numero`)"
+          },
+          {
+            "name": "index_recomendacion_id_usuario_final_nombre_organizacion",
+            "unique": true,
+            "columnNames": [
+              "id_usuario_final",
+              "nombre_organizacion"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_recomendacion_id_usuario_final_nombre_organizacion` ON `${TABLE_NAME}` (`id_usuario_final`, `nombre_organizacion`)"
+          },
+          {
+            "name": "index_recomendacion_id_rubro",
+            "unique": false,
+            "columnNames": [
+              "id_rubro"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_recomendacion_id_rubro` ON `${TABLE_NAME}` (`id_rubro`)"
+          },
+          {
+            "name": "index_recomendacion_id_comuna",
+            "unique": false,
+            "columnNames": [
+              "id_comuna"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_recomendacion_id_comuna` ON `${TABLE_NAME}` (`id_comuna`)"
+          },
+          {
+            "name": "index_recomendacion_id_estado_recomendacion",
+            "unique": false,
+            "columnNames": [
+              "id_estado_recomendacion"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_recomendacion_id_estado_recomendacion` ON `${TABLE_NAME}` (`id_estado_recomendacion`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "usuario",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_usuario_final"
+            ],
+            "referencedColumns": [
+              "id_usuario"
+            ]
+          },
+          {
+            "table": "rubro",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_rubro"
+            ],
+            "referencedColumns": [
+              "id_rubro"
+            ]
+          },
+          {
+            "table": "comuna",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_comuna"
+            ],
+            "referencedColumns": [
+              "id_comuna"
+            ]
+          },
+          {
+            "table": "estado_recomendacion",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_estado_recomendacion"
+            ],
+            "referencedColumns": [
+              "id_estado_recomendacion"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "contacto_recomendacion",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_recomendacion` INTEGER NOT NULL, `nombre` TEXT NOT NULL, `correo` TEXT, `telefono` TEXT, `autoriza_contacto` INTEGER NOT NULL, PRIMARY KEY(`id_recomendacion`), FOREIGN KEY(`id_recomendacion`) REFERENCES `recomendacion`(`id_recomendacion`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "idRecomendacion",
+            "columnName": "id_recomendacion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "correo",
+            "columnName": "correo",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "telefono",
+            "columnName": "telefono",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "autorizaContacto",
+            "columnName": "autoriza_contacto",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id_recomendacion"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "recomendacion",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_recomendacion"
+            ],
+            "referencedColumns": [
+              "id_recomendacion"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "historial_recomendacion",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_historial` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `id_recomendacion` INTEGER NOT NULL, `id_estado_recomendacion` INTEGER NOT NULL, `id_agente` INTEGER NOT NULL, `fecha` TEXT NOT NULL, `motivo` TEXT, FOREIGN KEY(`id_recomendacion`) REFERENCES `recomendacion`(`id_recomendacion`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`id_estado_recomendacion`) REFERENCES `estado_recomendacion`(`id_estado_recomendacion`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`id_agente`) REFERENCES `usuario`(`id_usuario`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "idHistorial",
+            "columnName": "id_historial",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idRecomendacion",
+            "columnName": "id_recomendacion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idEstadoRecomendacion",
+            "columnName": "id_estado_recomendacion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idAgente",
+            "columnName": "id_agente",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fecha",
+            "columnName": "fecha",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "motivo",
+            "columnName": "motivo",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id_historial"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_historial_recomendacion_id_recomendacion",
+            "unique": false,
+            "columnNames": [
+              "id_recomendacion"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_historial_recomendacion_id_recomendacion` ON `${TABLE_NAME}` (`id_recomendacion`)"
+          },
+          {
+            "name": "index_historial_recomendacion_id_estado_recomendacion",
+            "unique": false,
+            "columnNames": [
+              "id_estado_recomendacion"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_historial_recomendacion_id_estado_recomendacion` ON `${TABLE_NAME}` (`id_estado_recomendacion`)"
+          },
+          {
+            "name": "index_historial_recomendacion_id_agente",
+            "unique": false,
+            "columnNames": [
+              "id_agente"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_historial_recomendacion_id_agente` ON `${TABLE_NAME}` (`id_agente`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "recomendacion",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_recomendacion"
+            ],
+            "referencedColumns": [
+              "id_recomendacion"
+            ]
+          },
+          {
+            "table": "estado_recomendacion",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_estado_recomendacion"
+            ],
+            "referencedColumns": [
+              "id_estado_recomendacion"
+            ]
+          },
+          {
+            "table": "usuario",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_agente"
+            ],
+            "referencedColumns": [
+              "id_usuario"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "reconocimiento",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_reconocimiento` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `nombre` TEXT NOT NULL, `descripcion` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "idReconocimiento",
+            "columnName": "id_reconocimiento",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "descripcion",
+            "columnName": "descripcion",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id_reconocimiento"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_reconocimiento_nombre",
+            "unique": true,
+            "columnNames": [
+              "nombre"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_reconocimiento_nombre` ON `${TABLE_NAME}` (`nombre`)"
+          }
+        ]
+      },
+      {
+        "tableName": "usuario_reconocimiento",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_usuario_final` INTEGER NOT NULL, `id_reconocimiento` INTEGER NOT NULL, `fecha_obtencion` TEXT NOT NULL, `motivo` TEXT NOT NULL, PRIMARY KEY(`id_usuario_final`, `id_reconocimiento`), FOREIGN KEY(`id_usuario_final`) REFERENCES `usuario`(`id_usuario`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`id_reconocimiento`) REFERENCES `reconocimiento`(`id_reconocimiento`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "idUsuarioFinal",
+            "columnName": "id_usuario_final",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idReconocimiento",
+            "columnName": "id_reconocimiento",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fechaObtencion",
+            "columnName": "fecha_obtencion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "motivo",
+            "columnName": "motivo",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id_usuario_final",
+            "id_reconocimiento"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_usuario_reconocimiento_id_usuario_final",
+            "unique": false,
+            "columnNames": [
+              "id_usuario_final"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_usuario_reconocimiento_id_usuario_final` ON `${TABLE_NAME}` (`id_usuario_final`)"
+          },
+          {
+            "name": "index_usuario_reconocimiento_id_reconocimiento",
+            "unique": false,
+            "columnNames": [
+              "id_reconocimiento"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_usuario_reconocimiento_id_reconocimiento` ON `${TABLE_NAME}` (`id_reconocimiento`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "usuario",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_usuario_final"
+            ],
+            "referencedColumns": [
+              "id_usuario"
+            ]
+          },
+          {
+            "table": "reconocimiento",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "id_reconocimiento"
+            ],
+            "referencedColumns": [
+              "id_reconocimiento"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "comuna",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_comuna` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `nombre` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "idComuna",
+            "columnName": "id_comuna",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id_comuna"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_comuna_nombre",
+            "unique": true,
+            "columnNames": [
+              "nombre"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_comuna_nombre` ON `${TABLE_NAME}` (`nombre`)"
+          }
+        ]
+      },
+      {
+        "tableName": "area",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_area` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `nombre` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "idArea",
+            "columnName": "id_area",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id_area"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_area_nombre",
+            "unique": true,
+            "columnNames": [
+              "nombre"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_area_nombre` ON `${TABLE_NAME}` (`nombre`)"
+          }
+        ]
+      },
+      {
+        "tableName": "rubro",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_rubro` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `nombre` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "idRubro",
+            "columnName": "id_rubro",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id_rubro"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_rubro_nombre",
+            "unique": true,
+            "columnNames": [
+              "nombre"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_rubro_nombre` ON `${TABLE_NAME}` (`nombre`)"
+          }
+        ]
+      },
+      {
+        "tableName": "estado_compromiso",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_estado_compromiso` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `nombre` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id_estado_compromiso",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id_estado_compromiso"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_estado_compromiso_nombre",
+            "unique": true,
+            "columnNames": [
+              "nombre"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_estado_compromiso_nombre` ON `${TABLE_NAME}` (`nombre`)"
+          }
+        ]
+      },
+      {
+        "tableName": "motivo_anulacion",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_motivo_anulacion` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `nombre` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "idMotivoAnulacion",
+            "columnName": "id_motivo_anulacion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id_motivo_anulacion"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_motivo_anulacion_nombre",
+            "unique": true,
+            "columnNames": [
+              "nombre"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_motivo_anulacion_nombre` ON `${TABLE_NAME}` (`nombre`)"
+          }
+        ]
+      },
+      {
+        "tableName": "canal",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_canal` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `nombre` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "idCanal",
+            "columnName": "id_canal",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id_canal"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_canal_nombre",
+            "unique": true,
+            "columnNames": [
+              "nombre"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_canal_nombre` ON `${TABLE_NAME}` (`nombre`)"
+          }
+        ]
+      },
+      {
+        "tableName": "medio_pago",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_medio_pago` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `nombre` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "idMedioPago",
+            "columnName": "id_medio_pago",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id_medio_pago"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_medio_pago_nombre",
+            "unique": true,
+            "columnNames": [
+              "nombre"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_medio_pago_nombre` ON `${TABLE_NAME}` (`nombre`)"
+          }
+        ]
+      },
+      {
+        "tableName": "motivo_reporte",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_motivo_reporte` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `nombre` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "idMotivoReporte",
+            "columnName": "id_motivo_reporte",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id_motivo_reporte"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_motivo_reporte_nombre",
+            "unique": true,
+            "columnNames": [
+              "nombre"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_motivo_reporte_nombre` ON `${TABLE_NAME}` (`nombre`)"
+          }
+        ]
+      },
+      {
+        "tableName": "estado_reporte",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_estado_reporte` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `nombre` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id_estado_reporte",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id_estado_reporte"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_estado_reporte_nombre",
+            "unique": true,
+            "columnNames": [
+              "nombre"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_estado_reporte_nombre` ON `${TABLE_NAME}` (`nombre`)"
+          }
+        ]
+      },
+      {
+        "tableName": "estado_recomendacion",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_estado_recomendacion` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `nombre` TEXT NOT NULL, `orden` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "idEstadoRecomendacion",
+            "columnName": "id_estado_recomendacion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "orden",
+            "columnName": "orden",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id_estado_recomendacion"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_estado_recomendacion_nombre",
+            "unique": true,
+            "columnNames": [
+              "nombre"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_estado_recomendacion_nombre` ON `${TABLE_NAME}` (`nombre`)"
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0c9ef92cca22cbcd25aa306502f61669')"
+    ]
+  }
+}

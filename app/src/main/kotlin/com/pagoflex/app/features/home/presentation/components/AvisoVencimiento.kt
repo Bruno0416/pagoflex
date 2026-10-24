@@ -81,7 +81,7 @@ fun AvisoVencimiento(
     }
 }
 
-// ----------------- PREVIEWS -----------------
+// ---------- previews ----------
 
 @Preview(showBackground = true)
 @Preview(
@@ -91,7 +91,7 @@ fun AvisoVencimiento(
 @Composable
 private fun AvisoVencimientoPreview() {
 
-    // Compromiso vencido ficticio
+    // compromiso vencido ficticio
     val compromisoVencido = CompromisoInicio(
         id = "comp-001",
         organizacion = "Club Los Halcones",
@@ -104,7 +104,7 @@ private fun AvisoVencimientoPreview() {
         estado = EstadoCompromiso.VENCIDO
     )
 
-    // Resumen ficticio
+    // resumen ficticio
     val resumen = ResumenInicio(
         totalPorPagar = 633_400L,
         totalRecargos = 0L,

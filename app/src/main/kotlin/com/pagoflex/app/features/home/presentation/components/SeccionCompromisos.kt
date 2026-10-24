@@ -43,7 +43,7 @@ fun SeccionCompromisos(
     }
 }
 
-// ----------------- PREVIEW -----------------
+// ---------- preview ----------
 
 @Preview(
     showBackground = true

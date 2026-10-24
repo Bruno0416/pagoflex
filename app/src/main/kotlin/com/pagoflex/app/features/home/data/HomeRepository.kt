@@ -24,7 +24,7 @@ class HomeRepository(private val db: LocalDatabase) {
                 else -> error("Estado de compromiso no reconocido: ${registro.estado}")
             }
 
-            // 1. reflejar vencimientos posteriores a la fecha de precarga
+            // 1. actualizar estado vencido
             val vencio = registro.fechaVencimiento.isBefore(fechaActual)
             val estado = if (estadoGuardado == EstadoCompromiso.PENDIENTE && vencio) {
                 EstadoCompromiso.VENCIDO
@@ -32,7 +32,7 @@ class HomeRepository(private val db: LocalDatabase) {
                 estadoGuardado
             }
 
-            // 2. aplicar visualmente el recargo fijo si aún no fue persistido
+            // 2. calcular recargo mostrado
             val recargo = if (estado == EstadoCompromiso.VENCIDO) {
                 if (estadoGuardado == EstadoCompromiso.PENDIENTE) {
                     registro.recargoEmpresa.toLong()
