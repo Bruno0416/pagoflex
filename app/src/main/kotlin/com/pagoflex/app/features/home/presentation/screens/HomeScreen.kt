@@ -101,14 +101,10 @@ private fun HomeContent(
         uiState.ultimaActualizacion ?: return
 
     Scaffold(
-        // AppNavegación ya gestiona los insets del sistema.
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        // ----- appbar -----
+        // ---------- appbar ----------
         topBar = {
             HomeAppBar(
-                modifier = Modifier
-                    .padding(Theme.dimens.paddingSides)
-                    .padding(bottom = Theme.dimens.spacingM),
                 nombreUsuario = uiState.nombreUsuario,
                 ultimaActualizacion = ultimaActualizacion,
                 porcentajeCompletado =
@@ -150,7 +146,7 @@ private fun HomeContent(
                 }
             )
 
-            // 3. sección tus compromisos
+            // 3. seccion tus compromisos
             SeccionCompromisos(
                 onVerTodos = onVerTodos
             )
@@ -174,14 +170,13 @@ private fun HomeContent(
                 }
             }
 
-            // Permitir ver la última tarjeta completa al llegar al final del scroll.
             Spacer(Modifier.height(Theme.dimens.spacingM))
         }
     }
 }
 
 
-// ----------------- PREVIEWS -----------------
+// ---------- previews ----------
 @Preview(showSystemUi = true, showBackground = true)
 @Preview(
     showSystemUi = true,
@@ -190,7 +185,6 @@ private fun HomeContent(
 )
 @Composable
 private fun HomeScreenPreview() {
-    // datos solo para visualizar el composable sin acceder a room
     val ejemplo = CompromisoInicio(
         id = "CP-2026-0102",
         organizacion = "Club Los Halcones",

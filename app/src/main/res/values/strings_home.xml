@@ -7,6 +7,8 @@
     <string name="home_cumplimiento_en_camino">En camino</string>
     <string name="home_cumplimiento_historial_parcial">Historial parcial</string>
     <string name="home_cumplimiento_porcentaje">%1$s%% · %2$s</string>
+    <string name="home_sin_conexion_ultima_carga">Última carga: %1$s</string>
+    <string name="home_sin_conexion_sin_carga">Sin carga anterior registrada</string>
 
     <!-- resumen mensual -->
     <string name="home_por_pagar_mes">Por pagar en %1$s</string>

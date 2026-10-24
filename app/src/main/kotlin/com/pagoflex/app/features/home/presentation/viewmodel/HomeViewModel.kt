@@ -31,7 +31,7 @@ class HomeViewModel(private val homeRepository: HomeRepository) : ViewModel() {
             _uiState.update { it.copy(cargando = true, mensajeError = null) }
 
             try {
-                // 1. recuperar los datos actuales desde room
+                // 1. consultar datos en room
                 val fechaActual = LocalDate.now()
                 val (nombre, compromisos) = withContext(Dispatchers.IO) {
                     homeRepository.obtenerNombre(usuarioId) to
@@ -48,7 +48,7 @@ class HomeViewModel(private val homeRepository: HomeRepository) : ViewModel() {
                     return@launch
                 }
 
-                // 2. filtrar compromisos por pagar en el mes actual
+                // 2. filtrar compromisos del mes
                 val periodo = YearMonth.from(fechaActual)
                 val compromisosMes = compromisos.filter { compromiso ->
                     YearMonth.from(compromiso.fechaVencimiento) == periodo &&
@@ -65,7 +65,7 @@ class HomeViewModel(private val homeRepository: HomeRepository) : ViewModel() {
                     it.estado == EstadoCompromiso.VENCIDO
                 }
 
-                // 3. calcular el resumen con los registros recuperados
+                // 3. calcular resumen
                 val resumen = ResumenInicio(
                     totalPorPagar = compromisosMes.sumOf { it.total },
                     totalRecargos = compromisosMes.sumOf { it.recargo },
@@ -74,7 +74,7 @@ class HomeViewModel(private val homeRepository: HomeRepository) : ViewModel() {
                     cantidadVencidos = vencidos.size,
                     proximoCompromiso = pendientes.firstOrNull(),
                     vencidoDestacado = vencidos.firstOrNull(),
-                    porcentajeCumplimiento = null // el resumen de 12 meses no está completo en la db
+                    porcentajeCumplimiento = null // historial insuficiente (no hay registros de 12 meses en la db aún)
                 )
 
                 // 4. actualizar la pantalla

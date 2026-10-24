@@ -107,7 +107,7 @@ fun AppNavegacion(
             ) {
                 // Un perfil solo registra sus propias rutas.
                 when (perfilUsuario) {
-                    PerfilUsuario.USUARIO_FINAL -> grafoUsuario(db, usuarioId)
+                    PerfilUsuario.USUARIO_FINAL -> grafoUsuario(db, usuarioId, navController)
                     PerfilUsuario.AGENTE -> grafoAgente()
                     PerfilUsuario.EJECUTIVO -> grafoEjecutivo()
                 }
