@@ -34,7 +34,7 @@ internal class CargaInicial(
         "UF-01",
         "AG-01",
         "EJ-01",
-        // ejecutivo del instituto para probar la anulación del arancel (HU-11 CA-3)
+        // adonys: ejecutivo del instituto para probar la anulación del arancel (HU-11 CA-3)
         "EJ-06"
     )
 
@@ -762,7 +762,7 @@ internal class CargaInicial(
             db.credencialDao().insertarCredencial(credencial)
         }
 
-        // 10. completar la cobranza de septiembre de altos del maipo (HU-12)
+        // 10. adonys: completar la cobranza de septiembre de altos del maipo (HU-12)
         CargaCobranzaSeptiembre(db).cargarDatos()
     }
 

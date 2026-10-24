@@ -12,7 +12,7 @@ interface ReporteDao {
     @Insert
     suspend fun insertarReporte(reporte: Reporte): Long
 
-    // ---------- reportes de problema (HU-06, HU-10) ----------
+    // ---------- adonys: reportes de problema (HU-06, HU-10) ----------
 
     // el agente ve los reportes de todos los usuarios (RF-14)
     @Query("$SELECT_REPORTE ORDER BY r.fecha_creacion ASC")

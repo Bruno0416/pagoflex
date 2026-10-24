@@ -69,7 +69,7 @@ fun DetalleReporteScreen(
     val context = LocalContext.current
 
     LaunchedEffect(numero) {
-        viewModel.cargar(numero)
+        viewModel.cargar(usuarioId, numero)
     }
 
     LaunchedEffect(uiState.mensaje) {

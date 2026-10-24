@@ -32,7 +32,7 @@ fun NavGraphBuilder.grafoUsuario(
     composable(Ruta.Historial.ruta) {
         Text(stringResource(R.string.nav_historial_pendiente))
     }
-    // ayuda: reportes de problema del usuario (HU-06)
+    // adonys: ayuda con los reportes de problema del usuario (HU-06)
     composable(Ruta.Ayuda.ruta) {
         MisReportesScreen(
             db = db,
@@ -51,6 +51,7 @@ fun NavGraphBuilder.grafoUsuario(
         val id = entrada.arguments?.getString("id").orEmpty()
         Text(stringResource(R.string.nav_detalle_compromiso, id))
     }
+    // adonys: reportar un problema (HU-06)
     composable(
         route = Ruta.ReportarProblema.ruta,
         arguments = listOf(navArgument("folio") { type = NavType.StringType })
@@ -71,7 +72,7 @@ fun NavGraphBuilder.grafoAgente(
     navController: NavHostController,
     onCerrarSesion: () -> Unit
 ) {
-    // bandeja de reportes (HU-10)
+    // adonys: bandeja de reportes (HU-10)
     composable(Ruta.BandejaReportes.ruta) {
         BandejaReportesScreen(
             db = db,
@@ -100,7 +101,7 @@ fun NavGraphBuilder.grafoEjecutivo(
     navController: NavHostController,
     onCerrarSesion: () -> Unit
 ) {
-    // resumen de la cobranza del mes (HU-12)
+    // adonys: resumen de la cobranza del mes (HU-12)
     composable(Ruta.ResumenCobranza.ruta) {
         ResumenCobranzaScreen(
             db = db,
@@ -116,7 +117,7 @@ fun NavGraphBuilder.grafoEjecutivo(
             onVerCompromiso = { folio -> navController.navigate(Ruta.DetalleCompromisoEmpresa.crear(folio)) }
         )
     }
-    // registrar compromiso (HU-11)
+    // adonys: registrar compromiso (HU-11)
     composable(Ruta.RegistrarCompromiso.ruta) {
         RegistrarCompromisoScreen(
             db = db,
@@ -128,7 +129,7 @@ fun NavGraphBuilder.grafoEjecutivo(
             }
         )
     }
-    // detalle y anulación (HU-11)
+    // adonys: detalle y anulación (HU-11)
     composable(
         route = Ruta.DetalleCompromisoEmpresa.ruta,
         arguments = listOf(navArgument("folio") { type = NavType.StringType })

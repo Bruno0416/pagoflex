@@ -4,7 +4,7 @@
     <string name="ui_ocultar_contrasena">Ocultar contraseña</string>
     <string name="ui_mostrar_contrasena">Mostrar contraseña</string>
 
-    <!-- navegación de pantallas internas -->
+    <!-- adonys: navegación de pantallas internas -->
     <string name="ui_volver">Volver</string>
     <string name="ui_cerrar_sesion">Cerrar sesión</string>
 </resources>

@@ -36,7 +36,7 @@ interface CompromisoDao {
     )
     suspend fun obtenerParaHome(usuarioId: Int): List<CompromisoHomeRow>
 
-    // ---------- cobranza del ejecutivo (HU-11, HU-12) ----------
+    // ---------- adonys: cobranza del ejecutivo (HU-11, HU-12) ----------
 
     // solo compromisos de la empresa del ejecutivo (RN-22)
     @Query("$SELECT_EMPRESA WHERE c.id_empresa = :empresaId ORDER BY c.fecha_vencimiento ASC, c.folio ASC")

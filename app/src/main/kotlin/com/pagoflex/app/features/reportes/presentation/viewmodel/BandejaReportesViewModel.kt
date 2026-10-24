@@ -30,7 +30,7 @@ class BandejaReportesViewModel(
             try {
                 // 1. nombre del agente y reportes de todos los usuarios (RF-14)
                 val nombre = reportesRepository.obtenerPrimerNombre(usuarioId)
-                todos = reportesRepository.obtenerTodos(hoy())
+                todos = reportesRepository.obtenerTodos(usuarioId, hoy())
 
                 // 2. contar por estado y atrasados (RN-23)
                 _uiState.update {

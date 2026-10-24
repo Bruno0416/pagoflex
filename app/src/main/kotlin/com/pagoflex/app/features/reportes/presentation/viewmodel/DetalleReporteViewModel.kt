@@ -21,10 +21,14 @@ class DetalleReporteViewModel(
     private val _uiState = MutableStateFlow(DetalleReporteUiState())
     val uiState: StateFlow<DetalleReporteUiState> = _uiState.asStateFlow()
 
-    fun cargar(numero: String) {
+    // agente en sesión, se usa para resolver
+    private var agenteId: Int? = null
+
+    fun cargar(agenteId: Int, numero: String) {
+        this.agenteId = agenteId
         viewModelScope.launch {
             try {
-                val reporte = reportesRepository.obtenerDetalle(numero, ahora().toLocalDate())
+                val reporte = reportesRepository.obtenerDetalle(numero, agenteId, ahora().toLocalDate())
                 _uiState.update { it.copy(cargando = false, reporte = reporte) }
             } catch (e: CancellationException) {
                 throw e
@@ -50,8 +54,9 @@ class DetalleReporteViewModel(
     fun resolver() {
         val estado = uiState.value
         val numero = estado.reporte?.numero ?: return
+        val agente = agenteId ?: return
         ejecutar(numero, R.string.rep_resuelto_ok) {
-            reportesRepository.resolver(numero, estado.respuesta, ahora())
+            reportesRepository.resolver(numero, agente, estado.respuesta, ahora())
         }
     }
 
@@ -73,7 +78,7 @@ class DetalleReporteViewModel(
                     _uiState.update { it.copy(error = error) }
                 } else {
                     _uiState.update { it.copy(mensaje = mensajeOk, respuesta = "") }
-                    cargar(numero)
+                    agenteId?.let { cargar(it, numero) }
                 }
             } catch (e: CancellationException) {
                 throw e

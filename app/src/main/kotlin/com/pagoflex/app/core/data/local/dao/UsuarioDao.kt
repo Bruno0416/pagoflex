@@ -36,7 +36,7 @@ interface UsuarioDao {
     suspend fun obtenerNombreParaHome(usuarioId: Int): String?
 
 
-    // ---------- cobranza y reportes ----------
+    // ---------- adonys: cobranza y reportes ----------
 
     @Query("SELECT * FROM usuario WHERE id_usuario = :usuarioId LIMIT 1")
     suspend fun obtenerPorId(usuarioId: Int): Usuario?

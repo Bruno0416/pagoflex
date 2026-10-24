@@ -7,7 +7,9 @@ import com.pagoflex.app.core.data.local.LocalDatabase
 import com.pagoflex.app.core.data.local.entities.Anulacion
 import com.pagoflex.app.core.data.local.entities.Compromiso
 import com.pagoflex.app.core.data.local.entities.Usuario
+import com.pagoflex.app.core.profiles.ControlAcceso
 import com.pagoflex.app.core.profiles.model.PerfilUsuario
+import com.pagoflex.app.core.rules.Accion
 import com.pagoflex.app.core.rules.EstadoReporte
 import com.pagoflex.app.core.rules.MotivoAnulacion
 import com.pagoflex.app.core.rules.MotivoReporte
@@ -51,7 +53,12 @@ sealed class ResultadoRegistro {
 // gestión de compromisos del ejecutivo: cobranza (HU-12), registro y anulación (HU-11)
 class CobranzaRepository(private val db: LocalDatabase) {
 
+    private val acceso = ControlAcceso(db)
+
+    // solo un ejecutivo activo entra a la cobranza de su empresa (RN-22)
     suspend fun obtenerEjecutivo(usuarioId: Int): EjecutivoSesion? {
+        if (!acceso.puede(usuarioId, Accion.VER_COMPROMISOS_EMPRESA)) return null
+
         val usuario = db.usuarioDao().obtenerPorId(usuarioId) ?: return null
         val empresa = usuario.idEmpresa?.let { db.empresaClienteDao().obtenerPorId(it) }
 
@@ -71,8 +78,10 @@ class CobranzaRepository(private val db: LocalDatabase) {
     suspend fun obtenerDetalle(empresaId: Int, folio: String, hoy: LocalDate): CompromisoEmpresa? =
         db.compromisoDao().obtenerDeEmpresaPorFolio(empresaId, folio)?.aModelo(hoy)
 
-    // reporte sin resolver del compromiso, solo lectura para el ejecutivo
-    suspend fun obtenerReporteActivo(folio: String): ReporteDelCompromiso? {
+    // reporte sin resolver del compromiso, solo lectura y solo de su empresa (RN-22)
+    suspend fun obtenerReporteActivo(empresaId: Int, folio: String): ReporteDelCompromiso? {
+        if (db.compromisoDao().obtenerDeEmpresaPorFolio(empresaId, folio) == null) return null
+
         val reporte = db.reporteDao()
             .obtenerActivoDeCompromiso(folio, EstadoReporte.RESUELTO.nombre) ?: return null
 
@@ -102,6 +111,10 @@ class CobranzaRepository(private val db: LocalDatabase) {
         ejecutivo: EjecutivoSesion,
         ahora: LocalDateTime,
     ): ResultadoRegistro {
+        if (!acceso.puede(ejecutivo.idUsuario, Accion.REGISTRAR_COMPROMISO)) {
+            return ResultadoRegistro.ConErrores(errorGeneral = R.string.per_sin_permiso)
+        }
+
         val errores = mutableMapOf<CampoCompromiso, Int>()
         val hoy = ahora.toLocalDate()
 
@@ -191,6 +204,8 @@ class CobranzaRepository(private val db: LocalDatabase) {
         comentario: String,
         ahora: LocalDateTime,
     ): Int? {
+        if (!acceso.puede(ejecutivo.idUsuario, Accion.ANULAR_COMPROMISO)) return R.string.per_sin_permiso
+
         // 1. buscar el compromiso y su estado actual
         val compromiso = db.compromisoDao().obtenerPorFolio(folio) ?: return R.string.cob_error_no_encontrado
         val estado = estadoActual(compromiso, ahora.toLocalDate())

@@ -58,7 +58,7 @@ interface ReferenciaDao {
     @Insert
     suspend fun insertarEstadoRecomendacions(estadoRecomendacion: List<EstadoRecomendacion>): List<Long>
 
-    // ---------- ids de catálogos por nombre ----------
+    // ---------- adonys: ids de catálogos por nombre ----------
 
     @Query("SELECT id_estado_compromiso FROM estado_compromiso WHERE nombre = :nombre")
     suspend fun obtenerIdEstadoCompromiso(nombre: String): Int?

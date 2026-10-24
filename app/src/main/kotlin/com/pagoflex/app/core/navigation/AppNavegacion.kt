@@ -25,6 +25,7 @@ fun AppNavegacion(
     perfilUsuario: PerfilUsuario,
     usuarioId: Int,
     db: LocalDatabase,
+    // adonys: cerrar sesión desde las pantallas internas
     onCerrarSesion: () -> Unit = {}
 ) {
     // recrear el grafo al cambiar de usuario
@@ -108,6 +109,7 @@ fun AppNavegacion(
             ) {
                 // Un perfil solo registra sus propias rutas.
                 when (perfilUsuario) {
+                    // adonys: los grafos reciben la base, el navController y cerrar sesión
                     PerfilUsuario.USUARIO_FINAL -> grafoUsuario(db, usuarioId, navController, onCerrarSesion)
                     PerfilUsuario.AGENTE -> grafoAgente(db, usuarioId, navController, onCerrarSesion)
                     PerfilUsuario.EJECUTIVO -> grafoEjecutivo(db, usuarioId, navController, onCerrarSesion)

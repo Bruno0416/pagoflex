@@ -35,7 +35,9 @@ class DetalleCompromisoViewModel(
                 }
 
                 // 2. reporte del usuario en modo lectura si está en revisión
-                val reporte = compromiso?.let { cobranzaRepository.obtenerReporteActivo(folio) }
+                val reporte = actual?.idEmpresa?.takeIf { compromiso != null }?.let {
+                    cobranzaRepository.obtenerReporteActivo(it, folio)
+                }
 
                 _uiState.update {
                     it.copy(cargando = false, compromiso = compromiso, reporte = reporte, error = null)

@@ -5,6 +5,8 @@ import androidx.room3.withWriteTransaction
 import com.pagoflex.app.R
 import com.pagoflex.app.core.data.local.LocalDatabase
 import com.pagoflex.app.core.data.local.entities.Reporte
+import com.pagoflex.app.core.profiles.ControlAcceso
+import com.pagoflex.app.core.rules.Accion
 import com.pagoflex.app.core.rules.EstadoReporte
 import com.pagoflex.app.core.rules.MotivoReporte
 import com.pagoflex.app.core.rules.ReglasCompromiso
@@ -29,6 +31,8 @@ sealed class ResultadoReporte {
 // reportes de problema: el usuario reporta (HU-06) y el agente gestiona (HU-10)
 class ReportesRepository(private val db: LocalDatabase) {
 
+    private val acceso = ControlAcceso(db)
+
     private val estadosVigentes = setOf(
         EstadoCompromiso.PENDIENTE,
         EstadoCompromiso.VENCIDO,
@@ -43,8 +47,10 @@ class ReportesRepository(private val db: LocalDatabase) {
     suspend fun obtenerCompromisoDeUsuario(usuarioId: Int, folio: String, hoy: LocalDate): CompromisoReportable? =
         obtenerCompromisosDeUsuario(usuarioId, hoy).firstOrNull { it.folio == folio }
 
-    suspend fun obtenerReportesDeUsuario(usuarioId: Int, hoy: LocalDate): List<ReporteItem> =
-        db.reporteDao().obtenerDeUsuario(usuarioId).map { it.aModelo(hoy) }
+    suspend fun obtenerReportesDeUsuario(usuarioId: Int, hoy: LocalDate): List<ReporteItem> {
+        if (!acceso.puede(usuarioId, Accion.VER_REPORTES_PROPIOS)) return emptyList()
+        return db.reporteDao().obtenerDeUsuario(usuarioId).map { it.aModelo(hoy) }
+    }
 
     suspend fun obtenerReporteActivo(folio: String, hoy: LocalDate): ReporteItem? =
         db.reporteDao().obtenerActivoDeCompromiso(folio, EstadoReporte.RESUELTO.nombre)?.aModelo(hoy)
@@ -56,6 +62,8 @@ class ReportesRepository(private val db: LocalDatabase) {
         comentario: String,
         ahora: LocalDateTime,
     ): ResultadoReporte {
+        if (!acceso.puede(usuarioId, Accion.REPORTAR_PROBLEMA)) return ResultadoReporte.Error(R.string.per_sin_permiso)
+
         // 1. el compromiso tiene que ser del usuario
         val compromiso = db.compromisoDao().obtenerPorFolio(folio)
         if (compromiso == null || compromiso.idUsuarioFinal != usuarioId) {
@@ -107,15 +115,22 @@ class ReportesRepository(private val db: LocalDatabase) {
     suspend fun obtenerPrimerNombre(usuarioId: Int): String =
         db.usuarioDao().obtenerPorId(usuarioId)?.nombres?.substringBefore(" ").orEmpty()
 
-    suspend fun obtenerTodos(hoy: LocalDate): List<ReporteItem> =
-        db.reporteDao().obtenerTodos().map { it.aModelo(hoy) }
+    // solo el agente ve los reportes de todos los usuarios (RF-14)
+    suspend fun obtenerTodos(agenteId: Int, hoy: LocalDate): List<ReporteItem> {
+        if (!acceso.puede(agenteId, Accion.VER_TODOS_LOS_REPORTES)) return emptyList()
+        return db.reporteDao().obtenerTodos().map { it.aModelo(hoy) }
+    }
 
-    suspend fun obtenerDetalle(numero: String, hoy: LocalDate): ReporteItem? =
-        db.reporteDao().obtenerPorNumero(numero)?.aModelo(hoy)
+    suspend fun obtenerDetalle(numero: String, agenteId: Int, hoy: LocalDate): ReporteItem? {
+        if (!acceso.puede(agenteId, Accion.VER_TODOS_LOS_REPORTES)) return null
+        return db.reporteDao().obtenerPorNumero(numero)?.aModelo(hoy)
+    }
 
     // queda registrado como responsable (RN-23)
     @StringRes
     suspend fun tomar(numero: String, agenteId: Int, ahora: LocalDateTime): Int? {
+        if (!acceso.puede(agenteId, Accion.GESTIONAR_REPORTE)) return R.string.per_sin_permiso
+
         val reporte = db.reporteDao().obtenerPorNumero(numero) ?: return R.string.rep_error_reporte_no_encontrado
         if (!ReglasReporte.puedeTomarse(EstadoReporte.desdeNombre(reporte.estado))) {
             return R.string.rep_error_ya_tomado
@@ -125,13 +140,16 @@ class ReportesRepository(private val db: LocalDatabase) {
         return null
     }
 
-    // sin respuesta para el usuario no se puede resolver (RN-23)
+    // solo lo resuelve el agente responsable y con respuesta para el usuario (RN-23)
     @StringRes
-    suspend fun resolver(numero: String, respuesta: String, ahora: LocalDateTime): Int? {
+    suspend fun resolver(numero: String, agenteId: Int, respuesta: String, ahora: LocalDateTime): Int? {
+        if (!acceso.puede(agenteId, Accion.GESTIONAR_REPORTE)) return R.string.per_sin_permiso
+
         val reporte = db.reporteDao().obtenerPorNumero(numero) ?: return R.string.rep_error_reporte_no_encontrado
         if (!ReglasReporte.puedeResolverse(EstadoReporte.desdeNombre(reporte.estado))) {
             return R.string.rep_error_tomar_primero
         }
+        if (reporte.idAgente != agenteId) return R.string.per_otro_agente
         if (respuesta.isBlank()) return R.string.rep_error_sin_respuesta
 
         db.withWriteTransaction {

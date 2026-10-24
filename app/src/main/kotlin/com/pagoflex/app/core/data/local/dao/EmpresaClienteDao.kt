@@ -13,6 +13,7 @@ interface EmpresaClienteDao {
     @Insert
     suspend fun insertarEmpresasCliente(empresasCliente: List<EmpresaCliente>): List<Long>
 
+    // adonys: consultas nuevas para cobranza
     @Query("SELECT * FROM empresa_cliente WHERE id_empresa = :empresaId LIMIT 1")
     suspend fun obtenerPorId(empresaId: Int): EmpresaCliente?
 
