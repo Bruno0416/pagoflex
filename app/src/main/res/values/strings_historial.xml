@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="historial_filtro_empresa">Empresa</string>
+    <string name="historial_filtro_todas">Todas</string>
+    <string name="historial_filtro_todos">Todos</string>
+    <string name="historial_vacio">Todavía no tienes pagos registrados.</string>
+    <string name="historial_sin_resultados">No hay pagos con estos filtros.</string>
+    <string name="historial_titulo">Historial de pagos</string>
+    <string name="historial_descripcion">Tus pagos registrados:</string>
+    <string name="historial_con_atraso">Con atraso</string>
+    <string name="historial_a_tiempo">A tiempo</string>
+    <string name="historial_error_cargar">No se pudo cargar el historial.</string>
+</resources>
