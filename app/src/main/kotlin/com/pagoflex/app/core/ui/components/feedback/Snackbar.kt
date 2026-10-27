@@ -2,11 +2,7 @@ package com.pagoflex.app.core.ui.components.feedback
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.Snackbar as MaterialSnackbar
-import androidx.compose.material3.SnackbarHost as MaterialSnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -18,6 +14,8 @@ import androidx.compose.ui.unit.dp
 import com.pagoflex.app.core.ui.components.model.ComponentVariant
 import com.pagoflex.app.core.ui.theme.PagoFlexTheme
 import com.pagoflex.app.core.ui.theme.Theme
+import androidx.compose.material3.Snackbar as MaterialSnackbar
+import androidx.compose.material3.SnackbarHost as MaterialSnackbarHost
 
 @Composable
 fun Snackbar(

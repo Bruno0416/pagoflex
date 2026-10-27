@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- pantalla y estado -->
+    <string name="cumplimiento_titulo">Mi cumplimiento</string>
+    <string name="cumplimiento_volver">Volver</string>
+    <string name="cumplimiento_error_cargar">No se pudo cargar tu cumplimiento</string>
+    <string name="cumplimiento_resumen">Pagaste a tiempo %1$d de tus %2$d compromisos de los últimos 12 meses.</string>
+    <string name="cumplimiento_insuficiente_titulo">Historial insuficiente</string>
+    <string name="cumplimiento_insuficiente_detalle">Aún no tienes suficientes compromisos vencidos para calcular tu indicador. Llevas %1$d de 3 necesarios.</string>
+
+    <!-- escala y explicaciones -->
+    <string name="cumplimiento_escala_titulo">¿Cómo se lee?</string>
+    <string name="cumplimiento_categoria_ejemplar">Ejemplar</string>
+    <string name="cumplimiento_categoria_al_dia">Al día</string>
+    <string name="cumplimiento_categoria_en_camino">En camino</string>
+    <string name="cumplimiento_rango_ejemplar">95% o más</string>
+    <string name="cumplimiento_rango_al_dia">80% a 94,9%</string>
+    <string name="cumplimiento_rango_en_camino">Menos de 80%</string>
+    <string name="cumplimiento_privacidad">Cada pago a tiempo suma. Solo tú ves este indicador: no te comparamos con nadie.</string>
+    <string name="cumplimiento_exclusiones">No cuentan los compromisos anulados, en revisión ni los que aún no vencen.</string>
+    <string name="cumplimiento_reconocimientos">Mis reconocimientos</string>
+</resources>

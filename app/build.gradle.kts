@@ -1,6 +1,10 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+
+    // --- base de datos ---
+    alias(libs.plugins.androidx.room3)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -62,6 +66,14 @@ dependencies {
     // --- navegación ---
     implementation(libs.androidx.navigation.compose)
 
+    // --- room ---
+    implementation(libs.androidx.room3.runtime)
+    ksp(libs.androidx.room3.compiler)
+
+    // --- SQLite ---
+    implementation(libs.androidx.sqlite.bundled)
+
+
     // --- herramientas de depuración compose ---
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
@@ -74,4 +86,8 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+}
+
+room3 {
+    schemaDirectory("$projectDir/schemas")
 }

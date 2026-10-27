@@ -136,7 +136,7 @@ fun PagoFlexTheme(
     se va a usar para poder acceder fácilmente
     a los tokens de la aplicación gracias a los getters
 */
-object Theme{
+object Theme {
 
     val colores @Composable get() = MaterialTheme.colorScheme
 

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="perfil_titulo">Mi perfil</string>
+    <string name="perfil_abrir">Abrir mi perfil</string>
+    <string name="perfil_volver">Volver</string>
+    <string name="perfil_cambiar_foto">Tomar fotografía</string>
+    <string name="perfil_elegir_galeria">Galería</string>
+    <string name="perfil_galeria_error">No se pudo abrir la imagen seleccionada.</string>
+    <string name="perfil_permiso_camara_denegado">Para tomar una fotografía necesitas permitir el acceso a la cámara. Puedes habilitarlo en Ajustes.</string>
+    <string name="perfil_abrir_ajustes">Ajustes</string>
+    <string name="perfil_camara_no_disponible">No se pudo abrir la cámara. Revisa la configuración del emulador o utiliza Galería.</string>
+    <string name="perfil_eliminar_foto">Eliminar fotografía</string>
+    <string name="perfil_datos_personales">Datos personales</string>
+    <string name="perfil_nombres">Nombres</string>
+    <string name="perfil_apellidos">Apellidos</string>
+    <string name="perfil_correo">Correo electrónico</string>
+    <string name="perfil_rut">RUT</string>
+    <string name="perfil_editar">Editar</string>
+    <string name="perfil_cancelar">Cancelar</string>
+    <string name="perfil_guardar">Guardar</string>
+    <string name="perfil_contrasena_actual">Contraseña actual</string>
+    <string name="perfil_aviso_correo">Para cambiar el correo, confirma tu contraseña actual.</string>
+    <string name="perfil_contrasena_requerida">Ingresa tu contraseña para cambiar el correo.</string>
+    <string name="perfil_contrasena_incorrecta">La contraseña actual no coincide.</string>
+    <string name="perfil_correo_ocupado">El correo ya está registrado.</string>
+    <string name="perfil_datos_guardados">Datos actualizados correctamente.</string>
+    <string name="perfil_foto_guardada">Fotografía guardada.</string>
+    <string name="perfil_foto_eliminada">Fotografía eliminada.</string>
+    <string name="perfil_no_disponible">No se encontró el usuario de esta sesión.</string>
+    <string name="perfil_error_cargar">No fue posible cargar tu perfil.</string>
+    <string name="perfil_error_guardar">No fue posible guardar los cambios. Revisa los datos e inténtalo nuevamente.</string>
+    <string name="perfil_error_foto">No fue posible guardar la fotografía.</string>
+    <string name="perfil_reintentar">Reintentar</string>
+    <string name="perfil_cerrar_sesion">Cerrar sesión</string>
+    <string name="perfil_confirmar_salida">¿Quieres cerrar tu sesión en este dispositivo?</string>
+</resources>

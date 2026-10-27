@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ayuda del usuario: mis reportes (HU-06) -->
+    <string name="rep_ayuda_titulo">Ayuda con tus cobros</string>
+    <string name="rep_ayuda_texto">Si algo no cuadra con un cobro, avísanos aquí y sigue tu caso sin repetir la historia.</string>
+    <string name="rep_mis_reportes">Mis reportes</string>
+    <string name="rep_problemas_cobro">¿Problemas con un cobro?</string>
+    <string name="rep_sin_compromisos">No tienes cobros pendientes.</string>
+    <string name="rep_reportar">Reportar</string>
+    <string name="rep_ver_reporte">Ver reporte</string>
+    <string name="rep_reporte_linea">%1$s · %2$s · %3$s</string>
+    <string name="rep_estado_abierto_usuario">Recibimos tu reporte. Pronto alguien de soporte lo revisará.</string>
+    <string name="rep_estado_gestion_usuario">Estamos revisando tu caso.</string>
+    <string name="rep_respuesta_soporte">Respuesta de soporte:</string>
+    <string name="rep_compromiso_quedo">El compromiso quedó %1$s.</string>
+    <string name="rep_concepto_total">%1$s · %2$s</string>
+
+    <!-- reportar un problema (HU-06, RN-09) -->
+    <string name="rep_titulo_reportar">Reportar un problema</string>
+    <string name="rep_campo_concepto">Concepto</string>
+    <string name="rep_campo_folio">Folio</string>
+    <string name="rep_campo_vencimiento">Vencimiento</string>
+    <string name="rep_campo_total">Total</string>
+    <string name="rep_que_pasa">¿Qué pasa con este cobro?</string>
+    <string name="rep_comentario_obligatorio">Cuéntanos qué pasó (obligatorio)</string>
+    <string name="rep_comentario_opcional">Cuéntanos qué pasó (opcional)</string>
+    <string name="rep_aviso_revision">Mientras revisamos tu caso, este cobro queda En revisión y no podrás pagarlo.</string>
+    <string name="rep_enviar">Enviar reporte</string>
+    <string name="rep_enviado_titulo">¡Listo! Recibimos tu reporte</string>
+    <string name="rep_ya_existe_titulo">Ya tienes un reporte de este cobro</string>
+    <string name="rep_campo_numero">N° de reporte</string>
+    <string name="rep_campo_motivo">Motivo</string>
+    <string name="rep_campo_enviado">Enviado</string>
+    <string name="rep_te_avisaremos">Te avisaremos cuando soporte lo resuelva. Puedes seguirlo en Ayuda.</string>
+    <string name="rep_volver">Volver</string>
+
+    <!-- bandeja del agente (HU-10, RF-14) -->
+    <string name="rep_titulo_bandeja">Reportes de usuarios</string>
+    <string name="rep_subtitulo_agente">%1$s · Agente PagoFlex</string>
+    <plurals name="rep_aviso_atrasados">
+        <item quantity="one">%d reporte lleva más de 2 días hábiles sin gestionar.</item>
+        <item quantity="other">%d reportes llevan más de 2 días hábiles sin gestionar.</item>
+    </plurals>
+    <string name="rep_filtro_estado">%1$s (%2$d)</string>
+    <string name="rep_filtro_todos">Todos</string>
+    <string name="rep_sin_reportes">No hay reportes en este estado.</string>
+    <string name="rep_usuario_empresa">%1$s · %2$s</string>
+    <string name="rep_recibido_espera">Recibido el %1$s · %2$d días hábiles esperando</string>
+    <string name="rep_gestiona">Lo gestiona %1$s desde %2$s</string>
+    <string name="rep_resuelto_el">Resuelto el %1$s</string>
+
+    <!-- detalle del reporte (HU-10, RF-15) -->
+    <string name="rep_titulo_detalle">Reporte</string>
+    <string name="rep_seccion_reporte">Reporte</string>
+    <string name="rep_atrasado_dias">Atrasado: %1$d días hábiles sin gestionar</string>
+    <string name="rep_campo_comentario">Comentario</string>
+    <string name="rep_campo_recibido">Recibido</string>
+    <string name="rep_campo_responsable">Responsable</string>
+    <string name="rep_sin_asignar">Sin asignar</string>
+    <string name="rep_campo_tomado">Tomado</string>
+    <string name="rep_seccion_compromiso">Compromiso</string>
+    <string name="rep_campo_empresa">Empresa</string>
+    <string name="rep_campo_estado">Estado</string>
+    <string name="rep_seccion_usuario">Usuario</string>
+    <string name="rep_campo_nombre">Nombre</string>
+    <string name="rep_campo_correo">Correo</string>
+    <string name="rep_campo_telefono">Teléfono</string>
+    <string name="rep_tomar">Tomar reporte</string>
+    <string name="rep_respuesta_label">Respuesta para el usuario</string>
+    <string name="rep_respuesta_placeholder">Explica qué se hizo con su caso</string>
+    <string name="rep_coordinar">Si el cobro se debe anular, coordínalo con el ejecutivo de %1$s antes de resolver.</string>
+    <string name="rep_marcar_resuelto">Marcar como resuelto</string>
+    <string name="rep_respuesta_enviada">Respuesta enviada</string>
+    <string name="rep_tomado_ok">Tomaste el reporte. Ahora está En gestión a tu nombre.</string>
+    <string name="rep_resuelto_ok">Reporte resuelto. El usuario ya puede ver tu respuesta.</string>
+
+    <!-- errores -->
+    <string name="rep_error_no_encontrado">No encontramos ese compromiso</string>
+    <string name="rep_error_no_necesita">Este compromiso no necesita reporte</string>
+    <string name="rep_error_elige_motivo">Elige qué problema tiene el cobro</string>
+    <string name="rep_error_reporte_no_encontrado">No encontramos el reporte</string>
+    <string name="rep_error_ya_tomado">Este reporte ya fue tomado</string>
+    <string name="rep_error_tomar_primero">Primero tienes que tomar el reporte</string>
+    <string name="rep_error_sin_respuesta">Escribe la respuesta para el usuario antes de resolver</string>
+    <string name="rep_error_cargar">No pudimos cargar la información</string>
+    <string name="rep_error_generico">No pudimos completar la operación. Intenta de nuevo.</string>
+</resources>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- resumen de cobranza (HU-12) -->
+    <string name="cob_titulo_resumen">Cobranza</string>
+    <string name="cob_subtitulo">%1$s · %2$s</string>
+    <string name="cob_mes_anterior">Mes anterior</string>
+    <string name="cob_mes_siguiente">Mes siguiente</string>
+    <string name="cob_tasa">Tasa de cobranza</string>
+    <string name="cob_sin_compromisos_mes">Sin compromisos este mes</string>
+    <string name="cob_recaudado">Recaudado: %1$s</string>
+    <string name="cob_pagados">Pagados</string>
+    <string name="cob_pendientes">Pendientes</string>
+    <string name="cob_vencidos">Vencidos</string>
+    <string name="cob_resumen_detalle">%1$d compromisos · %2$d anulados · %3$d en revisión</string>
+    <string name="cob_ver_compromisos">Ver compromisos del mes</string>
+
+    <!-- compromisos de la empresa (RF-17) -->
+    <string name="cob_titulo_compromisos">Compromisos</string>
+    <string name="cob_filtro_todos">Todos</string>
+    <string name="cob_sin_resultados">No hay compromisos con este filtro en el mes.</string>
+    <string name="cob_concepto_cuota">%1$s · Cuota %2$s</string>
+    <string name="cob_folio_vence">%1$s · vence %2$s</string>
+
+    <!-- detalle del compromiso -->
+    <string name="cob_titulo_detalle">Detalle del compromiso</string>
+    <string name="cob_no_encontrado">No encontramos este compromiso en tu empresa.</string>
+    <string name="cob_seccion_compromiso">Compromiso</string>
+    <string name="cob_seccion_persona">Persona</string>
+    <string name="cob_seccion_pago">Pago</string>
+    <string name="cob_seccion_reporte">Reporte del usuario</string>
+    <string name="cob_seccion_registro">Registro</string>
+    <string name="cob_campo_cuota">Cuota</string>
+    <string name="cob_campo_vencimiento">Vencimiento</string>
+    <string name="cob_campo_monto">Monto</string>
+    <string name="cob_campo_recargo">Recargo por atraso</string>
+    <string name="cob_campo_dias_atraso">Días de atraso</string>
+    <string name="cob_campo_total">Total</string>
+    <string name="cob_campo_nombre">Nombre</string>
+    <string name="cob_campo_rut">RUT</string>
+    <string name="cob_campo_correo">Correo</string>
+    <string name="cob_campo_telefono">Teléfono</string>
+    <string name="cob_campo_comprobante">Comprobante</string>
+    <string name="cob_campo_fecha">Fecha</string>
+    <string name="cob_campo_canal">Canal</string>
+    <string name="cob_campo_monto_pagado">Monto pagado</string>
+    <string name="cob_campo_numero_reporte">N° reporte</string>
+    <string name="cob_campo_motivo">Motivo</string>
+    <string name="cob_campo_comentario">Comentario</string>
+    <string name="cob_campo_estado">Estado</string>
+    <string name="cob_campo_registrado_por">Registrado por</string>
+    <string name="cob_registrado_pagoflex">PagoFlex (planilla)</string>
+    <string name="cob_campo_fecha_registro">Fecha de registro</string>
+    <string name="cob_campo_anulado_por">Anulado por</string>
+    <string name="cob_campo_fecha_anulacion">Fecha de anulación</string>
+
+    <!-- anulación (HU-11, RN-21) -->
+    <string name="cob_anular">Anular compromiso</string>
+    <string name="cob_pagado_no_anulable">Los compromisos pagados no se pueden anular.</string>
+    <string name="cob_anular_aviso">La persona dejará de verlo como deuda. Esta acción no se puede deshacer.</string>
+    <string name="cob_motivo">Motivo</string>
+    <string name="cob_elige_motivo">Elige un motivo</string>
+    <string name="cob_comentario_obligatorio">Comentario (obligatorio)</string>
+    <string name="cob_comentario_opcional">Comentario (opcional)</string>
+    <string name="cob_confirmar_anulacion">Confirmar anulación</string>
+    <string name="cob_anulado_ok">Compromiso anulado. La persona ya no lo verá como deuda.</string>
+
+    <!-- registro (HU-11, RN-20) -->
+    <string name="cob_titulo_registrar">Registrar compromiso</string>
+    <string name="cob_rut">RUT</string>
+    <string name="cob_persona_encontrada">%1$s · %2$s</string>
+    <string name="cob_persona_nueva">Esta persona aún no está en PagoFlex. Ingresa sus datos básicos.</string>
+    <string name="cob_nombres">Nombres</string>
+    <string name="cob_apellidos">Apellidos</string>
+    <string name="cob_correo">Correo</string>
+    <string name="cob_telefono">Teléfono</string>
+    <string name="cob_concepto">Concepto</string>
+    <string name="cob_monto">Monto en pesos</string>
+    <string name="cob_vencimiento">Vencimiento (DD-MM-AAAA)</string>
+    <string name="cob_cuota">Cuota</string>
+    <string name="cob_total_cuotas">Total cuotas</string>
+    <string name="cob_cuota_opcional">La cuota es opcional (por ejemplo, un aporte mensual no tiene cuotas).</string>
+    <string name="cob_registrar_boton">Registrar compromiso</string>
+    <string name="cob_registrado_titulo">Compromiso registrado</string>
+    <string name="cob_registrado_texto">Quedó Pendiente con el folio %1$s por %2$s, vence el %3$s. La persona ya lo ve en su app.</string>
+    <string name="cob_volver_resumen">Volver al resumen</string>
+    <string name="cob_registrar_otro">Registrar otro</string>
+    <string name="cob_ph_rut">12.476.318-5</string>
+    <string name="cob_ph_concepto">Cuota pie departamento</string>
+    <string name="cob_ph_monto">310000</string>
+    <string name="cob_ph_vencimiento">30-11-2026</string>
+    <string name="cob_ph_cuota">16</string>
+    <string name="cob_ph_total">36</string>
+    <string name="cob_ph_telefono">+56 9 1234 5678</string>
+
+    <!-- errores -->
+    <string name="cob_error_otra_empresa">Solo puedes anular compromisos de tu empresa</string>
+    <string name="cob_error_anular_pagado">Un compromiso pagado no se puede anular</string>
+    <string name="cob_error_ya_anulado">Este compromiso ya está anulado</string>
+    <string name="cob_error_motivo_obligatorio">Elige el motivo de la anulación</string>
+    <string name="cob_error_no_encontrado">No encontramos el compromiso</string>
+    <string name="cob_error_duplicado">Ese compromiso ya está registrado para esta persona</string>
+    <string name="cob_error_sin_empresa">Tu usuario no tiene una empresa asociada</string>
+    <string name="cob_error_generico">No pudimos completar la operación. Intenta de nuevo.</string>
+    <string name="cob_error_cargar">No pudimos cargar la información</string>
+</resources>

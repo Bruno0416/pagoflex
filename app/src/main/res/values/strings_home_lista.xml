@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_lista_titulo">Mis compromisos</string>
+    <string name="home_lista_volver">Volver</string>
+    <string name="home_lista_vacia">Aún no tienes compromisos registrados</string>
+</resources>

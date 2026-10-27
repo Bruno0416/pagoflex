@@ -1,7 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- etiquetas de usuario final -->
     <string name="nav_home">Inicio</string>
     <string name="nav_historial">Historial</string>
     <string name="nav_ayuda">Ayuda</string>
     <string name="nav_avisos">Avisos</string>
+
+    <!-- etiquetas de ejecutivo -->
+    <string name="nav_resumen">Resumen</string>
+    <string name="nav_compromisos_empresa">Compromisos</string>
+    <string name="nav_registrar_compromiso">Registrar</string>
+
+    <!-- pantallas todavia pendientes -->
+    <string name="nav_historial_pendiente">Historial pendiente</string>
+    <string name="nav_detalle_compromiso">Detalle del compromiso %1$s</string>
+    <string name="nav_bandeja_reportes_pendiente">Bandeja de reportes (pendiente)</string>
+    <string name="nav_resumen_cobranza_pendiente">Resumen de cobranza (pendiente)</string>
+    <string name="nav_compromisos_empresa_pendiente">Compromisos de la empresa (pendiente)</string>
+    <string name="nav_registrar_compromiso_pendiente">Registrar compromiso (pendiente)</string>
 </resources>

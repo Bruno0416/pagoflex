@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="comprobante_titulo">Comprobante</string>
+    <string name="comprobante_cerrar">Cerrar comprobante</string>
+    <string name="comprobante_no_encontrado">No se encontró el comprobante.</string>
+    <string name="comprobante_cabecera">Comprobante de pago</string>
+    <string name="comprobante_pago_registrado">%1$s · Pago registrado</string>
+    <string name="comprobante_numero">N° comprobante</string>
+    <string name="comprobante_fecha_hora">Fecha y hora</string>
+    <string name="comprobante_pagado_por">Pagado por</string>
+    <string name="comprobante_empresa">Empresa</string>
+    <string name="comprobante_folio">Folio</string>
+    <string name="comprobante_concepto">Concepto</string>
+    <string name="comprobante_vencimiento">Vencimiento</string>
+    <string name="comprobante_monto_cuota">Monto de la cuota</string>
+    <string name="comprobante_recargo">Recargo</string>
+    <string name="comprobante_total_pagado">Total pagado</string>
+    <string name="comprobante_medio_pago">Medio de pago</string>
+    <string name="comprobante_canal">Canal</string>
+    <string name="comprobante_error_cargar">No se pudo cargar el detalle del comprobante.</string>
+</resources>

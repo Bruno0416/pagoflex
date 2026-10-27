@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- permisos por rol (RNF-13, RN-22) -->
+    <string name="per_sin_permiso">Tu perfil no tiene permiso para esta acción.</string>
+    <string name="per_otro_agente">Este reporte lo está gestionando otro agente.</string>
+</resources>

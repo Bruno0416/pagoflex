@@ -33,9 +33,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -53,10 +55,11 @@ fun TextField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
+    onUnfocus: () -> Unit = {},
     label: String? = null,
     placeholder: String? = null,
     enabled: Boolean = true,
-    isError: Boolean = false,
+    error: String? = null,
     singleLine: Boolean = true,
     isPassword: Boolean = false,
     visualTransformation: VisualTransformation = VisualTransformation.None,
@@ -69,36 +72,41 @@ fun TextField(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     leadingIcon: (@Composable () -> Unit)? = null,
     trailingIcon: (@Composable () -> Unit)? = null,
-    @DrawableRes passwordVisibleIconRes: Int = R.drawable.ic_visibility,
-    @DrawableRes passwordHiddenIconRes: Int = R.drawable.ic_visibility_off,
+    @DrawableRes passwordVisibleIconRes: Int = R.drawable.ic_visibility_off,
+    @DrawableRes passwordHiddenIconRes: Int = R.drawable.ic_visibility,
+    containerColor: Color? = null,
+    outlineColor: Color? = null,
 ) {
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
     val isFocused by interactionSource.collectIsFocusedAsState()
+    var estabaEnFoco by remember { mutableStateOf(false) }
+    val hayError = !error.isNullOrBlank()
 
     // borde dinámico según estado (focus / error / normal)
     val borderColor = when {
-        isError -> Theme.colores.error
+        hayError -> Theme.colores.error
         isFocused -> Theme.colores.primary
-        else -> Color.Transparent
+        else -> outlineColor ?: Color.Transparent
     }
-    val borderWidth = if (isError) 1.5.dp else if (isFocused) 1.dp else 0.dp
+    val borderWidth = when {
+        hayError -> 1.5.dp
+        isFocused || outlineColor != null -> 1.dp
+        else -> 0.dp
+    }
 
     // --- colores ---
-    val containerBg = if (enabled) {
-        Theme.colores.surfaceContainerHighest
-    } else {
-        Theme.colores.surfaceContainerHighest.copy(alpha = 0.38f)
-    }
+    val colorFondo = containerColor ?: Theme.colores.surfaceContainerHighest
+    val containerBg = if (enabled) colorFondo else colorFondo.copy(alpha = 0.38f)
 
     val iconTint = when {
         !enabled -> Theme.colores.onSurface.copy(alpha = 0.38f)
-        isError -> Theme.colores.error
+        hayError -> Theme.colores.error
         else -> Theme.colores.onSurfaceVariant
     }
 
     val labelColor = when {
         !enabled -> Theme.colores.onSurface.copy(alpha = 0.38f)
-        isError -> Theme.colores.error
+        hayError -> Theme.colores.error
         isFocused -> Theme.colores.primary
         else -> Theme.colores.onSurfaceVariant
     }
@@ -115,6 +123,7 @@ fun TextField(
             Text(
                 text = label,
                 style = Theme.type.labelMedium,
+                color = labelColor,
                 modifier = Modifier.padding(bottom = Theme.dimens.spacingS)
             )
         }
@@ -123,6 +132,10 @@ fun TextField(
             value = value,
             onValueChange = onValueChange,
             modifier = Modifier
+                .onFocusChanged { estado ->
+                    if (estabaEnFoco && !estado.isFocused) onUnfocus()
+                    estabaEnFoco = estado.isFocused
+                }
                 .fillMaxWidth()
                 .height(Theme.dimens.componentsHeight)
                 .background(color = containerBg, shape = TextFieldShape)
@@ -136,7 +149,7 @@ fun TextField(
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
             visualTransformation = effectiveVisualTransformation,
-            cursorBrush = SolidColor(if (isError) Theme.colores.error else Theme.colores.primary),
+            cursorBrush = SolidColor(if (hayError) Theme.colores.error else Theme.colores.primary),
             decorationBox = { innerTextField ->
                 Row(
                     modifier = Modifier
@@ -182,9 +195,9 @@ fun TextField(
                                     }
                                 ),
                                 contentDescription = if (passwordVisible) {
-                                    "Ocultar contraseña"
+                                    stringResource(R.string.ui_ocultar_contrasena)
                                 } else {
-                                    "Mostrar contraseña"
+                                    stringResource(R.string.ui_mostrar_contrasena)
                                 },
                                 tint = iconTint
                             )
@@ -198,6 +211,15 @@ fun TextField(
                 }
             }
         )
+
+        if (hayError) {
+            Text(
+                text = error.orEmpty(),
+                color = Theme.colores.error,
+                style = Theme.type.bodySmall,
+                modifier = Modifier.padding(top = Theme.dimens.spacingXXS)
+            )
+        }
     }
 }
 
@@ -276,12 +298,12 @@ private fun TextFieldPasswordPreview() {
 @Composable
 private fun TextFieldErrorPreview() {
     PagoFlexTheme {
-        Surface  {
+        Surface {
             TextField(
                 value = "correo_invalido",
                 onValueChange = {},
                 label = "Correo corporativo",
-                isError = true,
+                error = "Ingresa un correo valido",
                 modifier = Modifier.padding(16.dp),
                 placeholder = "Correo electrónico",
                 leadingIcon = {

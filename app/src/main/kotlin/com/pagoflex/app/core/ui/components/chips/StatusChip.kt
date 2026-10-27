@@ -8,21 +8,19 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.pagoflex.app.core.ui.styles.ChipColors
 import com.pagoflex.app.core.ui.styles.coloresCard
 import com.pagoflex.app.core.ui.theme.PagoFlexTheme
 import com.pagoflex.app.core.ui.theme.Theme
-import com.pagoflex.app.features.home.model.EstadoCompromiso
+import com.pagoflex.app.features.home.presentation.model.EstadoCompromiso
 
 @Composable
 fun StatusChip(
@@ -80,15 +78,15 @@ private fun StatusChipPreview() {
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 StatusChip(
-                    label = pendiente.label,
+                    label = stringResource(pendiente.labelRes),
                     colores = pendiente.coloresCard
                 )
                 StatusChip(
-                    label = pagado.label,
+                    label = stringResource(pagado.labelRes),
                     colores = pagado.coloresCard
                 )
                 StatusChip(
-                    label = atrasado.label,
+                    label = stringResource(atrasado.labelRes),
                     colores = atrasado.coloresCard
                 )
             }
