@@ -29,8 +29,7 @@ import com.pagoflex.app.features.reportes.presentation.screens.ReportarProblemaS
 fun NavGraphBuilder.grafoUsuario(
     db: LocalDatabase,
     usuarioId: Int,
-    navController: NavHostController,
-    onCerrarSesion: () -> Unit
+    navController: NavHostController
 ) {
     composable(Ruta.Home.ruta) {
         HomeScreen(
@@ -92,8 +91,7 @@ fun NavGraphBuilder.grafoUsuario(
         MisReportesScreen(
             db = db,
             usuarioId = usuarioId,
-            onReportar = { folio -> navController.navigate(Ruta.ReportarProblema.crear(folio)) },
-            onCerrarSesion = onCerrarSesion
+            onReportar = { folio -> navController.navigate(Ruta.ReportarProblema.crear(folio)) }
         )
     }
     composable(Ruta.Avisos.ruta) {
@@ -160,8 +158,7 @@ fun NavGraphBuilder.grafoUsuario(
 fun NavGraphBuilder.grafoAgente(
     db: LocalDatabase,
     usuarioId: Int,
-    navController: NavHostController,
-    onCerrarSesion: () -> Unit
+    navController: NavHostController
 ) {
     // adonys: bandeja de reportes (HU-10)
     composable(Ruta.BandejaReportes.ruta) {
@@ -169,7 +166,7 @@ fun NavGraphBuilder.grafoAgente(
             db = db,
             usuarioId = usuarioId,
             onVerReporte = { numero -> navController.navigate(Ruta.DetalleReporte.crear(numero)) },
-            onCerrarSesion = onCerrarSesion
+            onVerPerfil = { navController.navigate(Ruta.Perfil.ruta) }
         )
     }
     composable(
@@ -189,16 +186,16 @@ fun NavGraphBuilder.grafoAgente(
 fun NavGraphBuilder.grafoEjecutivo(
     db: LocalDatabase,
     usuarioId: Int,
-    navController: NavHostController,
-    onCerrarSesion: () -> Unit
+    navController: NavHostController
 ) {
     // adonys: resumen de la cobranza del mes (HU-12)
     composable(Ruta.ResumenCobranza.ruta) {
         ResumenCobranzaScreen(
             db = db,
             usuarioId = usuarioId,
-            onVerCompromisos = { navController.navigate(Ruta.CompromisosEmpresa.ruta) },
-            onCerrarSesion = onCerrarSesion
+            // adonys: ir a la pestaña Compromisos igual que la barra inferior
+            onVerCompromisos = { navController.irAPestana(Ruta.CompromisosEmpresa.ruta, Ruta.ResumenCobranza.ruta) },
+            onVerPerfil = { navController.navigate(Ruta.Perfil.ruta) }
         )
     }
     composable(Ruta.CompromisosEmpresa.ruta) {
@@ -231,6 +228,15 @@ fun NavGraphBuilder.grafoEjecutivo(
             folio = entrada.arguments?.getString("folio").orEmpty(),
             onVolver = { navController.popBackStack() }
         )
+    }
+}
+
+// adonys: navegar como la barra inferior para no romper el volver de las pestañas
+private fun NavHostController.irAPestana(ruta: String, rutaInicial: String) {
+    navigate(ruta) {
+        popUpTo(rutaInicial) { saveState = true }
+        launchSingleTop = true
+        restoreState = true
     }
 }
 

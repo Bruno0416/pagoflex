@@ -28,15 +28,18 @@ class BandejaReportesViewModel(
     fun cargar(usuarioId: Int) {
         viewModelScope.launch {
             try {
-                // 1. nombre del agente y reportes de todos los usuarios (RF-14)
-                val nombre = reportesRepository.obtenerPrimerNombre(usuarioId)
+                // 1. nombre, avatar del agente y reportes de todos los usuarios (RF-14)
+                val cabecera = reportesRepository.obtenerCabecera(usuarioId)
+                val iniciales = cabecera?.let { (it.nombres.trim().take(1) + it.apellidos.trim().take(1)).uppercase() }
                 todos = reportesRepository.obtenerTodos(usuarioId, hoy())
 
                 // 2. contar por estado y atrasados (RN-23)
                 _uiState.update {
                     it.copy(
                         cargando = false,
-                        nombreAgente = nombre,
+                        nombreAgente = cabecera?.nombres?.substringBefore(" ").orEmpty(),
+                        inicialesAgente = iniciales.orEmpty(),
+                        avatarAgente = cabecera?.avatar,
                         cantidadPorEstado = todos.groupingBy { r -> r.estado }.eachCount(),
                         atrasados = todos.count { r -> r.atrasado },
                         error = null

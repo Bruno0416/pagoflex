@@ -32,6 +32,8 @@ data class ReportarProblemaUiState(
 data class BandejaReportesUiState(
     val cargando: Boolean = true,
     val nombreAgente: String = "",
+    val inicialesAgente: String = "",
+    val avatarAgente: ByteArray? = null,
     // nulo muestra todos
     val filtro: EstadoReporte? = EstadoReporte.ABIERTO,
     val reportes: List<ReporteItem> = emptyList(),

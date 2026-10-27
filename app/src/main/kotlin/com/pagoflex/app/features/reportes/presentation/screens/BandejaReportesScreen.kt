@@ -28,12 +28,11 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.pagoflex.app.R
 import com.pagoflex.app.core.data.local.LocalDatabase
 import com.pagoflex.app.core.rules.EstadoReporte
-import com.pagoflex.app.core.ui.components.buttons.TextButton
 import com.pagoflex.app.core.ui.components.chips.FiltroChips
 import com.pagoflex.app.core.ui.components.containers.Card
-import com.pagoflex.app.core.ui.components.model.ComponentSize
 import com.pagoflex.app.core.ui.components.model.ComponentVariant
 import com.pagoflex.app.core.ui.components.navigation.BarraSuperior
+import com.pagoflex.app.core.ui.components.navigation.BotonPerfil
 import com.pagoflex.app.core.ui.theme.Theme
 import com.pagoflex.app.features.reportes.data.ReportesRepository
 import com.pagoflex.app.features.reportes.presentation.components.CardReporte
@@ -44,7 +43,7 @@ fun BandejaReportesScreen(
     db: LocalDatabase,
     usuarioId: Int,
     onVerReporte: (String) -> Unit,
-    onCerrarSesion: () -> Unit,
+    onVerPerfil: () -> Unit,
 ) {
     // ---------- dependencias ----------
     val repositorio = remember(db) { ReportesRepository(db) }
@@ -74,9 +73,8 @@ fun BandejaReportesScreen(
                 titulo = stringResource(R.string.rep_titulo_bandeja),
                 subtitulo = stringResource(R.string.rep_subtitulo_agente, uiState.nombreAgente),
                 acciones = {
-                    TextButton(onClick = onCerrarSesion, size = ComponentSize.Small) {
-                        Text(stringResource(R.string.ui_cerrar_sesion))
-                    }
+                    // el avatar abre el perfil, ahí está cerrar sesión
+                    BotonPerfil(uiState.inicialesAgente, uiState.avatarAgente, onVerPerfil)
                 }
             )
         }

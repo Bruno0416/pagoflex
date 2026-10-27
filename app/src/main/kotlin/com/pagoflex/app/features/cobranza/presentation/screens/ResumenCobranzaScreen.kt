@@ -25,9 +25,8 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.pagoflex.app.R
 import com.pagoflex.app.core.data.local.LocalDatabase
 import com.pagoflex.app.core.ui.components.buttons.OutlinedButton
-import com.pagoflex.app.core.ui.components.buttons.TextButton
-import com.pagoflex.app.core.ui.components.model.ComponentSize
 import com.pagoflex.app.core.ui.components.navigation.BarraSuperior
+import com.pagoflex.app.core.ui.components.navigation.BotonPerfil
 import com.pagoflex.app.core.ui.theme.Theme
 import com.pagoflex.app.features.cobranza.data.CobranzaRepository
 import com.pagoflex.app.features.cobranza.presentation.components.CardResumenCobranza
@@ -39,7 +38,7 @@ fun ResumenCobranzaScreen(
     db: LocalDatabase,
     usuarioId: Int,
     onVerCompromisos: () -> Unit,
-    onCerrarSesion: () -> Unit,
+    onVerPerfil: () -> Unit,
 ) {
     // ---------- dependencias ----------
     val repositorio = remember(db) { CobranzaRepository(db) }
@@ -65,9 +64,8 @@ fun ResumenCobranzaScreen(
                     stringResource(R.string.cob_subtitulo, it.empresa.orEmpty(), it.nombre)
                 },
                 acciones = {
-                    TextButton(onClick = onCerrarSesion, size = ComponentSize.Small) {
-                        Text(stringResource(R.string.ui_cerrar_sesion))
-                    }
+                    // el avatar abre el perfil, ahí está cerrar sesión
+                    uiState.ejecutivo?.let { BotonPerfil(it.iniciales, it.avatar, onVerPerfil) }
                 }
             )
         }

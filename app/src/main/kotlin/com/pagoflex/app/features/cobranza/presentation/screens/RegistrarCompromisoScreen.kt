@@ -63,6 +63,8 @@ fun RegistrarCompromisoScreen(
             uiState = uiState,
             onCampo = viewModel::setCampo,
             onTotalCuotas = viewModel::setTotalCuotas,
+            onSalirCampo = viewModel::validarCampo,
+            onSalirTotal = viewModel::validarTotalCuotas,
             onRegistrar = { viewModel.registrar(usuarioId) },
             modifier = Modifier.padding(padding)
         )
@@ -95,6 +97,8 @@ private fun FormularioRegistro(
     uiState: RegistrarCompromisoUiState,
     onCampo: (CampoCompromiso, String) -> Unit,
     onTotalCuotas: (String) -> Unit,
+    onSalirCampo: (CampoCompromiso) -> Unit,
+    onSalirTotal: () -> Unit,
     onRegistrar: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -120,6 +124,7 @@ private fun FormularioRegistro(
         TextField(
             value = f.rut,
             onValueChange = { onCampo(CampoCompromiso.RUT, it) },
+            onUnfocus = { onSalirCampo(CampoCompromiso.RUT) },
             label = stringResource(R.string.cob_rut),
             placeholder = stringResource(R.string.cob_ph_rut),
             error = error(CampoCompromiso.RUT)
@@ -142,16 +147,18 @@ private fun FormularioRegistro(
                 style = Theme.type.bodySmall,
                 color = Theme.colores.onSurfaceVariant
             )
-            TextField(f.nombres, { onCampo(CampoCompromiso.NOMBRES, it) }, label = stringResource(R.string.cob_nombres), error = error(CampoCompromiso.NOMBRES))
-            TextField(f.apellidos, { onCampo(CampoCompromiso.APELLIDOS, it) }, label = stringResource(R.string.cob_apellidos), error = error(CampoCompromiso.APELLIDOS))
+            TextField(f.nombres, { onCampo(CampoCompromiso.NOMBRES, it) }, onUnfocus = { onSalirCampo(CampoCompromiso.NOMBRES) }, label = stringResource(R.string.cob_nombres), error = error(CampoCompromiso.NOMBRES))
+            TextField(f.apellidos, { onCampo(CampoCompromiso.APELLIDOS, it) }, onUnfocus = { onSalirCampo(CampoCompromiso.APELLIDOS) }, label = stringResource(R.string.cob_apellidos), error = error(CampoCompromiso.APELLIDOS))
             TextField(
                 f.correo, { onCampo(CampoCompromiso.CORREO, it) },
+                onUnfocus = { onSalirCampo(CampoCompromiso.CORREO) },
                 label = stringResource(R.string.cob_correo),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 error = error(CampoCompromiso.CORREO)
             )
             TextField(
                 f.telefono, { onCampo(CampoCompromiso.TELEFONO, it) },
+                onUnfocus = { onSalirCampo(CampoCompromiso.TELEFONO) },
                 label = stringResource(R.string.cob_telefono),
                 placeholder = stringResource(R.string.cob_ph_telefono),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
@@ -163,12 +170,14 @@ private fun FormularioRegistro(
         Titulo(stringResource(R.string.cob_seccion_compromiso))
         TextField(
             f.concepto, { onCampo(CampoCompromiso.CONCEPTO, it) },
+            onUnfocus = { onSalirCampo(CampoCompromiso.CONCEPTO) },
             label = stringResource(R.string.cob_concepto),
             placeholder = stringResource(R.string.cob_ph_concepto),
             error = error(CampoCompromiso.CONCEPTO)
         )
         TextField(
             f.monto, { onCampo(CampoCompromiso.MONTO, it) },
+            onUnfocus = { onSalirCampo(CampoCompromiso.MONTO) },
             label = stringResource(R.string.cob_monto),
             placeholder = stringResource(R.string.cob_ph_monto),
             keyboardOptions = numerico,
@@ -176,6 +185,7 @@ private fun FormularioRegistro(
         )
         TextField(
             f.vencimiento, { onCampo(CampoCompromiso.VENCIMIENTO, it) },
+            onUnfocus = { onSalirCampo(CampoCompromiso.VENCIMIENTO) },
             label = stringResource(R.string.cob_vencimiento),
             placeholder = stringResource(R.string.cob_ph_vencimiento),
             error = error(CampoCompromiso.VENCIMIENTO)
@@ -184,6 +194,7 @@ private fun FormularioRegistro(
         Row(horizontalArrangement = Arrangement.spacedBy(Theme.dimens.spacingS)) {
             TextField(
                 f.numeroCuota, { onCampo(CampoCompromiso.CUOTA, it) },
+                onUnfocus = { onSalirCampo(CampoCompromiso.CUOTA) },
                 label = stringResource(R.string.cob_cuota),
                 placeholder = stringResource(R.string.cob_ph_cuota),
                 keyboardOptions = numerico,
@@ -191,6 +202,7 @@ private fun FormularioRegistro(
             )
             TextField(
                 f.totalCuotas, onTotalCuotas,
+                onUnfocus = onSalirTotal,
                 label = stringResource(R.string.cob_total_cuotas),
                 placeholder = stringResource(R.string.cob_ph_total),
                 keyboardOptions = numerico,

@@ -63,6 +63,32 @@ class RegistrarCompromisoViewModel(
         }
     }
 
+    // --- validar al perder el foco ---
+    fun validarCampo(campo: CampoCompromiso) {
+        val estado = uiState.value
+        val f = estado.formulario
+
+        // 1. los datos de la persona solo se piden si es nueva
+        if (campo in camposPersona && !estado.pedirDatosPersona) return
+
+        // 2. la cuota se revisa recién cuando también hay total
+        if (campo == CampoCompromiso.CUOTA && f.totalCuotas.isBlank() && f.numeroCuota.isNotBlank()) return
+
+        aplicarValidacion(campo)
+    }
+
+    // al salir del total ya se puede revisar la cuota completa
+    fun validarTotalCuotas() {
+        aplicarValidacion(CampoCompromiso.CUOTA)
+    }
+
+    private fun aplicarValidacion(campo: CampoCompromiso) {
+        val error = cobranzaRepository.validarCampo(campo, uiState.value.formulario, ahora().toLocalDate())
+        _uiState.update {
+            it.copy(errores = if (error == null) it.errores - campo else it.errores + (campo to error))
+        }
+    }
+
     // --- persona ---
     private fun buscarPersona(rut: String) {
         // 1. con rut inválido no se busca ni se piden datos

@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.room3.withWriteTransaction
 import com.pagoflex.app.R
 import com.pagoflex.app.core.data.local.LocalDatabase
+import com.pagoflex.app.core.data.local.dao.CabeceraUsuarioRow
 import com.pagoflex.app.core.data.local.entities.Reporte
 import com.pagoflex.app.core.profiles.ControlAcceso
 import com.pagoflex.app.core.rules.Accion
@@ -112,8 +113,9 @@ class ReportesRepository(private val db: LocalDatabase) {
 
     // ---------- agente ----------
 
-    suspend fun obtenerPrimerNombre(usuarioId: Int): String =
-        db.usuarioDao().obtenerPorId(usuarioId)?.nombres?.substringBefore(" ").orEmpty()
+    // nombre y avatar del agente para la barra superior
+    suspend fun obtenerCabecera(usuarioId: Int): CabeceraUsuarioRow? =
+        db.usuarioDao().obtenerCabecera(usuarioId)
 
     // solo el agente ve los reportes de todos los usuarios (RF-14)
     suspend fun obtenerTodos(agenteId: Int, hoy: LocalDate): List<ReporteItem> {

@@ -34,6 +34,9 @@ data class EjecutivoSesion(
     val nombre: String,
     val idEmpresa: Int?,
     val empresa: String?,
+    // para el avatar de la barra superior
+    val iniciales: String = "",
+    val avatar: ByteArray? = null,
 )
 
 // persona encontrada por rut al registrar
@@ -66,7 +69,9 @@ class CobranzaRepository(private val db: LocalDatabase) {
             idUsuario = usuario.idUsuario,
             nombre = usuario.nombres.substringBefore(" "),
             idEmpresa = usuario.idEmpresa,
-            empresa = empresa?.nombreFantasia
+            empresa = empresa?.nombreFantasia,
+            iniciales = (usuario.nombres.trim().take(1) + usuario.apellidos.trim().take(1)).uppercase(),
+            avatar = usuario.avatar
         )
     }
 
@@ -106,6 +111,28 @@ class CobranzaRepository(private val db: LocalDatabase) {
 
     // ---------- registro (HU-11, RN-20) ----------
 
+    private val camposPersona = listOf(
+        CampoCompromiso.NOMBRES, CampoCompromiso.APELLIDOS, CampoCompromiso.CORREO, CampoCompromiso.TELEFONO
+    )
+    private val camposCompromiso = listOf(
+        CampoCompromiso.CONCEPTO, CampoCompromiso.MONTO, CampoCompromiso.VENCIMIENTO, CampoCompromiso.CUOTA
+    )
+
+    // validación de un campo, se usa al perder el foco y al registrar
+    @StringRes
+    fun validarCampo(campo: CampoCompromiso, formulario: FormularioCompromiso, hoy: LocalDate): Int? =
+        when (campo) {
+            CampoCompromiso.RUT -> Validaciones.validarRut(formulario.rut)
+            CampoCompromiso.NOMBRES -> Validaciones.validarObligatorio(formulario.nombres, R.string.val_nombres_obligatorios)
+            CampoCompromiso.APELLIDOS -> Validaciones.validarObligatorio(formulario.apellidos, R.string.val_apellidos_obligatorios)
+            CampoCompromiso.CORREO -> Validaciones.validarCorreo(formulario.correo)
+            CampoCompromiso.TELEFONO -> Validaciones.validarTelefono(formulario.telefono)
+            CampoCompromiso.CONCEPTO -> Validaciones.validarObligatorio(formulario.concepto, R.string.val_concepto_obligatorio)
+            CampoCompromiso.MONTO -> Validaciones.validarMonto(formulario.monto)
+            CampoCompromiso.VENCIMIENTO -> Validaciones.validarFechaVencimiento(formulario.vencimiento, hoy)
+            CampoCompromiso.CUOTA -> Validaciones.validarCuota(formulario.numeroCuota, formulario.totalCuotas)
+        }
+
     suspend fun registrar(
         formulario: FormularioCompromiso,
         ejecutivo: EjecutivoSesion,
@@ -123,7 +150,7 @@ class CobranzaRepository(private val db: LocalDatabase) {
         }
 
         // 1. persona: buscar por rut y pedir datos básicos solo si el rut es válido y no existe
-        val errorRut = Validaciones.validarRut(formulario.rut)
+        val errorRut = validarCampo(CampoCompromiso.RUT, formulario, hoy)
         revisar(CampoCompromiso.RUT, errorRut)
 
         val existente = if (errorRut == null) {
@@ -137,17 +164,11 @@ class CobranzaRepository(private val db: LocalDatabase) {
 
         val personaNueva = errorRut == null && existente == null
         if (personaNueva) {
-            revisar(CampoCompromiso.NOMBRES, Validaciones.validarObligatorio(formulario.nombres, R.string.val_nombres_obligatorios))
-            revisar(CampoCompromiso.APELLIDOS, Validaciones.validarObligatorio(formulario.apellidos, R.string.val_apellidos_obligatorios))
-            revisar(CampoCompromiso.CORREO, Validaciones.validarCorreo(formulario.correo))
-            revisar(CampoCompromiso.TELEFONO, Validaciones.validarTelefono(formulario.telefono))
+            camposPersona.forEach { revisar(it, validarCampo(it, formulario, hoy)) }
         }
 
         // 2. datos del compromiso
-        revisar(CampoCompromiso.CONCEPTO, Validaciones.validarObligatorio(formulario.concepto, R.string.val_concepto_obligatorio))
-        revisar(CampoCompromiso.MONTO, Validaciones.validarMonto(formulario.monto))
-        revisar(CampoCompromiso.VENCIMIENTO, Validaciones.validarFechaVencimiento(formulario.vencimiento, hoy))
-        revisar(CampoCompromiso.CUOTA, Validaciones.validarCuota(formulario.numeroCuota, formulario.totalCuotas))
+        camposCompromiso.forEach { revisar(it, validarCampo(it, formulario, hoy)) }
 
         if (errores.isNotEmpty()) return ResultadoRegistro.ConErrores(errores)
 

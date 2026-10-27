@@ -81,9 +81,13 @@ fun AppNavegacion(
                                     Icon(
                                         painter = painterResource(
                                             when (destino) {
-                                                Ruta.Home, Ruta.ResumenCobranza -> R.drawable.ic_home
-                                                Ruta.Historial, Ruta.CompromisosEmpresa -> R.drawable.ic_history
+                                                Ruta.Home -> R.drawable.ic_home
+                                                Ruta.Historial -> R.drawable.ic_history
                                                 Ruta.Ayuda -> R.drawable.ic_help
+                                                // adonys: íconos propios del ejecutivo
+                                                Ruta.ResumenCobranza -> R.drawable.ic_bar_chart
+                                                Ruta.CompromisosEmpresa -> R.drawable.ic_list
+                                                Ruta.RegistrarCompromiso -> R.drawable.ic_add
                                                 else -> R.drawable.ic_notifications
                                             }
                                         ),
@@ -153,10 +157,10 @@ fun AppNavegacion(
                 }
                 // Un perfil solo registra sus propias rutas.
                 when (perfilUsuario) {
-                    // adonys: los grafos reciben la base, el navController y cerrar sesión
-                    PerfilUsuario.USUARIO_FINAL -> grafoUsuario(db, usuarioId, navController, onCerrarSesion)
-                    PerfilUsuario.AGENTE -> grafoAgente(db, usuarioId, navController, onCerrarSesion)
-                    PerfilUsuario.EJECUTIVO -> grafoEjecutivo(db, usuarioId, navController, onCerrarSesion)
+                    // adonys: los grafos reciben la base y el navController
+                    PerfilUsuario.USUARIO_FINAL -> grafoUsuario(db, usuarioId, navController)
+                    PerfilUsuario.AGENTE -> grafoAgente(db, usuarioId, navController)
+                    PerfilUsuario.EJECUTIVO -> grafoEjecutivo(db, usuarioId, navController)
                 }
             }
         }

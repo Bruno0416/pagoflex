@@ -27,7 +27,6 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.pagoflex.app.R
 import com.pagoflex.app.core.data.local.LocalDatabase
 import com.pagoflex.app.core.rules.EstadoReporte
-import com.pagoflex.app.core.ui.components.buttons.OutlinedButton
 import com.pagoflex.app.core.ui.components.buttons.TextButton
 import com.pagoflex.app.core.ui.components.chips.StatusChip
 import com.pagoflex.app.core.ui.components.containers.Card
@@ -48,7 +47,6 @@ fun MisReportesScreen(
     db: LocalDatabase,
     usuarioId: Int,
     onReportar: (String) -> Unit,
-    onCerrarSesion: () -> Unit,
 ) {
     // ---------- dependencias ----------
     val repositorio = remember(db) { ReportesRepository(db) }
@@ -108,15 +106,6 @@ fun MisReportesScreen(
         }
         items(uiState.compromisos, key = { it.folio }) { compromiso ->
             CardCompromisoReportable(compromiso, onReportar = { onReportar(compromiso.folio) })
-        }
-
-        item {
-            OutlinedButton(
-                onClick = onCerrarSesion,
-                modifier = Modifier.padding(top = Theme.dimens.spacingL)
-            ) {
-                Text(stringResource(R.string.ui_cerrar_sesion))
-            }
         }
     }
 }
