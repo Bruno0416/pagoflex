@@ -13,6 +13,21 @@ data class AccesoUsuarioRow(
     val respuestaRecuperacionHash: String?
 )
 
+data class PerfilUsuarioRow(
+    val idUsuario: Int,
+    val nombres: String,
+    val apellidos: String,
+    val correo: String,
+    val rut: String,
+    val avatar: ByteArray?
+)
+
+data class CabeceraUsuarioRow(
+    val nombres: String,
+    val apellidos: String,
+    val avatar: ByteArray?
+)
+
 @Dao
 interface UsuarioDao {
     @Insert
@@ -35,12 +50,38 @@ interface UsuarioDao {
     )
     suspend fun obtenerSesionUsuario(usuarioId: Int): SesionUsuario?
 
-    @Query(
-        """
-        SELECT nombres FROM usuario WHERE id_usuario = :usuarioId
-    """
-    )
-    suspend fun obtenerNombreParaHome(usuarioId: Int): String?
+    @Query("""
+        SELECT id_usuario AS idUsuario, nombres, apellidos, correo, rut, avatar
+        FROM usuario WHERE id_usuario = :usuarioId AND activo = 1 LIMIT 1
+    """)
+    suspend fun obtenerPerfil(usuarioId: Int): PerfilUsuarioRow?
+
+    @Query("""
+        SELECT nombres, apellidos, avatar
+        FROM usuario WHERE id_usuario = :usuarioId AND activo = 1 LIMIT 1
+    """)
+    suspend fun obtenerCabecera(usuarioId: Int): CabeceraUsuarioRow?
+
+    @Query("SELECT password_hash FROM usuario WHERE id_usuario = :usuarioId AND activo = 1")
+    suspend fun obtenerHashParaPerfil(usuarioId: Int): String?
+
+    @Query("SELECT id_usuario FROM usuario WHERE correo = :correo AND activo = 1 LIMIT 1")
+    suspend fun obtenerIdPorCorreo(correo: String): Int?
+
+    @Query("""
+        UPDATE usuario SET nombres = :nombres, apellidos = :apellidos, correo = :correo
+        WHERE id_usuario = :usuarioId AND activo = 1 AND correo = :correoAnterior
+    """)
+    suspend fun actualizarPerfil(
+        usuarioId: Int,
+        nombres: String,
+        apellidos: String,
+        correo: String,
+        correoAnterior: String
+    ): Int
+
+    @Query("UPDATE usuario SET avatar = :avatar WHERE id_usuario = :usuarioId AND activo = 1")
+    suspend fun actualizarAvatar(usuarioId: Int, avatar: ByteArray?): Int
 
 
     // ---------- adonys: cobranza y reportes ----------

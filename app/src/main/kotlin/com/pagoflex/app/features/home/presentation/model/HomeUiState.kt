@@ -5,6 +5,8 @@ import java.time.YearMonth
 
 data class HomeUiState(
     val nombreUsuario: String = "",
+    val inicialesUsuario: String = "",
+    val avatarUsuario: ByteArray? = null,
     val periodo: YearMonth? = null,
     val resumen: ResumenInicio = ResumenInicio(),
     val compromisos: List<CompromisoInicio> = emptyList(),

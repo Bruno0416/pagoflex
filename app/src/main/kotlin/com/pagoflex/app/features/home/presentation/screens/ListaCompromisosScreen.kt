@@ -16,7 +16,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -56,7 +57,8 @@ fun ListaCompromisosScreen(
     )
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(usuarioId) {
+    // 1. recargar los compromisos al volver a la lista
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         viewModel.cargarCompromisos(usuarioId)
     }
 

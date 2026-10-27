@@ -17,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.pagoflex.app.R
+import com.pagoflex.app.core.ui.components.avatar.Avatar
 import com.pagoflex.app.core.ui.components.chips.StatusChip
 import com.pagoflex.app.core.ui.components.containers.Card
 import com.pagoflex.app.core.ui.components.model.ComponentVariant

@@ -125,8 +125,10 @@ fun AuthScreen(db: LocalDatabase) {
                 perfilUsuario = sesion.perfil,
                 usuarioId = sesion.usuarioId,
                 db = db,
-                // adonys: cerrar sesión
-                onCerrarSesion = authViewModel::cerrarSesion
+                onCerrarSesion = {
+                    loginViewModel.limpiarFormulario()
+                    authViewModel.cerrarSesion()
+                }
             )
         }
     }

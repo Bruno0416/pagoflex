@@ -46,10 +46,13 @@ interface PagoDao {
     // ---------- procesar pago ----------
     @Transaction
     suspend fun procesarPago(pago: Pago): Long {
+        // 1. guardar el pago confirmado
         val idPago = insertarPagoInterno(pago)
 
+        // 2. generar el comprobante asociado
         generarComprobante(idPago)
 
+        // 3. comprobar que exista un unico comprobante
         check(contarComprobantes(idPago) == 1) {
             "No se pudo generar el comprobante"
         }
@@ -80,4 +83,11 @@ interface PagoDao {
         numeroComprobante: String,
         usuarioId: Int
     ): Comprobante?
+    // ---------- consulta de pago existente ----------
+    @Query("SELECT numero_comprobante FROM pago WHERE id_compromiso = :compromisoId LIMIT 1")
+    suspend fun obtenerNumeroPorCompromiso(compromisoId: Int): String?
+
+    // ---------- correlativo de comprobantes ----------
+    @Query("SELECT MAX(CAST(SUBSTR(numero_comprobante, 5) AS INTEGER)) FROM pago WHERE numero_comprobante GLOB 'CPR-[0-9]*'")
+    suspend fun obtenerMayorCorrelativo(): Int?
 }

@@ -14,16 +14,18 @@ import com.pagoflex.app.features.cobranza.presentation.screens.DetalleCompromiso
 import com.pagoflex.app.features.cobranza.presentation.screens.RegistrarCompromisoScreen
 import com.pagoflex.app.features.cobranza.presentation.screens.ResumenCobranzaScreen
 import com.pagoflex.app.features.detalle.presentation.screens.DetalleCompromisoScreen
+import com.pagoflex.app.features.cumplimiento.presentation.screens.CumplimientoScreen
 import com.pagoflex.app.features.historial.presentation.screens.ComprobanteScreen
 import com.pagoflex.app.features.historial.presentation.screens.HistorialScreen
 import com.pagoflex.app.features.home.presentation.screens.HomeScreen
 import com.pagoflex.app.features.home.presentation.screens.ListaCompromisosScreen
+import com.pagoflex.app.features.reconocimientos.presentation.screens.ReconocimientosScreen
 import com.pagoflex.app.features.reportes.presentation.screens.BandejaReportesScreen
 import com.pagoflex.app.features.reportes.presentation.screens.DetalleReporteScreen
 import com.pagoflex.app.features.reportes.presentation.screens.MisReportesScreen
 import com.pagoflex.app.features.reportes.presentation.screens.ReportarProblemaScreen
 
-// Usuarios finales
+// ---------- usuarios finales ----------
 fun NavGraphBuilder.grafoUsuario(
     db: LocalDatabase,
     usuarioId: Int,
@@ -34,17 +36,38 @@ fun NavGraphBuilder.grafoUsuario(
         HomeScreen(
             db = db,
             usuarioId = usuarioId,
+            onVerPerfil = { navController.navigate(Ruta.Perfil.ruta) },
             onVerTodos = { navController.navigate(Ruta.ListaCompromisos.ruta) },
+            onVerCumplimiento = { navController.navigate(Ruta.Cumplimiento.ruta) },
             onVerCompromiso = { folio ->
                 navController.navigate(Ruta.DetalleCompromiso.ver(folio))
             }
         )
     }
+    // ---------- cumplimiento ----------
+    composable(Ruta.Cumplimiento.ruta) {
+        CumplimientoScreen(
+            db = db,
+            usuarioId = usuarioId,
+            onVolver = { navController.volverDesde(Ruta.Cumplimiento.ruta) },
+            onVerReconocimientos = { navController.navigate(Ruta.Reconocimientos.ruta) }
+        )
+    }
+
+    // ---------- reconocimientos ----------
+    composable(Ruta.Reconocimientos.ruta) {
+        ReconocimientosScreen(
+            db = db,
+            usuarioId = usuarioId,
+            onVolver = { navController.volverDesde(Ruta.Reconocimientos.ruta) }
+        )
+    }
+
     composable(Ruta.ListaCompromisos.ruta) {
         ListaCompromisosScreen(
             db = db,
             usuarioId = usuarioId,
-            onVolver = { navController.popBackStack() },
+            onVolver = { navController.volverDesde(Ruta.ListaCompromisos.ruta) },
             onVerCompromiso = { folio ->
                 navController.navigate(Ruta.DetalleCompromiso.ver(folio))
             }
@@ -93,7 +116,7 @@ fun NavGraphBuilder.grafoUsuario(
             usuarioId = usuarioId,
             numeroComprobante = numero,
             onCerrar = {
-                navController.popBackStack()
+                navController.volverDesde(Ruta.DetalleComprobante.ruta)
             },
         )
     }
@@ -112,7 +135,10 @@ fun NavGraphBuilder.grafoUsuario(
             usuarioId = usuarioId,
             folio = folio,
             onVolver = {
-                navController.popBackStack()
+                navController.volverDesde(Ruta.DetalleCompromiso.ruta)
+            },
+            onPagoConfirmado = { numero ->
+                navController.navigate(Ruta.DetalleComprobante.ver(numero))
             }
         )
     }
@@ -206,4 +232,9 @@ fun NavGraphBuilder.grafoEjecutivo(
             onVolver = { navController.popBackStack() }
         )
     }
+}
+
+private fun NavHostController.volverDesde(rutaOrigen: String) {
+    if (currentDestination?.route != rutaOrigen || previousBackStackEntry == null) return
+    popBackStack()
 }

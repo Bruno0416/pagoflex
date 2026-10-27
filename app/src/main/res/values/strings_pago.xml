@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pago_titulo">Confirma tu pago</string>
+    <string name="pago_resumen_concepto">%1$s · %2$s</string>
+    <string name="pago_resumen_cuota"> · Cuota %1$d/%2$d</string>
+    <string name="pago_resumen_con_recargo">Monto original %1$s + recargo fijo %2$s. Se paga el total: %3$s.</string>
+    <string name="pago_resumen_sin_recargo">Monto original %1$s. Sin recargo.</string>
+    <string name="pago_elegir_metodo">¿Cómo quieres pagar?</string>
+    <string name="pago_datos_metodo">Datos del medio de pago</string>
+    <string name="pago_usar_guardado">Usar método guardado: %1$s</string>
+    <string name="pago_usar_nuevo">Usar otro medio de pago</string>
+    <string name="pago_numero_tarjeta">Número de tarjeta</string>
+    <string name="pago_numero_ejemplo">0000 0000 0000 0000</string>
+    <string name="pago_vencimiento_tarjeta">Vencimiento</string>
+    <string name="pago_vencimiento_ejemplo">MM/YY</string>
+    <string name="pago_codigo_seguridad">CVV</string>
+    <string name="pago_codigo_ejemplo">123</string>
+    <string name="pago_terminacion_tarjeta">Tarjeta: %1$s</string>
+    <string name="pago_recordar">Recordar este método</string>
+    <string name="pago_confirmar_titulo">Revisa antes de confirmar</string>
+    <string name="pago_monto_base">Monto: %1$s</string>
+    <string name="pago_recargo">Recargo: %1$s</string>
+    <string name="pago_medio_elegido">Medio: %1$s</string>
+    <string name="pago_total">Total a pagar: %1$s</string>
+    <string name="pago_confirmar">Confirmar pago</string>
+    <string name="pago_continuar">Continuar</string>
+    <string name="pago_volver">Volver</string>
+    <string name="pago_cancelar">Cancelar</string>
+    <string name="pago_cerrar">Cerrar</string>
+    <string name="pago_error_numero_tarjeta">Ingresa un número de tarjeta de 16 dígitos.</string>
+    <string name="pago_error_vencimiento_tarjeta">Ingresa una fecha válida con formato MM/YY.</string>
+    <string name="pago_error_vencimiento_vencido">La tarjeta está vencida. Ingresa un mes y año vigentes.</string>
+    <string name="pago_error_codigo_seguridad">Ingresa un código de seguridad de 3 o 4 dígitos.</string>
+    <string name="pago_error_general">No se pudo confirmar el pago. Inténtalo nuevamente.</string>
+    <string name="pago_error_no_disponible">Este compromiso ya no está disponible para pagar.</string>
+    <string name="pago_error_revision">Este compromiso está en revisión. Podrás pagar cuando se resuelva el reporte.</string>
+    <string name="pago_error_anulado">Este compromiso está anulado y no se puede pagar.</string>
+    <string name="pago_error_pagado">Este compromiso ya está pagado. Puedes consultar su comprobante en Historial.</string>
+    <string name="pago_error_orden">Primero debes pagar el compromiso %1$s de esta misma empresa.</string>
+    <string name="pago_error_cambio">El compromiso cambió mientras revisabas el pago. Cierra y vuelve a abrir la confirmación.</string>
+    <string name="pago_error_medio">El medio seleccionado ya no está disponible.</string>
+    <string name="pago_no_pagable_revision">Este compromiso está en revisión y no puede pagarse por ahora.</string>
+    <string name="pago_no_pagable_anulado">Este compromiso fue anulado y no requiere pago.</string>
+</resources>

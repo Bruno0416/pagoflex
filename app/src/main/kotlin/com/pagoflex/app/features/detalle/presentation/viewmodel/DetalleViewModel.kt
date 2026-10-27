@@ -15,7 +15,7 @@ import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
 class DetalleViewModel(private val repository: DetalleRepository) : ViewModel() {
-    val _uiState = MutableStateFlow(DetalleUiState())
+    private val _uiState = MutableStateFlow(DetalleUiState())
     val uiState = _uiState.asStateFlow()
 
 

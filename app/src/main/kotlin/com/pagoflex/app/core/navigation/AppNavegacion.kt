@@ -1,5 +1,11 @@
 package com.pagoflex.app.core.navigation
 
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
@@ -14,19 +20,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.pagoflex.app.R
 import com.pagoflex.app.core.data.local.LocalDatabase
 import com.pagoflex.app.core.profiles.model.PerfilUsuario
+import com.pagoflex.app.features.perfil.presentation.screens.PerfilScreen
 
 @Composable
 fun AppNavegacion(
     perfilUsuario: PerfilUsuario,
     usuarioId: Int,
     db: LocalDatabase,
-    // adonys: cerrar sesión desde las pantallas internas
-    onCerrarSesion: () -> Unit = {}
+    onCerrarSesion: () -> Unit
 ) {
     // recrear el grafo al cambiar de usuario
     key(perfilUsuario, usuarioId) {
@@ -42,7 +49,10 @@ fun AppNavegacion(
 
         val rutasPrincipales: List<Ruta> = when (perfilUsuario) {
             PerfilUsuario.USUARIO_FINAL -> listOf(
-                Ruta.Home, Ruta.Historial, Ruta.Ayuda, Ruta.Avisos
+                Ruta.Home, Ruta.Historial, Ruta.Ayuda
+
+            //Ruta.Avisos (RF-11 | HU-07 queda pendiente para la siguiente entrega,
+            // el mvp ya cumple RF-10 mediante reconocimientos (RF-13))
             )
 
             PerfilUsuario.AGENTE -> emptyList()
@@ -86,7 +96,7 @@ fun AppNavegacion(
                                             Ruta.Home -> stringResource(R.string.nav_home)
                                             Ruta.Historial -> stringResource(R.string.nav_historial)
                                             Ruta.Ayuda -> stringResource(R.string.nav_ayuda)
-                                            Ruta.Avisos -> stringResource(R.string.nav_avisos)
+                                            // Ruta.Avisos -> stringResource(R.string.nav_avisos)
                                             Ruta.ResumenCobranza -> stringResource(R.string.nav_resumen)
                                             Ruta.CompromisosEmpresa -> stringResource(R.string.nav_compromisos_empresa)
                                             Ruta.RegistrarCompromiso -> stringResource(R.string.nav_registrar_compromiso)
@@ -105,8 +115,42 @@ fun AppNavegacion(
                 startDestination = rutaInicial,
                 modifier = Modifier
                     .padding(padding)
-                    .consumeWindowInsets(padding)
+                    .consumeWindowInsets(padding),
+                // transiciones breves para mantener el contexto al navegar
+                enterTransition = {
+                    fadeIn(animationSpec = tween(180)) +
+                        slideInHorizontally(
+                            initialOffsetX = { it / 16 },
+                            animationSpec = tween(180, easing = FastOutSlowInEasing)
+                        )
+                },
+                exitTransition = {
+                    fadeOut(animationSpec = tween(130))
+                },
+                popEnterTransition = {
+                    fadeIn(animationSpec = tween(160)) +
+                        slideInHorizontally(
+                            initialOffsetX = { -it / 16 },
+                            animationSpec = tween(160, easing = FastOutSlowInEasing)
+                        )
+                },
+                popExitTransition = {
+                    fadeOut(animationSpec = tween(130)) +
+                        slideOutHorizontally(
+                            targetOffsetX = { it / 16 },
+                            animationSpec = tween(160, easing = FastOutSlowInEasing)
+                        )
+                }
             ) {
+                // Preparada como ruta común; se enlaza solo desde Home en esta entrega.
+                composable(Ruta.Perfil.ruta) {
+                    PerfilScreen(
+                        db = db,
+                        usuarioId = usuarioId,
+                        onVolver = { navController.popBackStack() },
+                        onCerrarSesion = onCerrarSesion
+                    )
+                }
                 // Un perfil solo registra sus propias rutas.
                 when (perfilUsuario) {
                     // adonys: los grafos reciben la base, el navController y cerrar sesión

@@ -17,6 +17,10 @@ class LoginViewModel(private val authRepository: AuthRepository) : ViewModel() {
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState
 
+    fun limpiarFormulario() {
+        _uiState.value = LoginUiState()
+    }
+
     // --- correo ---
     fun setCorreo(correo: String) {
         _uiState.update { it.copy(correo = correo, errorCorreo = null, errorLogin = null) }
@@ -83,7 +87,8 @@ class LoginViewModel(private val authRepository: AuthRepository) : ViewModel() {
                 )
 
                 if (sesion != null) {
-                    // crear objeto sesion
+                    // Limpiar credenciales en memoria antes de entrar a la aplicación.
+                    limpiarFormulario()
                     crearSesion(sesion)
                 } else {
                     _uiState.update {

@@ -3,7 +3,7 @@
     <string name="detalle_titulo">Detalle del compromiso</string>
     <string name="detalle_volver">Volver</string>
     <string name="detalle_no_encontrado">No se encontró el compromiso</string>
-    <string name="detalle_cuota"> · Cuota %1$d/%2$d</string>
+    <string name="detalle_cuota">"  •  %1$d/%2$d"</string>
 
     <string name="detalle_monto">Monto de la cuota</string>
     <string name="detalle_recargo">Recargo por atraso</string>

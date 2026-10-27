@@ -205,7 +205,6 @@ private fun CardResumenPreview() {
         cantidadCompromisos = 4,
         cantidadOrganizaciones = 4,
         cantidadVencidos = 1,
-        porcentajeCumplimiento = 91.7,
         proximoCompromiso = proximoCompromiso,
         vencidoDestacado = vencidoDestacado
     )

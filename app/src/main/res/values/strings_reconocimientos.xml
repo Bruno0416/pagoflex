@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="reconocimientos_titulo">Mis reconocimientos</string>
+    <string name="reconocimientos_volver">Volver</string>
+    <string name="reconocimientos_vacio_titulo">Cada paso cuenta</string>
+    <string name="reconocimientos_vacio_descripcion">Aquí aparecerán tus reconocimientos cuando tu historial permita verificar que alcanzaste alguno.</string>
+    <string name="reconocimientos_privacidad">Son reconocimientos personales. No dependen del dinero pagado ni se comparan con otras personas.</string>
+    <string name="reconocimientos_fecha">Obtenido el %1$s</string>
+    <string name="reconocimientos_error_cargar">No pudimos cargar tus reconocimientos. Inténtalo nuevamente.</string>
+</resources>
