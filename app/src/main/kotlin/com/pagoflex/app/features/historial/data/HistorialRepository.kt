@@ -8,6 +8,9 @@ class HistorialRepository(private val db: LocalDatabase) {
     suspend fun obtenerHistorial(usuarioId: Int): List<Comprobante> =
         db.pagoDao().obtenerHistorial(usuarioId)
 
+    suspend fun obtenerAnulaciones(usuarioId: Int): List<AnulacionHistorialRow> =
+        db.anulacionDao().obtenerHistorial(usuarioId)
+
     suspend fun obtenerDetalleCompromiso(numeroComprobante: String, usuarioId: Int) =
         db.pagoDao().obtenerDetalleComprobante(numeroComprobante, usuarioId)
 }

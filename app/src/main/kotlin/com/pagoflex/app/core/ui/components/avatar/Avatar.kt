@@ -21,7 +21,7 @@ import com.pagoflex.app.core.ui.theme.ButtonShape
 import com.pagoflex.app.core.ui.theme.Dimens.avatarRadius
 import com.pagoflex.app.core.ui.theme.Theme
 
-/** Avatar compartido: imagen opcional y fallback retrocompatible. */
+// Avatar compartido: imagen opcional y fallback iniciales.
 @Composable
 fun Avatar(
     modifier: Modifier = Modifier,

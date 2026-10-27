@@ -33,6 +33,8 @@ import com.pagoflex.app.core.data.local.entities.Comprobante
 import com.pagoflex.app.core.ui.theme.PagoFlexTheme
 import com.pagoflex.app.core.ui.theme.Theme
 import com.pagoflex.app.features.historial.data.HistorialRepository
+import com.pagoflex.app.features.historial.data.AnulacionHistorialRow
+import com.pagoflex.app.features.historial.presentation.components.CardAnulacionHistorial
 import com.pagoflex.app.features.historial.presentation.components.CardPagoHistorial
 import com.pagoflex.app.features.historial.presentation.components.FiltrosHistorial
 import com.pagoflex.app.features.historial.presentation.model.HistorialUiState
@@ -74,24 +76,28 @@ private fun HistorialContent(
     val todasEmpresas = stringResource(R.string.historial_filtro_todas)
     val todosAnios = stringResource(R.string.historial_filtro_todos)
 
+    // 1. combinar pagos y anulaciones por fecha
+    val registros = buildList<RegistroHistorial> {
+        addAll(uiState.comprobantes.map { RegistroHistorial.Pago(it) })
+        addAll(uiState.anulaciones.map { RegistroHistorial.Anulado(it) })
+    }.sortedByDescending { it.fecha }
+
     var empresaSeleccionada by remember(etiquetaEmpresa) { mutableStateOf(etiquetaEmpresa) }
-    var anioSeleccionado by remember(uiState.comprobantes, todosAnios) {
-        mutableStateOf(
-            uiState.comprobantes.firstOrNull()?.fechaHora?.year?.toString() ?: todosAnios
-        )
+    var anioSeleccionado by remember(registros, todosAnios) {
+        mutableStateOf(registros.firstOrNull()?.fecha?.year?.toString() ?: todosAnios)
     }
 
-    val empresas = listOf(todasEmpresas) + uiState.comprobantes
-        .map { it.empresa }.distinct().sorted()
-    val anios = listOf(todosAnios) + uiState.comprobantes
-        .map { it.fechaHora.year.toString() }.distinct().sortedDescending()
+    val empresas = listOf(todasEmpresas) + registros.map { it.empresa }.distinct().sorted()
+    val anios = listOf(todosAnios) + registros
+        .map { it.fecha.year.toString() }.distinct().sortedDescending()
 
-    val filtrados = uiState.comprobantes.filter {
+    // 2. aplicar filtros compartidos
+    val filtrados = registros.filter {
         (empresaSeleccionada == etiquetaEmpresa || empresaSeleccionada == todasEmpresas ||
                 it.empresa == empresaSeleccionada) &&
-                (anioSeleccionado == todosAnios || it.fechaHora.year.toString() == anioSeleccionado)
+                (anioSeleccionado == todosAnios || it.fecha.year.toString() == anioSeleccionado)
     }
-    val agrupados = filtrados.groupBy { YearMonth.from(it.fechaHora) }
+    val agrupados = filtrados.groupBy { YearMonth.from(it.fecha) }
 
     Scaffold(contentWindowInsets = WindowInsets(0, 0, 0, 0)) { padding ->
         if (uiState.cargando) {
@@ -126,14 +132,14 @@ private fun HistorialContent(
 
                 if (filtrados.isEmpty()) {
                     Text(
-                        if (uiState.comprobantes.isEmpty()) stringResource(R.string.historial_vacio)
+                        if (registros.isEmpty()) stringResource(R.string.historial_vacio)
                         else stringResource(R.string.historial_sin_resultados),
                         style = Theme.type.bodyMedium,
                         color = Theme.colores.onSurfaceVariant
                     )
                 }
 
-                agrupados.forEach { (mes, comprobantes) ->
+                agrupados.forEach { (mes, entradas) ->
                     Text(
                         mes.format(
                             DateTimeFormatter.ofPattern(
@@ -145,11 +151,14 @@ private fun HistorialContent(
                         style = Theme.type.titleMedium,
                         color = Theme.colores.onSurfaceVariant
                     )
-                    comprobantes.forEach { comprobante ->
-                        CardPagoHistorial(
-                            comprobante = comprobante,
-                            onClick = { onVerComprobante(comprobante.numeroComprobante) }
-                        )
+                    entradas.forEach { entrada ->
+                        when (entrada) {
+                            is RegistroHistorial.Pago -> CardPagoHistorial(
+                                comprobante = entrada.comprobante,
+                                onClick = { onVerComprobante(entrada.comprobante.numeroComprobante) }
+                            )
+                            is RegistroHistorial.Anulado -> CardAnulacionHistorial(entrada.anulacion)
+                        }
                     }
                 }
             }
@@ -186,5 +195,21 @@ private fun HistorialPreview() {
             uiState = HistorialUiState(comprobantes = listOf(ejemplo), cargando = false),
             onVerComprobante = {}
         )
+    }
+}
+
+// ---------- registros de historial ----------
+private sealed interface RegistroHistorial {
+    val empresa: String
+    val fecha: LocalDateTime
+
+    data class Pago(val comprobante: Comprobante) : RegistroHistorial {
+        override val empresa get() = comprobante.empresa
+        override val fecha get() = comprobante.fechaHora
+    }
+
+    data class Anulado(val anulacion: AnulacionHistorialRow) : RegistroHistorial {
+        override val empresa get() = anulacion.empresa
+        override val fecha get() = anulacion.fecha
     }
 }

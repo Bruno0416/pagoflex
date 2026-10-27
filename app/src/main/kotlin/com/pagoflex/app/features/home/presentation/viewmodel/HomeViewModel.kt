@@ -67,12 +67,12 @@ class HomeViewModel(
                     )
                 }.sortedBy { it.fechaVencimiento }
 
-                val pendientes = compromisosMes.filter {
+                val pendientes = compromisos.filter {
                     it.estado == EstadoCompromiso.PENDIENTE
-                }
-                val vencidos = compromisosMes.filter {
+                }.sortedBy { it.fechaVencimiento }
+                val vencidos = compromisos.filter {
                     it.estado == EstadoCompromiso.VENCIDO
-                }
+                }.sortedBy { it.fechaVencimiento }
 
                 // 3. calcular resumen
                 val resumen = ResumenInicio(

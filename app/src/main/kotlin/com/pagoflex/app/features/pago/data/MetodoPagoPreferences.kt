@@ -3,7 +3,7 @@ package com.pagoflex.app.features.pago.data
 import android.content.Context
 import androidx.core.content.edit
 
-/** Recuerda solo la terminacion de la tarjeta o el tipo de transferencia. */
+
 class MetodoPagoPreferences(context: Context) {
     private val prefs = context.applicationContext.getSharedPreferences(
         "pagoflex_metodos_simulados", Context.MODE_PRIVATE

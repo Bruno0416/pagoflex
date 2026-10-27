@@ -22,12 +22,13 @@ class HistorialViewModel(
     fun cargarHistorial(usuarioId: Int) {
         viewModelScope.launch {
             try {
-                val comprobantes = withContext(Dispatchers.IO) {
-                    repositorio.obtenerHistorial(usuarioId)
+                val (comprobantes, anulaciones) = withContext(Dispatchers.IO) {
+                    repositorio.obtenerHistorial(usuarioId) to repositorio.obtenerAnulaciones(usuarioId)
                 }
 
                 _uiState.value = HistorialUiState(
                     comprobantes = comprobantes,
+                    anulaciones = anulaciones,
                     cargando = false
                 )
             } catch (e: CancellationException) {

@@ -8,11 +8,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 
-/** Opera exclusivamente sobre el usuario identificado por la sesión. */
+// Exclusivamente para el usuario identificado por la sesión
 class PerfilRepository(private val db: LocalDatabase) {
     enum class Resultado { GUARDADO, CORREO_OCUPADO, CONTRASENA_INCORRECTA, SIN_USUARIO }
 
-    // ---------- consulta y actualizacion ----------
+    // ---------- consulta y actualización ----------
     suspend fun obtenerPerfil(usuarioId: Int): PerfilUsuarioRow? = withContext(Dispatchers.IO) {
         db.usuarioDao().obtenerPerfil(usuarioId)
     }
@@ -39,16 +39,16 @@ class PerfilRepository(private val db: LocalDatabase) {
             val otroId = withContext(Dispatchers.IO) { dao.obtenerIdPorCorreo(correo) }
             if (otroId != null && otroId != usuarioId) return Resultado.CORREO_OCUPADO
         }
-        // 3. actualizar solo los datos de perfil; la restriccion unique protege el correo
+        // 3. actualizar solo los datos de perfil; la restricción unique protege el correo
         val filas = withContext(Dispatchers.IO) {
             dao.actualizarPerfil(usuarioId, nombres, apellidos, correo, correoAnterior)
         }
         return if (filas == 1) Resultado.GUARDADO else Resultado.SIN_USUARIO
     }
 
-    // ---------- fotografia ----------
+    // ---------- fotografía ----------
     suspend fun guardarAvatar(usuarioId: Int, imagen: Bitmap): ByteArray {
-        // 1. reducir y comprimir la fotografia sin bloquear la interfaz
+        // 1. reducir y comprimir la fotografía sin bloquear la interfaz
         val bytes = withContext(Dispatchers.Default) {
             val maximo = maxOf(imagen.width, imagen.height)
             require(maximo > 0) { "Imagen vacía" }
