@@ -12,11 +12,13 @@ import com.pagoflex.app.core.ui.theme.Theme
 fun BottomSheet(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
+    gesturesEnabled: Boolean = true,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         modifier = modifier,
+        sheetGesturesEnabled = gesturesEnabled,
         containerColor = Theme.colores.surfaceContainerLow,
         contentColor = Theme.colores.onSurface,
         content = content,

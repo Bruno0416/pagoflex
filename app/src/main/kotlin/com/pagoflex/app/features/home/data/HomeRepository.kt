@@ -1,14 +1,15 @@
 package com.pagoflex.app.features.home.data
 
 import com.pagoflex.app.core.data.local.LocalDatabase
+import com.pagoflex.app.core.data.local.dao.CabeceraUsuarioRow
 import com.pagoflex.app.features.home.presentation.model.CompromisoInicio
 import com.pagoflex.app.features.home.presentation.model.EstadoCompromiso
 import java.time.LocalDate
 
 class HomeRepository(private val db: LocalDatabase) {
 
-    suspend fun obtenerNombre(usuarioId: Int): String? =
-        db.usuarioDao().obtenerNombreParaHome(usuarioId)?.substringBefore(" ")
+    suspend fun obtenerCabecera(usuarioId: Int): CabeceraUsuarioRow? =
+        db.usuarioDao().obtenerCabecera(usuarioId)
 
     suspend fun obtenerCompromisos(
         usuarioId: Int,

@@ -111,7 +111,6 @@ private fun AvisoVencimientoPreview() {
         cantidadCompromisos = 4,
         cantidadOrganizaciones = 4,
         cantidadVencidos = 1,
-        porcentajeCumplimiento = 91.7,
         proximoCompromiso = null,
         vencidoDestacado = compromisoVencido
     )

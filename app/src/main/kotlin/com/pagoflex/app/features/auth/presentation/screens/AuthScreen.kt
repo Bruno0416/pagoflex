@@ -124,7 +124,11 @@ fun AuthScreen(db: LocalDatabase) {
             AppNavegacion(
                 perfilUsuario = sesion.perfil,
                 usuarioId = sesion.usuarioId,
-                db = db
+                db = db,
+                onCerrarSesion = {
+                    loginViewModel.limpiarFormulario()
+                    authViewModel.cerrarSesion()
+                }
             )
         }
     }

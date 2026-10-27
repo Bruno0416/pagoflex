@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.pagoflex.app.R
 import com.pagoflex.app.core.ui.theme.Theme
-import com.pagoflex.app.features.home.presentation.components.Avatar
+import com.pagoflex.app.core.ui.components.avatar.Avatar
 
 @Composable
 fun Logo(modifier: Modifier = Modifier) {

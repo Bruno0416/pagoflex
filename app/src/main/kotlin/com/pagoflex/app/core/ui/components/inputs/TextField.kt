@@ -74,6 +74,8 @@ fun TextField(
     trailingIcon: (@Composable () -> Unit)? = null,
     @DrawableRes passwordVisibleIconRes: Int = R.drawable.ic_visibility_off,
     @DrawableRes passwordHiddenIconRes: Int = R.drawable.ic_visibility,
+    containerColor: Color? = null,
+    outlineColor: Color? = null,
 ) {
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
     val isFocused by interactionSource.collectIsFocusedAsState()
@@ -84,16 +86,17 @@ fun TextField(
     val borderColor = when {
         hayError -> Theme.colores.error
         isFocused -> Theme.colores.primary
-        else -> Color.Transparent
+        else -> outlineColor ?: Color.Transparent
     }
-    val borderWidth = if (hayError) 1.5.dp else if (isFocused) 1.dp else 0.dp
+    val borderWidth = when {
+        hayError -> 1.5.dp
+        isFocused || outlineColor != null -> 1.dp
+        else -> 0.dp
+    }
 
     // --- colores ---
-    val containerBg = if (enabled) {
-        Theme.colores.surfaceContainerHighest
-    } else {
-        Theme.colores.surfaceContainerHighest.copy(alpha = 0.38f)
-    }
+    val colorFondo = containerColor ?: Theme.colores.surfaceContainerHighest
+    val containerBg = if (enabled) colorFondo else colorFondo.copy(alpha = 0.38f)
 
     val iconTint = when {
         !enabled -> Theme.colores.onSurface.copy(alpha = 0.38f)

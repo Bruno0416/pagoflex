@@ -16,6 +16,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.pagoflex.app.R
 import com.pagoflex.app.core.profiles.model.SesionUsuario
@@ -159,7 +160,8 @@ private fun LoginContent(
                 enabled = !uiState.cargando
             ) {
                 if (uiState.cargando) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator( modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp,)
                 } else Text(stringResource(R.string.auth_login_boton))
             }
 

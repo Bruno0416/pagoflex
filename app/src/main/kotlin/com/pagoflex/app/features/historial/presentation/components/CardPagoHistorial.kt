@@ -19,7 +19,7 @@ import com.pagoflex.app.core.ui.components.containers.Card
 import com.pagoflex.app.core.ui.components.model.ComponentVariant
 import com.pagoflex.app.core.ui.styles.coloresCard
 import com.pagoflex.app.core.ui.theme.Theme
-import com.pagoflex.app.features.home.presentation.components.Avatar
+import com.pagoflex.app.core.ui.components.avatar.Avatar
 import com.pagoflex.app.features.home.presentation.model.EstadoCompromiso
 import java.time.format.DateTimeFormatter
 
@@ -28,10 +28,11 @@ fun CardPagoHistorial(
     comprobante: Comprobante,
     onClick: () -> Unit
 ) {
-    val colores = if (comprobante.recargo > 0) {
-        EstadoCompromiso.VENCIDO.coloresCard
-    } else {
+    val pagadoATiempo = !comprobante.fechaHora.toLocalDate().isAfter(comprobante.fechaVencimiento)
+    val colores = if (pagadoATiempo) {
         EstadoCompromiso.PAGADO.coloresCard
+    } else {
+        EstadoCompromiso.VENCIDO.coloresCard
     }
     val siglas = comprobante.empresa.split(" ")
         .filter { it.isNotBlank() }
@@ -81,8 +82,8 @@ fun CardPagoHistorial(
                     style = Theme.type.titleMedium.copy(fontWeight = FontWeight.Bold)
                 )
                 StatusChip(
-                    label = if (comprobante.recargo > 0) stringResource(R.string.historial_con_atraso)
-                    else stringResource(R.string.historial_a_tiempo),
+                    label = if (pagadoATiempo) stringResource(R.string.historial_a_tiempo)
+                    else stringResource(R.string.historial_con_atraso),
                     colores = colores
                 )
             }

@@ -17,7 +17,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -32,6 +33,8 @@ import com.pagoflex.app.core.data.local.LocalDatabase
 import com.pagoflex.app.core.ui.theme.PagoFlexTheme
 import com.pagoflex.app.core.ui.theme.Theme
 import com.pagoflex.app.features.home.data.HomeRepository
+import com.pagoflex.app.features.reconocimientos.data.ReconocimientosRepository
+import com.pagoflex.app.features.cumplimiento.data.CumplimientoRepository
 import com.pagoflex.app.features.home.presentation.components.AvisoVencimiento
 import com.pagoflex.app.features.home.presentation.components.CardCompromiso
 import com.pagoflex.app.features.home.presentation.components.CardResumen
@@ -51,18 +54,23 @@ fun HomeScreen(
     db: LocalDatabase,
     usuarioId: Int,
     onVerTodos: () -> Unit = {},
-    onVerCompromiso: (String) -> Unit = {}
+    onVerCompromiso: (String) -> Unit = {},
+    onVerCumplimiento: () -> Unit = {},
+    onVerPerfil: () -> Unit = {}
 ) {
     // ---------- dependencias ----------
     val repositorio = remember(db) { HomeRepository(db) }
+    val cumplimientoRepository = remember(db) { CumplimientoRepository(db) }
+    val reconocimientosRepository = remember(db) { ReconocimientosRepository(db) }
     val viewModel: HomeViewModel = viewModel(
         factory = viewModelFactory {
-            initializer { HomeViewModel(repositorio) }
+            initializer { HomeViewModel(repositorio, cumplimientoRepository, reconocimientosRepository) }
         }
     )
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(usuarioId) {
+    // 1. recargar el resumen al volver a inicio
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         viewModel.cargarInicio(usuarioId)
     }
 
@@ -85,7 +93,9 @@ fun HomeScreen(
         else -> HomeContent(
             uiState = uiState,
             onVerTodos = onVerTodos,
-            onVerCompromiso = onVerCompromiso
+            onVerCompromiso = onVerCompromiso,
+            onVerCumplimiento = onVerCumplimiento,
+            onVerPerfil = onVerPerfil
         )
     }
 }
@@ -94,7 +104,9 @@ fun HomeScreen(
 private fun HomeContent(
     uiState: HomeUiState,
     onVerTodos: () -> Unit,
-    onVerCompromiso: (String) -> Unit
+    onVerCompromiso: (String) -> Unit,
+    onVerCumplimiento: () -> Unit,
+    onVerPerfil: () -> Unit
 ) {
     val periodo = uiState.periodo ?: return
     val ultimaActualizacion =
@@ -106,9 +118,12 @@ private fun HomeContent(
         topBar = {
             HomeAppBar(
                 nombreUsuario = uiState.nombreUsuario,
+                inicialesUsuario = uiState.inicialesUsuario,
+                avatarUsuario = uiState.avatarUsuario,
+                onVerPerfil = onVerPerfil,
                 ultimaActualizacion = ultimaActualizacion,
-                porcentajeCompletado =
-                    uiState.resumen.porcentajeCumplimiento
+                cumplimiento = uiState.resumen.cumplimiento,
+                onVerCumplimiento = onVerCumplimiento
             )
         }
     ) { innerPadding ->
@@ -216,7 +231,9 @@ private fun HomeScreenPreview() {
                     ultimaActualizacion = LocalDateTime.of(2026, 10, 6, 8, 12)
                 ),
                 onVerTodos = {},
-                onVerCompromiso = {}
+                onVerCompromiso = {},
+                onVerCumplimiento = {},
+                onVerPerfil = {}
             )
         }
     }
