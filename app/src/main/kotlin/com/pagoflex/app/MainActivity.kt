@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import com.pagoflex.app.core.data.local.LocalDatabase
 import com.pagoflex.app.core.ui.theme.PagoFlexTheme
@@ -20,8 +19,6 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // splash antes de crear la pantalla
-        installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
