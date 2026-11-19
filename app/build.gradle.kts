@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -5,6 +7,12 @@ plugins {
     // --- base de datos ---
     alias(libs.plugins.androidx.room3)
     alias(libs.plugins.ksp)
+}
+
+// llave de firma fuera de git; sin el archivo el release queda sin firmar
+val keystoreArchivo = rootProject.file("keystore.properties")
+val keystore = Properties().apply {
+    if (keystoreArchivo.exists()) keystoreArchivo.inputStream().use { load(it) }
 }
 
 android {
@@ -18,7 +26,7 @@ android {
         minSdk = 24
         targetSdk = 37
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -28,8 +36,22 @@ android {
         buildConfigField("String", "API_URL", "\"$apiUrl\"")
     }
 
+    signingConfigs {
+        create("release") {
+            if (keystoreArchivo.exists()) {
+                storeFile = file(keystore.getProperty("storeFile"))
+                storePassword = keystore.getProperty("storePassword")
+                keyAlias = keystore.getProperty("keyAlias")
+                keyPassword = keystore.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
+            if (keystoreArchivo.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             optimization {
                 enable = false
             }
@@ -52,6 +74,7 @@ dependencies {
     implementation(libs.androidx.annotation)
     // --- android base ---
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.core.splashscreen)
 
     // --- ciclo de vida y viewmodel ---
     implementation(libs.androidx.lifecycle.runtime.ktx)

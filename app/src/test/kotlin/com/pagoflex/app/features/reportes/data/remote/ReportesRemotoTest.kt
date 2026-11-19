@@ -85,6 +85,36 @@ class ReportesRemotoTest {
     }
 
     @Test
+    fun `tomar un reporte lo asigna y empieza la atencion`() = runBlocking {
+        val error = remoto.tomar("REP-0012")
+
+        assertNull(error)
+        assertEquals(listOf("asignar", "atender"), soporte.pasos)
+    }
+
+    @Test
+    fun `asignado y en atencion se muestran como en gestion`() = runBlocking {
+        soporte.reportes = listOf(
+            FakeSoporteApi.reporteDto("REP-0013", "ASIGNADO", fecha = "2026-10-05T00:00:00"),
+            FakeSoporteApi.reporteDto("REP-0014", "EN_ATENCION", fecha = "2026-10-05T00:00:00"),
+        )
+
+        val bandeja = remoto.bandeja(hoy)
+
+        assertTrue(bandeja.all { it.estado == EstadoReporte.EN_GESTION })
+    }
+
+    @Test
+    fun `si solo estaba asignado primero inicia la atencion y luego resuelve`() = runBlocking {
+        soporte.reportes = listOf(FakeSoporteApi.reporteDto("REP-0013", "ASIGNADO", fecha = "2026-10-05T00:00:00"))
+
+        val error = remoto.resolver("REP-0013", "Revisado con la empresa")
+
+        assertNull(error)
+        assertEquals(listOf("atender", "resolver"), soporte.pasos)
+    }
+
+    @Test
     fun `los compromisos del usuario vienen de cobranza`() = runBlocking {
         val compromisos = remoto.compromisosDelUsuario()
 

@@ -20,26 +20,42 @@ class FakeSoporteApi : SoporteApi {
 
     // lo último que recibió, para revisarlo en la prueba
     var ultimoReporte: ReportarBody? = null
+    val pasos = mutableListOf<String>()
 
     override suspend fun reportar(body: ReportarBody): Response<ReporteDto> {
         ultimoReporte = body
         return responder(reporteDto("REP-0013", "ABIERTO", folio = body.folio, fecha = "2026-10-06T10:00:00"))
     }
 
-    override suspend fun misReportes(): Response<List<ReporteDto>> = responder(reportes)
+    override suspend fun misReportes(pagina: Int, tamano: Int): Response<PaginaDto<ReporteDto>> =
+        responder(pagina(reportes))
 
-    override suspend fun bandeja(): Response<List<ReporteDto>> = responder(reportes)
+    override suspend fun bandeja(pagina: Int, tamano: Int): Response<PaginaDto<ReporteDto>> =
+        responder(pagina(reportes))
 
     override suspend fun detalle(numero: String): Response<ReporteDto> {
         val encontrado = reportes.firstOrNull { it.numero == numero } ?: return error(404)
         return responder(encontrado)
     }
 
-    override suspend fun tomar(numero: String): Response<ReporteDto> = responder(reportes.first())
+    override suspend fun asignar(numero: String): Response<ReporteDto> {
+        pasos += "asignar"
+        return responder(reportes.first().copy(estado = "ASIGNADO"))
+    }
 
-    override suspend fun resolver(numero: String, body: ResolverBody): Response<ReporteDto> = responder(reportes.first())
+    override suspend fun atender(numero: String): Response<ReporteDto> {
+        pasos += "atender"
+        return responder(reportes.first().copy(estado = "EN_ATENCION"))
+    }
+
+    override suspend fun resolver(numero: String, body: ResolverBody): Response<ReporteDto> {
+        pasos += "resolver"
+        return responder(reportes.first().copy(estado = "RESUELTO"))
+    }
 
     // ---------- helpers ----------
+
+    private fun <T> pagina(lista: List<T>) = PaginaDto(lista, 0, 50, lista.size.toLong(), 1)
 
     private fun <T> responder(cuerpo: T): Response<T> {
         if (sinConexion) throw IOException("Servidor apagado")

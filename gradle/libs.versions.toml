@@ -6,6 +6,7 @@ kotlin = "2.4.21"
 
 # --- android base ---
 coreKtx = "1.19.1"
+coreSplashscreen = "1.2.0"
 
 # --- ciclo de vida ---
 lifecycle = "2.11.0"
@@ -36,6 +37,7 @@ annotation = "1.11.0"
 [libraries]
 # --- android base ---
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
 
 # --- ciclo de vida y viewmodel ---
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }

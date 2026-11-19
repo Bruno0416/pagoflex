@@ -8,27 +8,28 @@ import retrofit2.http.Path
 
 // cobranza-service a través del gateway; el ejecutivo sale del token
 interface CobranzaApi {
-    @GET("api/v1/cobranza/empresa")
+    // ---------- ejecutivo: su empresa ----------
+    @GET("api/v1/empresas/me")
     suspend fun empresa(): Response<EmpresaDto>
 
-    @GET("api/v1/cobranza/compromisos")
+    @GET("api/v1/empresas/me/compromisos")
     suspend fun compromisos(): Response<List<CompromisoDto>>
 
-    @GET("api/v1/cobranza/compromisos/{folio}")
+    @GET("api/v1/empresas/me/compromisos/{folio}")
     suspend fun detalle(@Path("folio") folio: String): Response<CompromisoDto>
 
-    @GET("api/v1/cobranza/personas/{rut}")
+    @GET("api/v1/empresas/me/personas/{rut}")
     suspend fun persona(@Path("rut") rut: String): Response<PersonaDto>
 
-    @POST("api/v1/cobranza/compromisos")
+    @POST("api/v1/empresas/me/compromisos")
     suspend fun registrar(@Body body: RegistrarCompromisoBody): Response<CompromisoDto>
 
-    @POST("api/v1/cobranza/compromisos/{folio}/anulacion")
+    @POST("api/v1/empresas/me/compromisos/{folio}/anulaciones")
     suspend fun anular(@Path("folio") folio: String, @Body body: AnularCompromisoBody): Response<CompromisoDto>
 
-    // usuario final: sus compromisos de todas las empresas
-    @GET("api/v1/cobranza/mis-compromisos")
-    suspend fun misCompromisos(): Response<List<CompromisoDto>>
+    // ---------- usuario final: sus compromisos de todas las empresas ----------
+    @GET("api/v1/compromisos/me")
+    suspend fun misCompromisos(): Response<List<MiCompromisoDto>>
 }
 
 // ---------- cuerpos ----------
@@ -71,8 +72,21 @@ data class CompromisoDto(
     val registradoPor: String?,
     val fechaRegistro: String,
     val anulacion: AnulacionDto?,
+    val numeroComprobante: String? = null,
 )
 
-data class PersonaCompromisoDto(val nombre: String, val rut: String, val correo: String, val telefono: String?)
+// en las listas el contacto viene vacío; solo el detalle lo trae
+data class PersonaCompromisoDto(val nombre: String, val rut: String, val correo: String?, val telefono: String?)
+
+data class MiCompromisoDto(
+    val folio: String,
+    val empresa: String,
+    val concepto: String,
+    val numeroCuota: Int?,
+    val totalCuotas: Int?,
+    val total: Long,
+    val fechaVencimiento: String,
+    val estado: String,
+)
 
 data class AnulacionDto(val motivo: String, val comentario: String?, val ejecutivo: String?, val fecha: String)

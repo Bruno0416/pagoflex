@@ -114,7 +114,7 @@ class CobranzaRemoto(private val api: CobranzaApi) {
         fechaVencimiento = LocalDate.parse(fechaVencimiento),
         estado = EstadoCompromiso.valueOf(estado),
         diasAtraso = diasAtraso,
-        persona = PersonaCompromiso(persona.nombre, persona.rut, persona.correo, persona.telefono),
+        persona = PersonaCompromiso(persona.nombre, persona.rut, persona.correo.orEmpty(), persona.telefono),
         // los pagos todavía no están en el backend
         pago = null,
         registradoPor = registradoPor,

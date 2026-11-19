@@ -50,7 +50,7 @@ class ReportesRemoto(
         }
 
     suspend fun misReportes(hoy: LocalDate): List<ReporteItem> =
-        llamar { soporte.misReportes() }.map { it.aModelo(hoy) }
+        llamar { soporte.misReportes() }.contenido.map { it.aModelo(hoy) }
 
     suspend fun reportar(folio: String, motivo: MotivoReporte, comentario: String): ResultadoReporte =
         try {
@@ -72,17 +72,29 @@ class ReportesRemoto(
     // ---------- agente ----------
 
     suspend fun bandeja(hoy: LocalDate): List<ReporteItem> =
-        llamar { soporte.bandeja() }.map { it.aModelo(hoy) }
+        llamar { soporte.bandeja() }.contenido.map { it.aModelo(hoy) }
 
     suspend fun detalle(numero: String, hoy: LocalDate): ReporteItem? =
         llamarONulo { soporte.detalle(numero) }?.aModelo(hoy)
 
+    // al tomarlo queda asignado y en atención; en la app se ve como en gestión
     @StringRes
-    suspend fun tomar(numero: String): Int? = gestionar { soporte.tomar(numero) }
+    suspend fun tomar(numero: String): Int? =
+        gestionar { soporte.asignar(numero) } ?: gestionar { soporte.atender(numero) }
 
+    // si quedó solo asignado se inicia la atención antes de resolver
     @StringRes
-    suspend fun resolver(numero: String, respuesta: String): Int? =
-        gestionar { soporte.resolver(numero, ResolverBody(respuesta.trim())) }
+    suspend fun resolver(numero: String, respuesta: String): Int? {
+        val actual = try {
+            llamarONulo { soporte.detalle(numero) }
+        } catch (_: ErrorApi) {
+            null
+        } catch (_: IOException) {
+            null
+        }
+        if (actual?.estado == "ASIGNADO") gestionar { soporte.atender(numero) }?.let { return it }
+        return gestionar { soporte.resolver(numero, ResolverBody(respuesta.trim())) }
+    }
 
     // ---------- helpers privados ----------
 
@@ -105,6 +117,12 @@ class ReportesRemoto(
             R.string.api_error_conexion
         }
 
+    // asignado y en atención son los dos pasos de "en gestión" en la app
+    private fun estadoApp(estado: String): EstadoReporte = when (estado) {
+        "ASIGNADO", "EN_ATENCION" -> EstadoReporte.EN_GESTION
+        else -> EstadoReporte.valueOf(estado)
+    }
+
     private fun textoCuota(numero: Int?, total: Int?): String? =
         if (numero != null && total != null) "$numero/$total" else null
 
@@ -115,7 +133,7 @@ class ReportesRemoto(
             motivo = MotivoReporte.valueOf(motivo),
             comentario = comentario,
             fechaCreacion = creado,
-            estado = EstadoReporte.valueOf(estado),
+            estado = estadoApp(estado),
             agente = agente,
             fechaToma = fechaToma?.let { LocalDateTime.parse(it) },
             respuesta = respuesta,
@@ -128,7 +146,7 @@ class ReportesRemoto(
             estadoCompromiso = cobro.estado?.let { EstadoCompromiso.valueOf(it) } ?: EstadoCompromiso.EN_REVISION,
             empresa = cobro.empresa,
             usuario = usuario.nombre,
-            correo = usuario.correo,
+            correo = usuario.correo.orEmpty(),
             telefono = usuario.telefono,
             diasHabiles = ReglasReporte.diasHabilesEntre(creado.toLocalDate(), hoy),
             atrasado = atrasado

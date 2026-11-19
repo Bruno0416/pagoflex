@@ -5,29 +5,51 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 // soporte-service a través del gateway; usuario y agente salen del token
 interface SoporteApi {
     // ---------- usuario final ----------
-    @POST("api/v1/soporte/reportes")
+    @POST("api/v1/reportes")
     suspend fun reportar(@Body body: ReportarBody): Response<ReporteDto>
 
-    @GET("api/v1/soporte/reportes/mios")
-    suspend fun misReportes(): Response<List<ReporteDto>>
+    @GET("api/v1/reportes/me")
+    suspend fun misReportes(
+        @Query("page") pagina: Int = 0,
+        @Query("size") tamano: Int = 50,
+    ): Response<PaginaDto<ReporteDto>>
 
-    // ---------- agente ----------
-    @GET("api/v1/soporte/bandeja")
-    suspend fun bandeja(): Response<List<ReporteDto>>
+    // ---------- agente: abiertos y los suyos ----------
+    @GET("api/v1/reportes")
+    suspend fun bandeja(
+        @Query("page") pagina: Int = 0,
+        @Query("size") tamano: Int = 50,
+    ): Response<PaginaDto<ReporteDto>>
 
-    @GET("api/v1/soporte/bandeja/{numero}")
+    @GET("api/v1/reportes/{numero}")
     suspend fun detalle(@Path("numero") numero: String): Response<ReporteDto>
 
-    @POST("api/v1/soporte/bandeja/{numero}/tomar")
-    suspend fun tomar(@Path("numero") numero: String): Response<ReporteDto>
+    // abierto -> asignado
+    @POST("api/v1/reportes/{numero}/asignaciones")
+    suspend fun asignar(@Path("numero") numero: String): Response<ReporteDto>
 
-    @POST("api/v1/soporte/bandeja/{numero}/resolver")
+    // asignado -> en atención
+    @POST("api/v1/reportes/{numero}/atenciones")
+    suspend fun atender(@Path("numero") numero: String): Response<ReporteDto>
+
+    // en atención -> resuelto
+    @POST("api/v1/reportes/{numero}/resoluciones")
     suspend fun resolver(@Path("numero") numero: String, @Body body: ResolverBody): Response<ReporteDto>
 }
+
+// una página de resultados del backend
+data class PaginaDto<T>(
+    val contenido: List<T>,
+    val pagina: Int,
+    val tamano: Int,
+    val totalElementos: Long,
+    val totalPaginas: Int,
+)
 
 data class ReportarBody(val folio: String, val motivo: String, val comentario: String?)
 
@@ -46,6 +68,7 @@ data class ReporteDto(
     val usuario: UsuarioReporteDto,
     val agente: String?,
     val fechaToma: String?,
+    val fechaAtencion: String? = null,
     val respuesta: String?,
     val fechaResolucion: String?,
 )
@@ -60,4 +83,4 @@ data class CobroDto(
     val estado: String?,
 )
 
-data class UsuarioReporteDto(val nombre: String, val correo: String, val telefono: String?)
+data class UsuarioReporteDto(val nombre: String, val correo: String?, val telefono: String?)

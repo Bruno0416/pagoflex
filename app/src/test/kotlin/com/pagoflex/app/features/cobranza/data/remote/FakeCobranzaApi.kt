@@ -50,7 +50,12 @@ class FakeCobranzaApi : CobranzaApi {
 
     override suspend fun anular(folio: String, body: AnularCompromisoBody): Response<CompromisoDto> = TODO()
 
-    override suspend fun misCompromisos(): Response<List<CompromisoDto>> = responder(compromisos)
+    override suspend fun misCompromisos(): Response<List<MiCompromisoDto>> = responder(
+        compromisos.map {
+            MiCompromisoDto(it.folio, it.empresa, it.concepto, it.numeroCuota, it.totalCuotas, it.total,
+                it.fechaVencimiento, it.estado)
+        }
+    )
 
     // ---------- helpers ----------
 
