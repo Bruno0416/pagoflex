@@ -16,6 +16,7 @@ import com.pagoflex.app.core.rules.estadoCompromisoDesdeNombre
 import com.pagoflex.app.core.rules.nombre
 import com.pagoflex.app.core.validators.Validaciones
 import com.pagoflex.app.features.home.presentation.model.EstadoCompromiso
+import com.pagoflex.app.features.reportes.data.remote.ReportesRemoto
 import com.pagoflex.app.features.reportes.presentation.model.CompromisoReportable
 import com.pagoflex.app.features.reportes.presentation.model.ReporteItem
 import java.time.LocalDate
@@ -30,7 +31,11 @@ sealed class ResultadoReporte {
 }
 
 // reportes de problema: el usuario reporta (HU-06) y el agente gestiona (HU-10)
-class ReportesRepository(private val db: LocalDatabase) {
+// con sesión en el backend los reportes van a soporte-service; sin ella se usa room
+class ReportesRepository(
+    private val db: LocalDatabase,
+    private val remoto: ReportesRemoto? = null,
+) {
 
     private val acceso = ControlAcceso(db)
 
@@ -50,11 +55,16 @@ class ReportesRepository(private val db: LocalDatabase) {
 
     suspend fun obtenerReportesDeUsuario(usuarioId: Int, hoy: LocalDate): List<ReporteItem> {
         if (!acceso.puede(usuarioId, Accion.VER_REPORTES_PROPIOS)) return emptyList()
+        remoto?.let { return it.misReportes(hoy) }
         return db.reporteDao().obtenerDeUsuario(usuarioId).map { it.aModelo(hoy) }
     }
 
-    suspend fun obtenerReporteActivo(folio: String, hoy: LocalDate): ReporteItem? =
-        db.reporteDao().obtenerActivoDeCompromiso(folio, EstadoReporte.RESUELTO.nombre)?.aModelo(hoy)
+    suspend fun obtenerReporteActivo(folio: String, hoy: LocalDate): ReporteItem? {
+        remoto?.let { api ->
+            return api.misReportes(hoy).firstOrNull { it.folio == folio && it.estado != EstadoReporte.RESUELTO }
+        }
+        return db.reporteDao().obtenerActivoDeCompromiso(folio, EstadoReporte.RESUELTO.nombre)?.aModelo(hoy)
+    }
 
     suspend fun reportar(
         folio: String,
@@ -64,6 +74,15 @@ class ReportesRepository(private val db: LocalDatabase) {
         ahora: LocalDateTime,
     ): ResultadoReporte {
         if (!acceso.puede(usuarioId, Accion.REPORTAR_PROBLEMA)) return ResultadoReporte.Error(R.string.per_sin_permiso)
+
+        // en línea el backend revisa que el cobro sea suyo y se pueda reportar
+        if (remoto != null) {
+            if (motivo == null) return ResultadoReporte.Error(R.string.rep_error_elige_motivo)
+            Validaciones.validarComentario(motivo == MotivoReporte.OTRO, comentario)?.let {
+                return ResultadoReporte.Error(it)
+            }
+            return remoto.reportar(folio, motivo, comentario)
+        }
 
         // 1. el compromiso tiene que ser del usuario
         val compromiso = db.compromisoDao().obtenerPorFolio(folio)
@@ -120,11 +139,13 @@ class ReportesRepository(private val db: LocalDatabase) {
     // solo el agente ve los reportes de todos los usuarios (RF-14)
     suspend fun obtenerTodos(agenteId: Int, hoy: LocalDate): List<ReporteItem> {
         if (!acceso.puede(agenteId, Accion.VER_TODOS_LOS_REPORTES)) return emptyList()
+        remoto?.let { return it.bandeja(hoy) }
         return db.reporteDao().obtenerTodos().map { it.aModelo(hoy) }
     }
 
     suspend fun obtenerDetalle(numero: String, agenteId: Int, hoy: LocalDate): ReporteItem? {
         if (!acceso.puede(agenteId, Accion.VER_TODOS_LOS_REPORTES)) return null
+        remoto?.let { return it.detalle(numero, hoy) }
         return db.reporteDao().obtenerPorNumero(numero)?.aModelo(hoy)
     }
 
@@ -132,6 +153,7 @@ class ReportesRepository(private val db: LocalDatabase) {
     @StringRes
     suspend fun tomar(numero: String, agenteId: Int, ahora: LocalDateTime): Int? {
         if (!acceso.puede(agenteId, Accion.GESTIONAR_REPORTE)) return R.string.per_sin_permiso
+        remoto?.let { return it.tomar(numero) }
 
         val reporte = db.reporteDao().obtenerPorNumero(numero) ?: return R.string.rep_error_reporte_no_encontrado
         if (!ReglasReporte.puedeTomarse(EstadoReporte.desdeNombre(reporte.estado))) {
@@ -146,6 +168,12 @@ class ReportesRepository(private val db: LocalDatabase) {
     @StringRes
     suspend fun resolver(numero: String, agenteId: Int, respuesta: String, ahora: LocalDateTime): Int? {
         if (!acceso.puede(agenteId, Accion.GESTIONAR_REPORTE)) return R.string.per_sin_permiso
+
+        // en línea el backend revisa que lo haya tomado este mismo agente
+        if (remoto != null) {
+            if (respuesta.isBlank()) return R.string.rep_error_sin_respuesta
+            return remoto.resolver(numero, respuesta)
+        }
 
         val reporte = db.reporteDao().obtenerPorNumero(numero) ?: return R.string.rep_error_reporte_no_encontrado
         if (!ReglasReporte.puedeResolverse(EstadoReporte.desdeNombre(reporte.estado))) {
@@ -175,8 +203,9 @@ class ReportesRepository(private val db: LocalDatabase) {
 
     // ---------- helpers privados ----------
 
-    private suspend fun obtenerCompromisosDeUsuario(usuarioId: Int, hoy: LocalDate): List<CompromisoReportable> =
-        db.compromisoDao().obtenerParaHome(usuarioId).map { fila ->
+    private suspend fun obtenerCompromisosDeUsuario(usuarioId: Int, hoy: LocalDate): List<CompromisoReportable> {
+        remoto?.let { return it.compromisosDelUsuario() }
+        return db.compromisoDao().obtenerParaHome(usuarioId).map { fila ->
             val estado = ReglasCompromiso.estadoEfectivo(
                 estadoCompromisoDesdeNombre(fila.estado), fila.fechaVencimiento, hoy
             )
@@ -192,6 +221,7 @@ class ReportesRepository(private val db: LocalDatabase) {
                 estado = estado
             )
         }
+    }
 
     private suspend fun estadoActual(idEstado: Int, vencimiento: LocalDate, hoy: LocalDate): EstadoCompromiso {
         val nombre = requireNotNull(db.referenciasDao().obtenerNombreEstadoCompromiso(idEstado))

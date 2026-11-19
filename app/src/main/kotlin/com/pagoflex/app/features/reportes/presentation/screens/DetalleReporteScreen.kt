@@ -45,6 +45,7 @@ import com.pagoflex.app.core.ui.theme.Theme
 import com.pagoflex.app.core.utils.aPesos
 import com.pagoflex.app.core.utils.aTexto
 import com.pagoflex.app.features.reportes.data.ReportesRepository
+import com.pagoflex.app.features.reportes.data.remote.ReportesRemoto
 import com.pagoflex.app.features.reportes.presentation.model.DetalleReporteUiState
 import com.pagoflex.app.features.reportes.presentation.model.ReporteItem
 import com.pagoflex.app.features.reportes.presentation.viewmodel.DetalleReporteViewModel
@@ -57,7 +58,8 @@ fun DetalleReporteScreen(
     onVolver: () -> Unit,
 ) {
     // ---------- dependencias ----------
-    val repositorio = remember(db) { ReportesRepository(db) }
+    val contexto = LocalContext.current.applicationContext
+    val repositorio = remember(db) { ReportesRepository(db, ReportesRemoto.crear(contexto)) }
     val viewModel: DetalleReporteViewModel = viewModel(
         key = "reporte-$numero",
         factory = viewModelFactory {

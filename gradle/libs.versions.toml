@@ -20,6 +20,9 @@ navigationCompose = "2.10.2"
 room3 = "3.0.3"
 sqlite = "2.7.1"
 
+# --- red (backend) ---
+retrofit = "3.0.0"
+
 # --- procesamiento (complementaria de room) ---
 ksp = "2.3.12"
 
@@ -60,6 +63,10 @@ androidx-room3-compiler = { module = "androidx.room3:room3-compiler", version.re
 
 # --- SQLite ---
 androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
+
+# --- red (backend) ---
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+retrofit-converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
 
 
 # --- pruebas unitarias ---

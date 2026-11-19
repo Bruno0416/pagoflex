@@ -3,6 +3,7 @@ package com.pagoflex.app.features.auth.data
 import androidx.room3.withWriteTransaction
 import com.pagoflex.app.core.data.local.LocalDatabase
 import com.pagoflex.app.core.data.local.entities.Usuario
+import com.pagoflex.app.core.data.remote.ConexionBackend
 import com.pagoflex.app.core.profiles.model.PerfilUsuario
 import com.pagoflex.app.core.profiles.model.SesionUsuario
 import com.pagoflex.app.core.security.Hasher
@@ -12,7 +13,9 @@ import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 
 class AuthRepository(
-    private val db: LocalDatabase
+    private val db: LocalDatabase,
+    // sesión en el backend para las pantallas que ya lo usan
+    private val conexion: ConexionBackend? = null,
 ) {
     // --------------- login ---------------
     suspend fun iniciarSesion(correo: String, contrasena: String): SesionUsuario? {
@@ -28,6 +31,9 @@ class AuthRepository(
 
         // 3. retornar null si no es valido
         if (!esValida) return null
+
+        // pedir también el token del backend; si no está levantado se sigue con room
+        conexion?.conectar(correo.trim().lowercase(), contrasena)
 
         // 4. retornar sesion del usuario (id + rol)
         return db.usuarioDao().obtenerSesionUsuario(acceso.idUsuario)

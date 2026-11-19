@@ -17,6 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.pagoflex.app.core.data.local.LocalDatabase
+import com.pagoflex.app.core.data.remote.ConexionBackend
 import com.pagoflex.app.core.navigation.AppNavegacion
 import com.pagoflex.app.core.profiles.SesionPreferences
 import com.pagoflex.app.features.auth.data.AuthRepository
@@ -29,7 +30,7 @@ import com.pagoflex.app.features.auth.presentation.viewmodel.RegisterViewModel
 fun AuthScreen(db: LocalDatabase) {
     // ---------- dependencias ----------
     val context = LocalContext.current.applicationContext
-    val authRepository = remember(db) { AuthRepository(db) }
+    val authRepository = remember(db) { AuthRepository(db, ConexionBackend(context)) }
     val sesionPreferences = remember(context) { SesionPreferences(context) }
 
     // ---------- view models ----------

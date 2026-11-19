@@ -17,6 +17,7 @@ import com.pagoflex.app.core.rules.ReglasCompromiso
 import com.pagoflex.app.core.rules.estadoCompromisoDesdeNombre
 import com.pagoflex.app.core.rules.nombre
 import com.pagoflex.app.core.validators.Validaciones
+import com.pagoflex.app.features.cobranza.data.remote.CobranzaRemoto
 import com.pagoflex.app.features.cobranza.presentation.model.AnulacionCompromiso
 import com.pagoflex.app.features.cobranza.presentation.model.CampoCompromiso
 import com.pagoflex.app.features.cobranza.presentation.model.CompromisoEmpresa
@@ -45,8 +46,15 @@ data class PersonaEncontrada(
     val correo: String,
 )
 
+// lo que muestra la confirmación del registro
+data class CompromisoRegistrado(
+    val folio: String,
+    val monto: Long,
+    val fechaVencimiento: LocalDate,
+)
+
 sealed class ResultadoRegistro {
-    data class Registrado(val compromiso: Compromiso) : ResultadoRegistro()
+    data class Registrado(val compromiso: CompromisoRegistrado) : ResultadoRegistro()
     data class ConErrores(
         val errores: Map<CampoCompromiso, Int> = emptyMap(),
         @StringRes val errorGeneral: Int? = null,
@@ -54,22 +62,41 @@ sealed class ResultadoRegistro {
 }
 
 // gestión de compromisos del ejecutivo: cobranza (HU-12), registro y anulación (HU-11)
-class CobranzaRepository(private val db: LocalDatabase) {
+// con sesión en el backend los compromisos van a cobranza-service; sin ella se usa room
+class CobranzaRepository(
+    private val db: LocalDatabase,
+    private val remoto: CobranzaRemoto? = null,
+) {
 
     private val acceso = ControlAcceso(db)
+
+    companion object {
+        // en línea la empresa la conoce el backend; el id local no se usa
+        private const val ID_EMPRESA_EN_LINEA = 0
+    }
 
     // solo un ejecutivo activo entra a la cobranza de su empresa (RN-22)
     suspend fun obtenerEjecutivo(usuarioId: Int): EjecutivoSesion? {
         if (!acceso.puede(usuarioId, Accion.VER_COMPROMISOS_EMPRESA)) return null
 
         val usuario = db.usuarioDao().obtenerPorId(usuarioId) ?: return null
-        val empresa = usuario.idEmpresa?.let { db.empresaClienteDao().obtenerPorId(it) }
+
+        // nombre y avatar son locales; la empresa sale del backend si hay sesión
+        val nombreEmpresa: String?
+        val idEmpresa: Int?
+        if (remoto != null) {
+            nombreEmpresa = remoto.nombreEmpresa()
+            idEmpresa = nombreEmpresa?.let { ID_EMPRESA_EN_LINEA }
+        } else {
+            nombreEmpresa = usuario.idEmpresa?.let { db.empresaClienteDao().obtenerPorId(it) }?.nombreFantasia
+            idEmpresa = usuario.idEmpresa
+        }
 
         return EjecutivoSesion(
             idUsuario = usuario.idUsuario,
             nombre = usuario.nombres.substringBefore(" "),
-            idEmpresa = usuario.idEmpresa,
-            empresa = empresa?.nombreFantasia,
+            idEmpresa = idEmpresa,
+            empresa = nombreEmpresa,
             iniciales = (usuario.nombres.trim().take(1) + usuario.apellidos.trim().take(1)).uppercase(),
             avatar = usuario.avatar
         )
@@ -77,14 +104,20 @@ class CobranzaRepository(private val db: LocalDatabase) {
 
     // ---------- consultas ----------
 
-    suspend fun obtenerCompromisos(empresaId: Int, hoy: LocalDate): List<CompromisoEmpresa> =
-        db.compromisoDao().obtenerDeEmpresa(empresaId).map { it.aModelo(hoy) }
+    suspend fun obtenerCompromisos(empresaId: Int, hoy: LocalDate): List<CompromisoEmpresa> {
+        remoto?.let { return it.obtenerCompromisos() }
+        return db.compromisoDao().obtenerDeEmpresa(empresaId).map { it.aModelo(hoy) }
+    }
 
-    suspend fun obtenerDetalle(empresaId: Int, folio: String, hoy: LocalDate): CompromisoEmpresa? =
-        db.compromisoDao().obtenerDeEmpresaPorFolio(empresaId, folio)?.aModelo(hoy)
+    suspend fun obtenerDetalle(empresaId: Int, folio: String, hoy: LocalDate): CompromisoEmpresa? {
+        remoto?.let { return it.obtenerDetalle(folio) }
+        return db.compromisoDao().obtenerDeEmpresaPorFolio(empresaId, folio)?.aModelo(hoy)
+    }
 
     // reporte sin resolver del compromiso, solo lectura y solo de su empresa (RN-22)
     suspend fun obtenerReporteActivo(empresaId: Int, folio: String): ReporteDelCompromiso? {
+        // en línea el reporte vive en soporte-service y el ejecutivo no tiene acceso a él
+        if (remoto != null) return null
         if (db.compromisoDao().obtenerDeEmpresaPorFolio(empresaId, folio) == null) return null
 
         val reporte = db.reporteDao()
@@ -102,6 +135,7 @@ class CobranzaRepository(private val db: LocalDatabase) {
     // solo personas con rol usuario final
     suspend fun buscarPersona(rut: String): PersonaEncontrada? {
         if (Validaciones.validarRut(rut) != null) return null
+        remoto?.let { return it.buscarPersona(rut) }
 
         val usuario = db.usuarioDao().obtenerPorRut(Validaciones.formatearRut(rut)) ?: return null
         if (!esUsuarioFinal(usuario)) return null
@@ -141,6 +175,7 @@ class CobranzaRepository(private val db: LocalDatabase) {
         if (!acceso.puede(ejecutivo.idUsuario, Accion.REGISTRAR_COMPROMISO)) {
             return ResultadoRegistro.ConErrores(errorGeneral = R.string.per_sin_permiso)
         }
+        remoto?.let { return registrarEnLinea(it, formulario, ahora.toLocalDate()) }
 
         val errores = mutableMapOf<CampoCompromiso, Int>()
         val hoy = ahora.toLocalDate()
@@ -211,7 +246,32 @@ class CobranzaRepository(private val db: LocalDatabase) {
             nuevo.copy(idCompromiso = idCompromiso)
         }
 
-        return ResultadoRegistro.Registrado(compromiso)
+        return ResultadoRegistro.Registrado(
+            CompromisoRegistrado(compromiso.folio, compromiso.monto.toLong(), compromiso.fechaVencimiento)
+        )
+    }
+
+    // mismas validaciones de campos; el duplicado y el folio los resuelve el backend
+    private suspend fun registrarEnLinea(
+        remoto: CobranzaRemoto,
+        formulario: FormularioCompromiso,
+        hoy: LocalDate,
+    ): ResultadoRegistro {
+        val errores = mutableMapOf<CampoCompromiso, Int>()
+
+        // 1. persona: buscarla en el backend y pedir datos solo si no existe
+        val errorRut = validarCampo(CampoCompromiso.RUT, formulario, hoy)
+        errorRut?.let { errores[CampoCompromiso.RUT] = it }
+        val personaNueva = errorRut == null && remoto.buscarPersona(formulario.rut) == null
+        if (personaNueva) {
+            camposPersona.forEach { campo -> validarCampo(campo, formulario, hoy)?.let { errores[campo] = it } }
+        }
+
+        // 2. datos del compromiso
+        camposCompromiso.forEach { campo -> validarCampo(campo, formulario, hoy)?.let { errores[campo] = it } }
+
+        if (errores.isNotEmpty()) return ResultadoRegistro.ConErrores(errores)
+        return remoto.registrar(formulario, personaNueva)
     }
 
     // ---------- anulación (HU-11, RN-21) ----------
@@ -226,6 +286,13 @@ class CobranzaRepository(private val db: LocalDatabase) {
         ahora: LocalDateTime,
     ): Int? {
         if (!acceso.puede(ejecutivo.idUsuario, Accion.ANULAR_COMPROMISO)) return R.string.per_sin_permiso
+
+        // en línea el backend revisa empresa y estado; aquí solo motivo y comentario
+        if (remoto != null) {
+            if (motivo == null) return R.string.cob_error_motivo_obligatorio
+            Validaciones.validarComentario(motivo == MotivoAnulacion.OTRO, comentario)?.let { return it }
+            return remoto.anular(folio, motivo, comentario)
+        }
 
         // 1. buscar el compromiso y su estado actual
         val compromiso = db.compromisoDao().obtenerPorFolio(folio) ?: return R.string.cob_error_no_encontrado

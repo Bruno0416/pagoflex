@@ -47,6 +47,7 @@ import com.pagoflex.app.core.ui.theme.Theme
 import com.pagoflex.app.core.utils.aPesos
 import com.pagoflex.app.core.utils.aTexto
 import com.pagoflex.app.features.cobranza.data.CobranzaRepository
+import com.pagoflex.app.features.cobranza.data.remote.CobranzaRemoto
 import com.pagoflex.app.features.cobranza.presentation.model.CompromisoEmpresa
 import com.pagoflex.app.features.cobranza.presentation.model.DetalleCompromisoUiState
 import com.pagoflex.app.features.cobranza.presentation.viewmodel.DetalleCompromisoViewModel
@@ -60,7 +61,8 @@ fun DetalleCompromisoEmpresaScreen(
     onVolver: () -> Unit,
 ) {
     // ---------- dependencias ----------
-    val repositorio = remember(db) { CobranzaRepository(db) }
+    val contexto = LocalContext.current.applicationContext
+    val repositorio = remember(db) { CobranzaRepository(db, CobranzaRemoto.crear(contexto)) }
     val viewModel: DetalleCompromisoViewModel = viewModel(
         key = "detalle-$folio",
         factory = viewModelFactory {

@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -29,6 +30,7 @@ import com.pagoflex.app.core.ui.components.navigation.BarraSuperior
 import com.pagoflex.app.core.ui.components.navigation.BotonPerfil
 import com.pagoflex.app.core.ui.theme.Theme
 import com.pagoflex.app.features.cobranza.data.CobranzaRepository
+import com.pagoflex.app.features.cobranza.data.remote.CobranzaRemoto
 import com.pagoflex.app.features.cobranza.presentation.components.CardResumenCobranza
 import com.pagoflex.app.features.cobranza.presentation.components.SelectorMes
 import com.pagoflex.app.features.cobranza.presentation.viewmodel.ResumenCobranzaViewModel
@@ -41,7 +43,8 @@ fun ResumenCobranzaScreen(
     onVerPerfil: () -> Unit,
 ) {
     // ---------- dependencias ----------
-    val repositorio = remember(db) { CobranzaRepository(db) }
+    val contexto = LocalContext.current.applicationContext
+    val repositorio = remember(db) { CobranzaRepository(db, CobranzaRemoto.crear(contexto)) }
     val viewModel: ResumenCobranzaViewModel = viewModel(
         factory = viewModelFactory {
             initializer { ResumenCobranzaViewModel(repositorio) }

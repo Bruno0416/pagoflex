@@ -1,8 +1,8 @@
 package com.pagoflex.app.features.cobranza.presentation.model
 
-import com.pagoflex.app.core.data.local.entities.Compromiso
 import com.pagoflex.app.core.rules.MotivoAnulacion
 import com.pagoflex.app.core.rules.ResumenCobranza
+import com.pagoflex.app.features.cobranza.data.CompromisoRegistrado
 import com.pagoflex.app.features.cobranza.data.EjecutivoSesion
 import com.pagoflex.app.features.cobranza.data.PersonaEncontrada
 import com.pagoflex.app.features.home.presentation.model.EstadoCompromiso
@@ -56,7 +56,7 @@ data class RegistrarCompromisoUiState(
     val personaEncontrada: PersonaEncontrada? = null,
     val rutValido: Boolean = false,
     val cargando: Boolean = false,
-    val registrado: Compromiso? = null,
+    val registrado: CompromisoRegistrado? = null,
 
     // errores
     val errores: Map<CampoCompromiso, Int> = emptyMap(),

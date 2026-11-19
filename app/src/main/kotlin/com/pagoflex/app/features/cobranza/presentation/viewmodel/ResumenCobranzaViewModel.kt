@@ -7,6 +7,7 @@ import com.pagoflex.app.core.rules.CalculoCobranza
 import com.pagoflex.app.core.rules.ItemCobranza
 import com.pagoflex.app.features.cobranza.data.CobranzaRepository
 import com.pagoflex.app.features.cobranza.presentation.model.ResumenCobranzaUiState
+import com.pagoflex.app.features.home.presentation.model.EstadoCompromiso
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -41,7 +42,11 @@ class ResumenCobranzaViewModel(
                 // 3. calcular el resumen del mes seleccionado (RN-24)
                 val mes = uiState.value.mes
                 val resumen = CalculoCobranza.calcularResumen(
-                    compromisos.map { ItemCobranza(it.fechaVencimiento, it.estado, it.pago?.monto) },
+                    // en línea aún no hay pagos: lo pagado se cuenta por su total, igual que el backend
+                    compromisos.map {
+                        val pagado = it.pago?.monto ?: it.total.takeIf { _ -> it.estado == EstadoCompromiso.PAGADO }
+                        ItemCobranza(it.fechaVencimiento, it.estado, pagado)
+                    },
                     mes,
                     hoy()
                 )
