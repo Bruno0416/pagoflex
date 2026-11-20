@@ -1,5 +1,6 @@
 package com.pagoflex.app.features.cobranza.presentation.screens
 
+import com.pagoflex.app.core.data.remote.CuentaRemota
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,7 +45,7 @@ fun ResumenCobranzaScreen(
 ) {
     // ---------- dependencias ----------
     val contexto = LocalContext.current.applicationContext
-    val repositorio = remember(db) { CobranzaRepository(db, CobranzaRemoto.crear(contexto)) }
+    val repositorio = remember(db) { CobranzaRepository(CobranzaRemoto.crear(contexto), CuentaRemota.crear(contexto)) }
     val viewModel: ResumenCobranzaViewModel = viewModel(
         factory = viewModelFactory {
             initializer { ResumenCobranzaViewModel(repositorio) }

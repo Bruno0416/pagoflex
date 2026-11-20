@@ -3,7 +3,7 @@ package com.pagoflex.app.core.data.remote
 import android.content.Context
 import androidx.core.content.edit
 
-// token del backend; si no hay token la app trabaja solo con la base local
+// tokens de la sesión en el backend
 class SesionApi(context: Context) {
 
     private val prefs = context.applicationContext.getSharedPreferences(
@@ -12,19 +12,25 @@ class SesionApi(context: Context) {
     )
 
     companion object {
-        private const val CLAVE_TOKEN = "token"
+        private const val CLAVE_ACCESO = "token"
+        private const val CLAVE_RENOVACION = "token_renovacion"
     }
 
-    val enLinea: Boolean
-        get() = leerToken() != null
-
-    fun guardarToken(token: String) {
-        prefs.edit { putString(CLAVE_TOKEN, token) }
+    fun guardar(tokens: TokensDto) {
+        prefs.edit {
+            putString(CLAVE_ACCESO, tokens.tokenAcceso)
+            putString(CLAVE_RENOVACION, tokens.tokenRenovacion)
+        }
     }
 
-    fun leerToken(): String? = prefs.getString(CLAVE_TOKEN, null)
+    fun leerToken(): String? = prefs.getString(CLAVE_ACCESO, null)
+
+    fun leerRenovacion(): String? = prefs.getString(CLAVE_RENOVACION, null)
 
     fun borrar() {
-        prefs.edit { remove(CLAVE_TOKEN) }
+        prefs.edit {
+            remove(CLAVE_ACCESO)
+            remove(CLAVE_RENOVACION)
+        }
     }
 }

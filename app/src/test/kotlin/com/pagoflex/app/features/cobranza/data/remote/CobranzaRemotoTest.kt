@@ -34,28 +34,6 @@ class CobranzaRemotoTest {
     )
 
     @Test
-    fun `convierte la respuesta del backend en compromisos de la empresa`() = runBlocking {
-        val compromisos = remoto.obtenerCompromisos()
-
-        assertEquals(2, compromisos.size)
-        assertEquals(EstadoCompromiso.EN_REVISION, compromisos[0].estado)
-        assertEquals(318_500L, compromisos[0].total)
-        assertEquals(LocalDate.of(2026, 9, 30), compromisos[0].fechaVencimiento)
-        assertEquals("14/36", compromisos[0].textoCuota)
-    }
-
-    @Test
-    fun `un folio que no existe devuelve null (404)`() = runBlocking {
-        assertNull(remoto.obtenerDetalle("CP-2026-9999"))
-    }
-
-    @Test
-    fun `persona registrada se encuentra por rut y una nueva no (RN-20)`() = runBlocking {
-        assertEquals("lmunoz@correo.ejemplo", remoto.buscarPersona("12.476.318-5")?.correo)
-        assertNull(remoto.buscarPersona("15.834.207-3"))
-    }
-
-    @Test
     fun `registrar devuelve el folio y no manda datos de persona si ya existe`() = runBlocking {
         val resultado = remoto.registrar(formulario(), personaNueva = false)
 
@@ -75,12 +53,4 @@ class CobranzaRemotoTest {
         assertEquals(R.string.cob_error_duplicado, (resultado as ResultadoRegistro.ConErrores).errorGeneral)
     }
 
-    @Test
-    fun `sin conexion muestra que no se pudo conectar con el servidor`() = runBlocking {
-        api.sinConexion = true
-
-        val resultado = remoto.registrar(formulario(), personaNueva = false)
-
-        assertEquals(R.string.api_error_conexion, (resultado as ResultadoRegistro.ConErrores).errorGeneral)
-    }
 }

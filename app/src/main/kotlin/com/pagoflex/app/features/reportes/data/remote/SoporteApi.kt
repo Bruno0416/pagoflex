@@ -26,6 +26,10 @@ interface SoporteApi {
         @Query("size") tamano: Int = 50,
     ): Response<PaginaDto<ReporteDto>>
 
+    // ---------- ejecutivo: reporte vigente de un cobro de su empresa ----------
+    @GET("api/v1/empresas/me/compromisos/{folio}/reporte-activo")
+    suspend fun reporteActivo(@Path("folio") folio: String): Response<ReporteDto>
+
     @GET("api/v1/reportes/{numero}")
     suspend fun detalle(@Path("numero") numero: String): Response<ReporteDto>
 

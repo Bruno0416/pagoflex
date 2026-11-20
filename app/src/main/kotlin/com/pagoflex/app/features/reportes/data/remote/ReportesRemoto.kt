@@ -26,12 +26,7 @@ class ReportesRemoto(
 ) {
 
     companion object {
-        // null si no hay sesión en el backend
-        fun crear(context: Context): ReportesRemoto? {
-            val soporte = ApiCliente.siEnLinea<SoporteApi>(context) ?: return null
-            val cobranza = ApiCliente.siEnLinea<CobranzaApi>(context) ?: return null
-            return ReportesRemoto(soporte, cobranza)
-        }
+        fun crear(context: Context): ReportesRemoto = ReportesRemoto(ApiCliente.api(context), ApiCliente.api(context))
     }
 
     // ---------- usuario final ----------

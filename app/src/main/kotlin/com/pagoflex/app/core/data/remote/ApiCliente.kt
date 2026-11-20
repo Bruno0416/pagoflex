@@ -2,12 +2,13 @@ package com.pagoflex.app.core.data.remote
 
 import android.content.Context
 import com.pagoflex.app.BuildConfig
+import okhttp3.Authenticator
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
-// cliente único del gateway; cada petición lleva el token guardado si existe
+// cliente único del gateway; cada petición lleva el token de la sesión
 object ApiCliente {
 
     @Volatile
@@ -18,15 +19,19 @@ object ApiCliente {
             retrofit ?: crear(SesionApi(context)).also { retrofit = it }
         }
 
-    // api del backend solo si hay sesión en línea, si no los repositorios usan room
-    inline fun <reified T> siEnLinea(context: Context): T? =
-        if (SesionApi(context).enLinea) retrofit(context).create(T::class.java) else null
+    inline fun <reified T> api(context: Context): T = retrofit(context).create(T::class.java)
 
     private fun crear(sesion: SesionApi): Retrofit {
-        val http = OkHttpClient.Builder()
-            // margen para emuladores lentos o señal débil, sin dejar la app pegada
-            .connectTimeout(15, TimeUnit.SECONDS)
-            .readTimeout(15, TimeUnit.SECONDS)
+        // 1. cliente sin token solo para renovar la sesión
+        val renovador = Retrofit.Builder()
+            .baseUrl(BuildConfig.API_URL)
+            .client(base().build())
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(AuthApi::class.java)
+
+        // 2. cliente principal con el token y la renovación al recibir 401
+        val http = base()
             .addInterceptor { cadena ->
                 val token = sesion.leerToken()
                 val peticion = if (token != null) {
@@ -36,6 +41,7 @@ object ApiCliente {
                 }
                 cadena.proceed(peticion)
             }
+            .authenticator(renovarSesion(sesion, renovador))
             .build()
 
         return Retrofit.Builder()
@@ -44,4 +50,26 @@ object ApiCliente {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
+
+    // el token de acceso dura poco: con el de renovación se pide otro y se repite la petición una vez
+    private fun renovarSesion(sesion: SesionApi, auth: AuthApi) = Authenticator { _, respuesta ->
+        if (respuesta.priorResponse != null) return@Authenticator null
+        val renovacion = sesion.leerRenovacion() ?: return@Authenticator null
+        val nuevos = try {
+            auth.renovar(RenovarBody(renovacion)).execute().body()
+        } catch (_: Exception) {
+            null
+        }
+        if (nuevos == null) {
+            sesion.borrar()
+            return@Authenticator null
+        }
+        sesion.guardar(nuevos)
+        respuesta.request.newBuilder().header("Authorization", "Bearer ${nuevos.tokenAcceso}").build()
+    }
+
+    // margen para emuladores lentos o señal débil, sin dejar la app pegada
+    private fun base() = OkHttpClient.Builder()
+        .connectTimeout(15, TimeUnit.SECONDS)
+        .readTimeout(15, TimeUnit.SECONDS)
 }

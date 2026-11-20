@@ -33,6 +33,11 @@ class FakeSoporteApi : SoporteApi {
     override suspend fun bandeja(pagina: Int, tamano: Int): Response<PaginaDto<ReporteDto>> =
         responder(pagina(reportes))
 
+    override suspend fun reporteActivo(folio: String): Response<ReporteDto> {
+        val activo = reportes.firstOrNull { it.folio == folio && it.estado != "RESUELTO" } ?: return error(404)
+        return responder(activo)
+    }
+
     override suspend fun detalle(numero: String): Response<ReporteDto> {
         val encontrado = reportes.firstOrNull { it.numero == numero } ?: return error(404)
         return responder(encontrado)

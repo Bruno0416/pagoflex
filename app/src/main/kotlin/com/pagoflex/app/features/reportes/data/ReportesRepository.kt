@@ -1,19 +1,11 @@
 package com.pagoflex.app.features.reportes.data
 
 import androidx.annotation.StringRes
-import androidx.room3.withWriteTransaction
 import com.pagoflex.app.R
-import com.pagoflex.app.core.data.local.LocalDatabase
-import com.pagoflex.app.core.data.local.dao.CabeceraUsuarioRow
-import com.pagoflex.app.core.data.local.entities.Reporte
-import com.pagoflex.app.core.profiles.ControlAcceso
-import com.pagoflex.app.core.rules.Accion
+import com.pagoflex.app.core.data.remote.Cuenta
+import com.pagoflex.app.core.data.remote.CuentaRemota
 import com.pagoflex.app.core.rules.EstadoReporte
 import com.pagoflex.app.core.rules.MotivoReporte
-import com.pagoflex.app.core.rules.ReglasCompromiso
-import com.pagoflex.app.core.rules.ReglasReporte
-import com.pagoflex.app.core.rules.estadoCompromisoDesdeNombre
-import com.pagoflex.app.core.rules.nombre
 import com.pagoflex.app.core.validators.Validaciones
 import com.pagoflex.app.features.home.presentation.model.EstadoCompromiso
 import com.pagoflex.app.features.reportes.data.remote.ReportesRemoto
@@ -31,13 +23,11 @@ sealed class ResultadoReporte {
 }
 
 // reportes de problema: el usuario reporta (HU-06) y el agente gestiona (HU-10)
-// con sesión en el backend los reportes van a soporte-service; sin ella se usa room
+// todo va a soporte-service; quién puede hacer qué lo decide el backend con el token
 class ReportesRepository(
-    private val db: LocalDatabase,
-    private val remoto: ReportesRemoto? = null,
+    private val remoto: ReportesRemoto,
+    private val cuenta: CuentaRemota,
 ) {
-
-    private val acceso = ControlAcceso(db)
 
     private val estadosVigentes = setOf(
         EstadoCompromiso.PENDIENTE,
@@ -47,25 +37,23 @@ class ReportesRepository(
 
     // ---------- usuario final ----------
 
+    @Suppress("UNUSED_PARAMETER")
     suspend fun obtenerCompromisosReportables(usuarioId: Int, hoy: LocalDate): List<CompromisoReportable> =
-        obtenerCompromisosDeUsuario(usuarioId, hoy).filter { it.estado in estadosVigentes }
+        remoto.compromisosDelUsuario().filter { it.estado in estadosVigentes }
 
+    @Suppress("UNUSED_PARAMETER")
     suspend fun obtenerCompromisoDeUsuario(usuarioId: Int, folio: String, hoy: LocalDate): CompromisoReportable? =
-        obtenerCompromisosDeUsuario(usuarioId, hoy).firstOrNull { it.folio == folio }
+        remoto.compromisosDelUsuario().firstOrNull { it.folio == folio }
 
-    suspend fun obtenerReportesDeUsuario(usuarioId: Int, hoy: LocalDate): List<ReporteItem> {
-        if (!acceso.puede(usuarioId, Accion.VER_REPORTES_PROPIOS)) return emptyList()
-        remoto?.let { return it.misReportes(hoy) }
-        return db.reporteDao().obtenerDeUsuario(usuarioId).map { it.aModelo(hoy) }
-    }
+    @Suppress("UNUSED_PARAMETER")
+    suspend fun obtenerReportesDeUsuario(usuarioId: Int, hoy: LocalDate): List<ReporteItem> =
+        remoto.misReportes(hoy)
 
-    suspend fun obtenerReporteActivo(folio: String, hoy: LocalDate): ReporteItem? {
-        remoto?.let { api ->
-            return api.misReportes(hoy).firstOrNull { it.folio == folio && it.estado != EstadoReporte.RESUELTO }
-        }
-        return db.reporteDao().obtenerActivoDeCompromiso(folio, EstadoReporte.RESUELTO.nombre)?.aModelo(hoy)
-    }
+    suspend fun obtenerReporteActivo(folio: String, hoy: LocalDate): ReporteItem? =
+        remoto.misReportes(hoy).firstOrNull { it.folio == folio && it.estado != EstadoReporte.RESUELTO }
 
+    // el backend revisa que el cobro sea suyo y se pueda reportar; aquí motivo y comentario
+    @Suppress("UNUSED_PARAMETER")
     suspend fun reportar(
         folio: String,
         usuarioId: Int,
@@ -73,203 +61,37 @@ class ReportesRepository(
         comentario: String,
         ahora: LocalDateTime,
     ): ResultadoReporte {
-        if (!acceso.puede(usuarioId, Accion.REPORTAR_PROBLEMA)) return ResultadoReporte.Error(R.string.per_sin_permiso)
-
-        // en línea el backend revisa que el cobro sea suyo y se pueda reportar
-        if (remoto != null) {
-            if (motivo == null) return ResultadoReporte.Error(R.string.rep_error_elige_motivo)
-            Validaciones.validarComentario(motivo == MotivoReporte.OTRO, comentario)?.let {
-                return ResultadoReporte.Error(it)
-            }
-            return remoto.reportar(folio, motivo, comentario)
-        }
-
-        // 1. el compromiso tiene que ser del usuario
-        val compromiso = db.compromisoDao().obtenerPorFolio(folio)
-        if (compromiso == null || compromiso.idUsuarioFinal != usuarioId) {
-            return ResultadoReporte.Error(R.string.rep_error_no_encontrado)
-        }
-
-        // 2. si ya está en revisión no se crea otro reporte
-        obtenerReporteActivo(folio, ahora.toLocalDate())?.let {
-            return ResultadoReporte.YaExiste(it.numero)
-        }
-
-        // 3. validar estado, motivo y comentario
-        val estado = estadoActual(compromiso.idEstadoCompromiso, compromiso.fechaVencimiento, ahora.toLocalDate())
-        if (!ReglasReporte.puedeReportarse(estado)) return ResultadoReporte.Error(R.string.rep_error_no_necesita)
         if (motivo == null) return ResultadoReporte.Error(R.string.rep_error_elige_motivo)
         Validaciones.validarComentario(motivo == MotivoReporte.OTRO, comentario)?.let {
             return ResultadoReporte.Error(it)
         }
-
-        // 4. si venció y el recargo aún no se guardó, se guarda antes de pasar a revisión (RN-03)
-        val recargoEmpresa = db.empresaClienteDao().obtenerPorId(compromiso.idEmpresa)?.recargoAtraso ?: 0
-        val recargo = ReglasCompromiso.recargoEfectivo(estado, compromiso.recargoAplicado, recargoEmpresa)
-
-        // 5. guardar el reporte abierto y dejar el compromiso en revisión (RN-09)
-        val numero = db.withWriteTransaction {
-            val numero = ReglasReporte.siguienteNumero(db.reporteDao().obtenerNumeros())
-            db.reporteDao().insertarReporte(
-                Reporte(
-                    idReporte = 0,
-                    numero = numero,
-                    idCompromiso = compromiso.idCompromiso,
-                    idMotivoReporte = requireNotNull(db.referenciasDao().obtenerIdMotivoReporte(motivo.nombre)),
-                    comentario = comentario.trim().ifBlank { null },
-                    fechaCreacion = ahora,
-                    idEstadoReporte = idEstadoReporte(EstadoReporte.ABIERTO)
-                )
-            )
-            db.compromisoDao().actualizarEstado(
-                compromiso.idCompromiso, idEstadoCompromiso(EstadoCompromiso.EN_REVISION),
-                recargo, ahora
-            )
-            numero
-        }
-        return ResultadoReporte.Creado(numero)
+        return remoto.reportar(folio, motivo, comentario)
     }
 
     // ---------- agente ----------
 
-    // nombre y avatar del agente para la barra superior
-    suspend fun obtenerCabecera(usuarioId: Int): CabeceraUsuarioRow? =
-        db.usuarioDao().obtenerCabecera(usuarioId)
+    // nombre del agente para la barra superior
+    @Suppress("UNUSED_PARAMETER")
+    suspend fun obtenerCabecera(usuarioId: Int): Cuenta? = cuenta.actual()
 
-    // solo el agente ve los reportes de todos los usuarios (RF-14)
-    suspend fun obtenerTodos(agenteId: Int, hoy: LocalDate): List<ReporteItem> {
-        if (!acceso.puede(agenteId, Accion.VER_TODOS_LOS_REPORTES)) return emptyList()
-        remoto?.let { return it.bandeja(hoy) }
-        return db.reporteDao().obtenerTodos().map { it.aModelo(hoy) }
-    }
+    // abiertos y los que tomó este agente (RF-14)
+    @Suppress("UNUSED_PARAMETER")
+    suspend fun obtenerTodos(agenteId: Int, hoy: LocalDate): List<ReporteItem> = remoto.bandeja(hoy)
 
-    suspend fun obtenerDetalle(numero: String, agenteId: Int, hoy: LocalDate): ReporteItem? {
-        if (!acceso.puede(agenteId, Accion.VER_TODOS_LOS_REPORTES)) return null
-        remoto?.let { return it.detalle(numero, hoy) }
-        return db.reporteDao().obtenerPorNumero(numero)?.aModelo(hoy)
-    }
+    @Suppress("UNUSED_PARAMETER")
+    suspend fun obtenerDetalle(numero: String, agenteId: Int, hoy: LocalDate): ReporteItem? =
+        remoto.detalle(numero, hoy)
 
     // queda registrado como responsable (RN-23)
     @StringRes
-    suspend fun tomar(numero: String, agenteId: Int, ahora: LocalDateTime): Int? {
-        if (!acceso.puede(agenteId, Accion.GESTIONAR_REPORTE)) return R.string.per_sin_permiso
-        remoto?.let { return it.tomar(numero) }
-
-        val reporte = db.reporteDao().obtenerPorNumero(numero) ?: return R.string.rep_error_reporte_no_encontrado
-        if (!ReglasReporte.puedeTomarse(EstadoReporte.desdeNombre(reporte.estado))) {
-            return R.string.rep_error_ya_tomado
-        }
-
-        db.reporteDao().tomar(reporte.idReporte, idEstadoReporte(EstadoReporte.EN_GESTION), agenteId, ahora)
-        return null
-    }
+    @Suppress("UNUSED_PARAMETER")
+    suspend fun tomar(numero: String, agenteId: Int, ahora: LocalDateTime): Int? = remoto.tomar(numero)
 
     // solo lo resuelve el agente responsable y con respuesta para el usuario (RN-23)
     @StringRes
+    @Suppress("UNUSED_PARAMETER")
     suspend fun resolver(numero: String, agenteId: Int, respuesta: String, ahora: LocalDateTime): Int? {
-        if (!acceso.puede(agenteId, Accion.GESTIONAR_REPORTE)) return R.string.per_sin_permiso
-
-        // en línea el backend revisa que lo haya tomado este mismo agente
-        if (remoto != null) {
-            if (respuesta.isBlank()) return R.string.rep_error_sin_respuesta
-            return remoto.resolver(numero, respuesta)
-        }
-
-        val reporte = db.reporteDao().obtenerPorNumero(numero) ?: return R.string.rep_error_reporte_no_encontrado
-        if (!ReglasReporte.puedeResolverse(EstadoReporte.desdeNombre(reporte.estado))) {
-            return R.string.rep_error_tomar_primero
-        }
-        if (reporte.idAgente != agenteId) return R.string.per_otro_agente
         if (respuesta.isBlank()) return R.string.rep_error_sin_respuesta
-
-        db.withWriteTransaction {
-            // 1. guardar la respuesta y dejar el reporte resuelto
-            db.reporteDao().resolver(
-                reporte.idReporte, idEstadoReporte(EstadoReporte.RESUELTO), respuesta.trim(), ahora
-            )
-
-            // 2. el compromiso sale de revisión: anulado o según su fecha (RN-09)
-            val estadoActual = estadoCompromisoDesdeNombre(reporte.estadoCompromiso)
-            val nuevoEstado = ReglasReporte.estadoAlResolver(estadoActual, reporte.fechaVencimiento, ahora.toLocalDate())
-            if (nuevoEstado != estadoActual) {
-                val recargo = ReglasCompromiso.recargoEfectivo(nuevoEstado, reporte.recargoAplicado, reporte.recargoEmpresa)
-                db.compromisoDao().actualizarEstado(
-                    reporte.idCompromiso, idEstadoCompromiso(nuevoEstado), recargo, ahora
-                )
-            }
-        }
-        return null
-    }
-
-    // ---------- helpers privados ----------
-
-    private suspend fun obtenerCompromisosDeUsuario(usuarioId: Int, hoy: LocalDate): List<CompromisoReportable> {
-        remoto?.let { return it.compromisosDelUsuario() }
-        return db.compromisoDao().obtenerParaHome(usuarioId).map { fila ->
-            val estado = ReglasCompromiso.estadoEfectivo(
-                estadoCompromisoDesdeNombre(fila.estado), fila.fechaVencimiento, hoy
-            )
-            val recargo = ReglasCompromiso.recargoEfectivo(estado, fila.recargoAplicado, fila.recargoEmpresa)
-
-            CompromisoReportable(
-                folio = fila.folio,
-                empresa = fila.organizacion,
-                concepto = fila.concepto,
-                textoCuota = textoCuota(fila.numeroCuota, fila.totalCuotas),
-                total = (fila.monto + recargo).toLong(),
-                fechaVencimiento = fila.fechaVencimiento,
-                estado = estado
-            )
-        }
-    }
-
-    private suspend fun estadoActual(idEstado: Int, vencimiento: LocalDate, hoy: LocalDate): EstadoCompromiso {
-        val nombre = requireNotNull(db.referenciasDao().obtenerNombreEstadoCompromiso(idEstado))
-        return ReglasCompromiso.estadoEfectivo(estadoCompromisoDesdeNombre(nombre), vencimiento, hoy)
-    }
-
-    private suspend fun idEstadoReporte(estado: EstadoReporte): Int =
-        requireNotNull(db.referenciasDao().obtenerIdEstadoReporte(estado.nombre)) {
-            "No existe el estado de reporte ${estado.nombre}"
-        }
-
-    private suspend fun idEstadoCompromiso(estado: EstadoCompromiso): Int =
-        requireNotNull(db.referenciasDao().obtenerIdEstadoCompromiso(estado.nombre)) {
-            "No existe el estado ${estado.nombre}"
-        }
-
-    private fun textoCuota(numero: Int?, total: Int?): String? =
-        if (numero != null && total != null) "$numero/$total" else null
-
-    private fun ReporteRow.aModelo(hoy: LocalDate): ReporteItem {
-        val estadoReporte = EstadoReporte.desdeNombre(estado)
-        val estadoComp = ReglasCompromiso.estadoEfectivo(
-            estadoCompromisoDesdeNombre(estadoCompromiso), fechaVencimiento, hoy
-        )
-        val recargo = ReglasCompromiso.recargoEfectivo(estadoComp, recargoAplicado, recargoEmpresa)
-
-        return ReporteItem(
-            numero = numero,
-            motivo = MotivoReporte.desdeNombre(motivo),
-            comentario = comentario,
-            fechaCreacion = fechaCreacion,
-            estado = estadoReporte,
-            agente = agente,
-            fechaToma = fechaToma,
-            respuesta = respuesta,
-            fechaResolucion = fechaResolucion,
-            folio = folio,
-            concepto = concepto,
-            textoCuota = textoCuota(numeroCuota, totalCuotas),
-            total = (monto + recargo).toLong(),
-            fechaVencimiento = fechaVencimiento,
-            estadoCompromiso = estadoComp,
-            empresa = empresa,
-            usuario = usuario,
-            correo = correo,
-            telefono = telefono,
-            diasHabiles = ReglasReporte.diasHabilesEntre(fechaCreacion.toLocalDate(), hoy),
-            atrasado = ReglasReporte.estaAtrasado(estadoReporte, fechaCreacion.toLocalDate(), hoy)
-        )
+        return remoto.resolver(numero, respuesta)
     }
 }

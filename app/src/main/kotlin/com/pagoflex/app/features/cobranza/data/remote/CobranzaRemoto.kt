@@ -7,7 +7,9 @@ import com.pagoflex.app.core.data.remote.ApiCliente
 import com.pagoflex.app.core.data.remote.ErrorApi
 import com.pagoflex.app.core.data.remote.llamar
 import com.pagoflex.app.core.data.remote.llamarONulo
+import com.pagoflex.app.core.rules.EstadoReporte
 import com.pagoflex.app.core.rules.MotivoAnulacion
+import com.pagoflex.app.core.rules.MotivoReporte
 import com.pagoflex.app.core.validators.Validaciones
 import com.pagoflex.app.features.cobranza.data.CompromisoRegistrado
 import com.pagoflex.app.features.cobranza.data.PersonaEncontrada
@@ -16,18 +18,38 @@ import com.pagoflex.app.features.cobranza.presentation.model.AnulacionCompromiso
 import com.pagoflex.app.features.cobranza.presentation.model.CompromisoEmpresa
 import com.pagoflex.app.features.cobranza.presentation.model.FormularioCompromiso
 import com.pagoflex.app.features.cobranza.presentation.model.PersonaCompromiso
+import com.pagoflex.app.features.cobranza.presentation.model.ReporteDelCompromiso
+import com.pagoflex.app.features.reportes.data.remote.SoporteApi
 import com.pagoflex.app.features.home.presentation.model.EstadoCompromiso
 import java.io.IOException
 import java.time.LocalDate
 import java.time.LocalDateTime
 
 // cobranza contra el backend: mismas respuestas que la versión con room
-class CobranzaRemoto(private val api: CobranzaApi) {
+class CobranzaRemoto(
+    private val api: CobranzaApi,
+    private val soporte: SoporteApi? = null,
+) {
 
     companion object {
-        // null si no hay sesión en el backend
-        fun crear(context: Context): CobranzaRemoto? =
-            ApiCliente.siEnLinea<CobranzaApi>(context)?.let { CobranzaRemoto(it) }
+        fun crear(context: Context): CobranzaRemoto =
+            CobranzaRemoto(ApiCliente.api(context), ApiCliente.api(context))
+    }
+
+    // reporte sin resolver del cobro; lo lleva soporte-service (RN-22)
+    suspend fun reporteActivo(folio: String): ReporteDelCompromiso? {
+        val reporte = llamarONulo { requireNotNull(soporte).reporteActivo(folio) } ?: return null
+        return ReporteDelCompromiso(
+            numero = reporte.numero,
+            motivoRes = MotivoReporte.valueOf(reporte.motivo).labelRes,
+            comentario = reporte.comentario,
+            estadoRes = when (reporte.estado) {
+                "ABIERTO" -> EstadoReporte.ABIERTO.labelRes
+                "RESUELTO" -> EstadoReporte.RESUELTO.labelRes
+                else -> EstadoReporte.EN_GESTION.labelRes
+            },
+            fecha = LocalDateTime.parse(reporte.fechaCreacion)
+        )
     }
 
     // nombre de la empresa del ejecutivo o null si no tiene una asignada

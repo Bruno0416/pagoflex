@@ -1,15 +1,41 @@
 package com.pagoflex.app.core.data.remote
 
+import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.POST
 
-// login de usuarios-service a través del gateway
+// sesión en usuarios-service a través del gateway
 interface AuthApi {
-    @POST("api/v1/auth/login")
-    suspend fun login(@Body body: LoginBody): Response<TokenRespuesta>
+    @POST("api/v1/auth/iniciar-sesion")
+    suspend fun iniciarSesion(@Body body: LoginBody): Response<TokensDto>
+
+    // síncrona: la usa el renovador de okhttp cuando el token de acceso vence
+    @POST("api/v1/auth/renovar")
+    fun renovar(@Body body: RenovarBody): Call<TokensDto>
+
+    @GET("api/v1/usuarios/me")
+    suspend fun perfil(): Response<PerfilDto>
 }
 
-data class LoginBody(val email: String, val password: String)
+data class LoginBody(val correo: String, val contrasena: String)
 
-data class TokenRespuesta(val token: String)
+data class RenovarBody(val tokenRenovacion: String)
+
+data class TokensDto(
+    val tokenAcceso: String,
+    val tokenRenovacion: String,
+    val tipoToken: String,
+    val expiraEnSegundos: Long,
+)
+
+// perfil de la cuenta del token; idEmpresa solo en ejecutivos
+data class PerfilDto(
+    val nombres: String,
+    val apellidos: String,
+    val correo: String?,
+    val rol: String,
+    val urlAvatar: String?,
+    val idEmpresa: String?,
+)

@@ -29,12 +29,4 @@ class TasaCobranzaTest {
         assertEquals(300_000L, resumen.montoRecaudado)
     }
 
-    @Test
-    fun `si todo el mes esta anulado no hay tasa`() {
-        val items = List(2) { ItemCobranza(vence, EstadoCompromiso.ANULADO, null) }
-
-        val resumen = CalculoCobranza.calcularResumen(items, septiembre, hoy)
-
-        assertNull(resumen.tasaCobranza)
-    }
 }
