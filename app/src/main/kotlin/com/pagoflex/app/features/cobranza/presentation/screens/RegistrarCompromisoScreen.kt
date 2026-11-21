@@ -137,7 +137,7 @@ private fun FormularioRegistro(
         uiState.personaEncontrada?.let {
             Card(variant = ComponentVariant.Secondary) {
                 Text(
-                    text = stringResource(R.string.cob_persona_encontrada, it.nombre, it.correo),
+                    text = it.correo?.let { correo -> stringResource(R.string.cob_persona_encontrada, it.nombre, correo) } ?: it.nombre,
                     style = Theme.type.bodyMedium,
                     modifier = Modifier.padding(Theme.dimens.spacingM)
                 )

@@ -27,7 +27,7 @@ data class EjecutivoSesion(
 // persona encontrada por rut al registrar
 data class PersonaEncontrada(
     val nombre: String,
-    val correo: String,
+    val correo: String?,
 )
 
 // lo que muestra la confirmación del registro

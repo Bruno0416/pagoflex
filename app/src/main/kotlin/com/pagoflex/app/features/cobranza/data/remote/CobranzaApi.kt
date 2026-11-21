@@ -53,7 +53,8 @@ data class AnularCompromisoBody(val motivo: String, val comentario: String?)
 
 data class EmpresaDto(val codigo: String, val nombre: String)
 
-data class PersonaDto(val nombre: String, val correo: String)
+// el correo puede venir vacío si la persona ya tiene cuenta
+data class PersonaDto(val nombre: String, val correo: String?)
 
 // fechas en texto iso tal como las manda el backend
 data class CompromisoDto(
