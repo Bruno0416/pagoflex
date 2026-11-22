@@ -1,5 +1,7 @@
 package com.pagoflex.app.features.cobranza.presentation.screens
 
+import com.pagoflex.app.core.data.remote.externa.IndicadoresRemoto
+import com.pagoflex.app.features.cobranza.presentation.components.CardIndicadores
 import com.pagoflex.app.core.data.remote.CuentaRemota
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,7 +50,7 @@ fun ResumenCobranzaScreen(
     val repositorio = remember(db) { CobranzaRepository(CobranzaRemoto.crear(contexto), CuentaRemota.crear(contexto)) }
     val viewModel: ResumenCobranzaViewModel = viewModel(
         factory = viewModelFactory {
-            initializer { ResumenCobranzaViewModel(repositorio) }
+            initializer { ResumenCobranzaViewModel(repositorio, IndicadoresRemoto.crear()) }
         }
     )
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -103,6 +105,9 @@ fun ResumenCobranzaScreen(
                     onSiguiente = { viewModel.mesSiguiente(usuarioId) }
                 )
                 CardResumenCobranza(resumen = uiState.resumen)
+                uiState.indicadores?.let {
+                    CardIndicadores(indicadores = it, montoRecaudado = uiState.resumen.montoRecaudado)
+                }
                 OutlinedButton(onClick = onVerCompromisos) {
                     Text(stringResource(R.string.cob_ver_compromisos))
                 }

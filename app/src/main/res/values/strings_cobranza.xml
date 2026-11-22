@@ -102,4 +102,10 @@
     <string name="cob_error_sin_empresa">Tu usuario no tiene una empresa asociada</string>
     <string name="cob_error_generico">No pudimos completar la operación. Intenta de nuevo.</string>
     <string name="cob_error_cargar">No pudimos cargar la información</string>
+    <!-- api externa mindicador.cl -->
+    <string name="cob_indicadores_titulo">Indicadores del día · %1$s</string>
+    <string name="cob_indicadores_uf">UF %1$s</string>
+    <string name="cob_indicadores_dolar">Dólar %1$s</string>
+    <string name="cob_indicadores_recaudado_uf">Recaudado del mes ≈ %1$s UF</string>
+    <string name="cob_indicadores_fuente">Fuente: mindicador.cl</string>
 </resources>

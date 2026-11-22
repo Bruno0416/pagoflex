@@ -1,5 +1,6 @@
 package com.pagoflex.app.features.cobranza.presentation.model
 
+import com.pagoflex.app.core.data.remote.externa.IndicadoresDia
 import com.pagoflex.app.core.rules.MotivoAnulacion
 import com.pagoflex.app.core.rules.ResumenCobranza
 import com.pagoflex.app.features.cobranza.data.CompromisoRegistrado
@@ -14,6 +15,8 @@ data class ResumenCobranzaUiState(
     val ejecutivo: EjecutivoSesion? = null,
     val mes: YearMonth = YearMonth.now(),
     val resumen: ResumenCobranza = ResumenCobranza(YearMonth.now()),
+    // uf y dólar del día (api externa); nulo si no respondió
+    val indicadores: IndicadoresDia? = null,
 
     // errores
     val error: Int? = null,

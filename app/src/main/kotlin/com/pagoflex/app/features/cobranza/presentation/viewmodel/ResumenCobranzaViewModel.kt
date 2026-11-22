@@ -1,5 +1,6 @@
 package com.pagoflex.app.features.cobranza.presentation.viewmodel
 
+import com.pagoflex.app.core.data.remote.externa.IndicadoresRemoto
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pagoflex.app.R
@@ -19,6 +20,7 @@ import java.time.YearMonth
 
 class ResumenCobranzaViewModel(
     private val cobranzaRepository: CobranzaRepository,
+    private val indicadores: IndicadoresRemoto? = null,
     private val hoy: () -> LocalDate = LocalDate::now,
 ) : ViewModel() {
 
@@ -26,6 +28,13 @@ class ResumenCobranzaViewModel(
     val uiState: StateFlow<ResumenCobranzaUiState> = _uiState.asStateFlow()
 
     fun cargar(usuarioId: Int) {
+        // la api externa va aparte: si falla, el resumen se muestra igual
+        indicadores?.let { api ->
+            viewModelScope.launch {
+                val delDia = api.delDia()
+                _uiState.update { it.copy(indicadores = delDia) }
+            }
+        }
         viewModelScope.launch {
             try {
                 // 1. obtener ejecutivo y su empresa
