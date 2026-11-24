@@ -1,5 +1,6 @@
 package com.pagoflex.app.features.cobranza.presentation.screens
 
+import com.pagoflex.app.core.data.remote.CuentaRemota
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -30,6 +32,7 @@ import com.pagoflex.app.core.ui.components.chips.FiltroChips
 import com.pagoflex.app.core.ui.components.navigation.BarraSuperior
 import com.pagoflex.app.core.ui.theme.Theme
 import com.pagoflex.app.features.cobranza.data.CobranzaRepository
+import com.pagoflex.app.features.cobranza.data.remote.CobranzaRemoto
 import com.pagoflex.app.features.cobranza.presentation.components.CardCompromisoEmpresa
 import com.pagoflex.app.features.cobranza.presentation.components.SelectorMes
 import com.pagoflex.app.features.cobranza.presentation.viewmodel.CompromisosEmpresaViewModel
@@ -42,7 +45,8 @@ fun CompromisosEmpresaScreen(
     onVerCompromiso: (String) -> Unit,
 ) {
     // ---------- dependencias ----------
-    val repositorio = remember(db) { CobranzaRepository(db) }
+    val contexto = LocalContext.current.applicationContext
+    val repositorio = remember(db) { CobranzaRepository(CobranzaRemoto.crear(contexto), CuentaRemota.crear(contexto)) }
     val viewModel: CompromisosEmpresaViewModel = viewModel(
         factory = viewModelFactory {
             initializer { CompromisosEmpresaViewModel(repositorio) }

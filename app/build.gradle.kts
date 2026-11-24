@@ -21,6 +21,11 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // gateway del backend; 10.0.2.2 es el pc visto desde el emulador.
+        // en un celular: pagoflex.apiUrl=http://IP-DEL-PC:8080/ en gradle.properties
+        val apiUrl = providers.gradleProperty("pagoflex.apiUrl").getOrElse("http://10.0.2.2:8080/")
+        buildConfigField("String", "API_URL", "\"$apiUrl\"")
     }
 
     buildTypes {
@@ -37,6 +42,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -72,6 +78,10 @@ dependencies {
 
     // --- SQLite ---
     implementation(libs.androidx.sqlite.bundled)
+
+    // --- red (backend) ---
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
 
 
     // --- herramientas de depuración compose ---

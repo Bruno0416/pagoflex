@@ -1,5 +1,6 @@
 package com.pagoflex.app.features.cobranza.presentation.screens
 
+import com.pagoflex.app.core.data.remote.CuentaRemota
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -35,6 +37,7 @@ import com.pagoflex.app.core.ui.theme.Theme
 import com.pagoflex.app.core.utils.aPesos
 import com.pagoflex.app.core.utils.aTexto
 import com.pagoflex.app.features.cobranza.data.CobranzaRepository
+import com.pagoflex.app.features.cobranza.data.remote.CobranzaRemoto
 import com.pagoflex.app.features.cobranza.presentation.model.CampoCompromiso
 import com.pagoflex.app.features.cobranza.presentation.model.RegistrarCompromisoUiState
 import com.pagoflex.app.features.cobranza.presentation.viewmodel.RegistrarCompromisoViewModel
@@ -46,7 +49,8 @@ fun RegistrarCompromisoScreen(
     onVolverResumen: () -> Unit,
 ) {
     // ---------- dependencias ----------
-    val repositorio = remember(db) { CobranzaRepository(db) }
+    val contexto = LocalContext.current.applicationContext
+    val repositorio = remember(db) { CobranzaRepository(CobranzaRemoto.crear(contexto), CuentaRemota.crear(contexto)) }
     val viewModel: RegistrarCompromisoViewModel = viewModel(
         factory = viewModelFactory {
             initializer { RegistrarCompromisoViewModel(repositorio) }
@@ -133,7 +137,7 @@ private fun FormularioRegistro(
         uiState.personaEncontrada?.let {
             Card(variant = ComponentVariant.Secondary) {
                 Text(
-                    text = stringResource(R.string.cob_persona_encontrada, it.nombre, it.correo),
+                    text = it.correo?.let { correo -> stringResource(R.string.cob_persona_encontrada, it.nombre, correo) } ?: it.nombre,
                     style = Theme.type.bodyMedium,
                     modifier = Modifier.padding(Theme.dimens.spacingM)
                 )

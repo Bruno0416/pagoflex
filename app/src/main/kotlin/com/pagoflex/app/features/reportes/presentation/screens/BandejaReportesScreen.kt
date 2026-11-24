@@ -1,5 +1,6 @@
 package com.pagoflex.app.features.reportes.presentation.screens
 
+import com.pagoflex.app.core.data.remote.CuentaRemota
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -35,6 +37,7 @@ import com.pagoflex.app.core.ui.components.navigation.BarraSuperior
 import com.pagoflex.app.core.ui.components.navigation.BotonPerfil
 import com.pagoflex.app.core.ui.theme.Theme
 import com.pagoflex.app.features.reportes.data.ReportesRepository
+import com.pagoflex.app.features.reportes.data.remote.ReportesRemoto
 import com.pagoflex.app.features.reportes.presentation.components.CardReporte
 import com.pagoflex.app.features.reportes.presentation.viewmodel.BandejaReportesViewModel
 
@@ -46,7 +49,8 @@ fun BandejaReportesScreen(
     onVerPerfil: () -> Unit,
 ) {
     // ---------- dependencias ----------
-    val repositorio = remember(db) { ReportesRepository(db) }
+    val contexto = LocalContext.current.applicationContext
+    val repositorio = remember(db) { ReportesRepository(ReportesRemoto.crear(contexto), CuentaRemota.crear(contexto)) }
     val viewModel: BandejaReportesViewModel = viewModel(
         factory = viewModelFactory {
             initializer { BandejaReportesViewModel(repositorio) }

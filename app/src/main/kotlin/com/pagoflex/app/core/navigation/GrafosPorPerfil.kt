@@ -25,9 +25,25 @@ import com.pagoflex.app.features.home.presentation.screens.ListaCompromisosScree
 import com.pagoflex.app.features.perfil.presentation.screens.PerfilScreen
 import com.pagoflex.app.features.reportes.presentation.screens.BandejaReportesScreen
 import com.pagoflex.app.features.reportes.presentation.screens.DetalleReporteScreen
+import com.pagoflex.app.features.reportes.presentation.screens.MisReportesScreen
+import com.pagoflex.app.features.reportes.presentation.screens.ReportarProblemaScreen
+
+// ---------- perfil (agente y ejecutivo) ----------
+fun NavGraphBuilder.grafoPerfil(
+    navController: NavHostController,
+    onCerrarSesion: () -> Unit
+) {
+    composable(Ruta.Perfil.ruta) {
+        PerfilScreen(
+            onVolver = { navController.volverDesde(Ruta.Perfil.ruta) },
+            onCerrarSesion = onCerrarSesion
+        )
+    }
+}
 
 // ---------- usuario final ----------
 fun NavGraphBuilder.grafoUsuario(
+    db: LocalDatabase,
     navController: NavHostController,
     onCerrarSesion: () -> Unit
 ) {
@@ -61,9 +77,22 @@ fun NavGraphBuilder.grafoUsuario(
         route = Ruta.DetalleCompromiso.ruta,
         arguments = listOf(navArgument("id") { type = NavType.StringType })
     ) { entrada ->
+        val folio = entrada.arguments?.getString("id").orEmpty()
         DetalleCompromisoScreen(
-            folio = entrada.arguments?.getString("id").orEmpty(),
-            onVolver = { navController.volverDesde(Ruta.DetalleCompromiso.ruta) }
+            folio = folio,
+            onVolver = { navController.volverDesde(Ruta.DetalleCompromiso.ruta) },
+            onReportar = { navController.navigate(Ruta.ReportarProblema.crear(folio)) }
+        )
+    }
+    composable(
+        route = Ruta.ReportarProblema.ruta,
+        arguments = listOf(navArgument("folio") { type = NavType.StringType })
+    ) { entrada ->
+        ReportarProblemaScreen(
+            db = db,
+            usuarioId = 0,
+            folio = entrada.arguments?.getString("folio").orEmpty(),
+            onVolver = { navController.popBackStack() }
         )
     }
 
@@ -84,7 +113,13 @@ fun NavGraphBuilder.grafoUsuario(
     composable(Ruta.Cumplimiento.ruta) { PantallaSinDatos() }
 
     // ---------- ayuda ----------
-    composable(Ruta.Ayuda.ruta) { PantallaSinDatos() }
+    composable(Ruta.Ayuda.ruta) {
+        MisReportesScreen(
+            db = db,
+            usuarioId = 0,
+            onReportar = { folio -> navController.navigate(Ruta.ReportarProblema.crear(folio)) }
+        )
+    }
 }
 
 // Agentes

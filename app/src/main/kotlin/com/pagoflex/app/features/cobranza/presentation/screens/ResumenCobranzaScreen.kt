@@ -1,5 +1,8 @@
 package com.pagoflex.app.features.cobranza.presentation.screens
 
+import com.pagoflex.app.core.data.remote.externa.IndicadoresRemoto
+import com.pagoflex.app.features.cobranza.presentation.components.CardIndicadores
+import com.pagoflex.app.core.data.remote.CuentaRemota
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -29,6 +33,7 @@ import com.pagoflex.app.core.ui.components.navigation.BarraSuperior
 import com.pagoflex.app.core.ui.components.navigation.BotonPerfil
 import com.pagoflex.app.core.ui.theme.Theme
 import com.pagoflex.app.features.cobranza.data.CobranzaRepository
+import com.pagoflex.app.features.cobranza.data.remote.CobranzaRemoto
 import com.pagoflex.app.features.cobranza.presentation.components.CardResumenCobranza
 import com.pagoflex.app.features.cobranza.presentation.components.SelectorMes
 import com.pagoflex.app.features.cobranza.presentation.viewmodel.ResumenCobranzaViewModel
@@ -41,10 +46,11 @@ fun ResumenCobranzaScreen(
     onVerPerfil: () -> Unit,
 ) {
     // ---------- dependencias ----------
-    val repositorio = remember(db) { CobranzaRepository(db) }
+    val contexto = LocalContext.current.applicationContext
+    val repositorio = remember(db) { CobranzaRepository(CobranzaRemoto.crear(contexto), CuentaRemota.crear(contexto)) }
     val viewModel: ResumenCobranzaViewModel = viewModel(
         factory = viewModelFactory {
-            initializer { ResumenCobranzaViewModel(repositorio) }
+            initializer { ResumenCobranzaViewModel(repositorio, IndicadoresRemoto.crear()) }
         }
     )
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -99,6 +105,9 @@ fun ResumenCobranzaScreen(
                     onSiguiente = { viewModel.mesSiguiente(usuarioId) }
                 )
                 CardResumenCobranza(resumen = uiState.resumen)
+                uiState.indicadores?.let {
+                    CardIndicadores(indicadores = it, montoRecaudado = uiState.resumen.montoRecaudado)
+                }
                 OutlinedButton(onClick = onVerCompromisos) {
                     Text(stringResource(R.string.cob_ver_compromisos))
                 }

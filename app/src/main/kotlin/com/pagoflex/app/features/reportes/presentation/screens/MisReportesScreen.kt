@@ -1,5 +1,6 @@
 package com.pagoflex.app.features.reportes.presentation.screens
 
+import com.pagoflex.app.core.data.remote.CuentaRemota
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -38,6 +40,7 @@ import com.pagoflex.app.core.utils.aPesos
 import com.pagoflex.app.core.utils.aTexto
 import com.pagoflex.app.features.home.presentation.model.EstadoCompromiso
 import com.pagoflex.app.features.reportes.data.ReportesRepository
+import com.pagoflex.app.features.reportes.data.remote.ReportesRemoto
 import com.pagoflex.app.features.reportes.presentation.model.CompromisoReportable
 import com.pagoflex.app.features.reportes.presentation.model.ReporteItem
 import com.pagoflex.app.features.reportes.presentation.viewmodel.MisReportesViewModel
@@ -49,7 +52,8 @@ fun MisReportesScreen(
     onReportar: (String) -> Unit,
 ) {
     // ---------- dependencias ----------
-    val repositorio = remember(db) { ReportesRepository(db) }
+    val contexto = LocalContext.current.applicationContext
+    val repositorio = remember(db) { ReportesRepository(ReportesRemoto.crear(contexto), CuentaRemota.crear(contexto)) }
     val viewModel: MisReportesViewModel = viewModel(
         factory = viewModelFactory {
             initializer { MisReportesViewModel(repositorio) }
