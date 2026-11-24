@@ -1,10 +1,11 @@
 package com.pagoflex.app.features.perfil.presentation.model
 
 import androidx.annotation.StringRes
-import com.pagoflex.app.core.data.local.dao.PerfilUsuarioRow
+import com.pagoflex.app.features.perfil.data.remote.dto.response.PerfilResponse
 
 data class PerfilUiState(
-    val perfil: PerfilUsuarioRow? = null,
+    val perfil: PerfilResponse? = null,
+    val avatar: ByteArray? = null,
     val nombres: String = "",
     val apellidos: String = "",
     val correo: String = "",

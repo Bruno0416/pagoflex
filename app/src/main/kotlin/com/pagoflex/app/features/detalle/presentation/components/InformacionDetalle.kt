@@ -11,11 +11,12 @@ import com.pagoflex.app.R
 import com.pagoflex.app.core.ui.components.containers.Card
 import com.pagoflex.app.core.ui.components.model.ComponentVariant
 import com.pagoflex.app.core.ui.theme.Theme
-import com.pagoflex.app.features.detalle.data.DetalleCompromisoRow
+import com.pagoflex.app.features.home.data.remote.dto.response.MiCompromisoResponse
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun InformacionDetalle(detalle: DetalleCompromisoRow) {
+fun InformacionDetalle(detalle: MiCompromisoResponse) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         variant = ComponentVariant.Primary
@@ -29,7 +30,7 @@ fun InformacionDetalle(detalle: DetalleCompromisoRow) {
 
             FilaDetalle(
                 etiqueta = stringResource(R.string.detalle_vencimiento),
-                valor = detalle.fechaVencimiento.format(
+                valor = LocalDate.parse(detalle.fechaVencimiento).format(
                     DateTimeFormatter.ofPattern("dd-MM-yyyy")
                 )
             )
@@ -41,7 +42,7 @@ fun InformacionDetalle(detalle: DetalleCompromisoRow) {
 
             FilaDetalle(
                 etiqueta = stringResource(R.string.detalle_contacto),
-                valor = detalle.correoContacto
+                valor = detalle.correoAtencion.orEmpty()
             )
         }
     }

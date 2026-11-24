@@ -22,21 +22,19 @@ import com.pagoflex.app.core.ui.components.containers.Divider
 import com.pagoflex.app.core.ui.components.model.ComponentVariant
 import com.pagoflex.app.core.ui.styles.coloresCard
 import com.pagoflex.app.core.ui.theme.Theme
-import com.pagoflex.app.features.detalle.data.DetalleCompromisoRow
-import com.pagoflex.app.features.detalle.presentation.model.DetalleUiState
+import com.pagoflex.app.features.home.data.remote.dto.response.MiCompromisoResponse
 import com.pagoflex.app.features.home.presentation.model.EstadoCompromiso
 import java.text.NumberFormat
 import java.util.Locale
 
 @Composable
 fun ResumenDetalle(
-    detalle: DetalleCompromisoRow,
-    uiState: DetalleUiState,
+    detalle: MiCompromisoResponse,
     estado: EstadoCompromiso?
 ) {
     val coloresEstado = estado?.coloresCard
 
-    val siglas = detalle.organizacion
+    val siglas = detalle.empresa
         .split(" ")
         .filter { it.isNotBlank() }
         .let { palabras ->
@@ -99,7 +97,7 @@ fun ResumenDetalle(
 
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = detalle.organizacion,
+                        text = detalle.empresa,
                         style = Theme.type.titleLarge
                     )
 
@@ -120,7 +118,7 @@ fun ResumenDetalle(
                 )
             } else {
                 Text(
-                    text = uiState.estadoActual,
+                    text = detalle.estado,
                     style = Theme.type.labelMedium
                 )
             }
@@ -129,12 +127,12 @@ fun ResumenDetalle(
 
             FilaDetalle(
                 etiqueta = stringResource(R.string.detalle_monto),
-                valor = detalle.monto.toLong().formatoCLP()
+                valor = detalle.monto.formatoCLP()
             )
 
             FilaDetalle(
                 etiqueta = stringResource(R.string.detalle_recargo),
-                valor = uiState.recargo.toLong().formatoCLP()
+                valor = detalle.recargo.formatoCLP()
             )
 
             if (estado == EstadoCompromiso.VENCIDO) {
@@ -142,7 +140,7 @@ fun ResumenDetalle(
                     etiqueta = stringResource(R.string.detalle_atraso),
                     valor = stringResource(
                         R.string.detalle_dias,
-                        uiState.diasAtraso
+                        detalle.diasAtraso
                     )
                 )
             }
@@ -151,7 +149,7 @@ fun ResumenDetalle(
 
             FilaDetalle(
                 etiqueta = stringResource(R.string.detalle_total),
-                valor = uiState.total.formatoCLP(),
+                valor = detalle.total.formatoCLP(),
                 destacado = true
             )
         }

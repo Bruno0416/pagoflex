@@ -19,9 +19,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.pagoflex.app.R
-import com.pagoflex.app.core.data.local.entities.PreguntaRecuperacion
 import com.pagoflex.app.core.ui.components.buttons.Button
 import com.pagoflex.app.core.ui.components.selection.Checkbox
 import com.pagoflex.app.core.ui.theme.PagoFlexTheme
@@ -29,7 +29,8 @@ import com.pagoflex.app.core.ui.theme.Theme
 import com.pagoflex.app.features.auth.presentation.components.ContrasenasRegistro
 import com.pagoflex.app.features.auth.presentation.components.DatosPersonalesRegistro
 import com.pagoflex.app.features.auth.presentation.components.Logo
-import com.pagoflex.app.features.auth.presentation.components.RecuperacionRegistro
+import com.pagoflex.app.features.auth.presentation.components.CodigoEmpresaRegistro
+import com.pagoflex.app.features.auth.presentation.components.RequisitosContrasena
 import com.pagoflex.app.features.auth.presentation.components.TextoEnlace
 import com.pagoflex.app.features.auth.presentation.model.RegisterUiState
 import com.pagoflex.app.features.auth.presentation.viewmodel.RegisterViewModel
@@ -55,9 +56,7 @@ fun RegisterScreen(
         validarContrasenaField = viewModel::validarContrasenaField,
         setConfirmarContrasena = viewModel::setConfirmarContrasena,
         validarConfirmarContrasenaField = viewModel::validarConfirmarContrasenaField,
-        setPreguntaRecuperacion = viewModel::setPreguntaRecuperacion,
-        setRespuestaRecuperacion = viewModel::setRespuestaRecuperacion,
-        validarRespuestaRecuperacionField = viewModel::validarRespuestaRecuperacionField,
+        setCodigoEmpresa = viewModel::setCodigoEmpresa,
         setTerminosYCondiciones = viewModel::setTerminosYCondiciones,
         registrar = { viewModel.registrar(volverAlLogin) },
         volverAlLogin = volverAlLogin
@@ -81,9 +80,7 @@ private fun RegisterContent(
     setConfirmarContrasena: (String) -> Unit,
     setTerminosYCondiciones: (Boolean) -> Unit,
     validarConfirmarContrasenaField: () -> Unit,
-    setPreguntaRecuperacion: (Int) -> Unit,
-    setRespuestaRecuperacion: (String) -> Unit,
-    validarRespuestaRecuperacionField: () -> Unit,
+    setCodigoEmpresa: (String) -> Unit,
 
     registrar: () -> Unit,
     volverAlLogin: () -> Unit
@@ -137,12 +134,9 @@ private fun RegisterContent(
                 uiState, setContrasena, validarContrasenaField,
                 setConfirmarContrasena, validarConfirmarContrasenaField
             )
-            RecuperacionRegistro(
-                uiState, setPreguntaRecuperacion,
-                setRespuestaRecuperacion, validarRespuestaRecuperacionField
-            )
+            RequisitosContrasena(uiState.contrasena)
+            CodigoEmpresaRegistro(uiState, setCodigoEmpresa)
 
-            // ---------- terminos y condiciones ----------
             Checkbox(
                 uiState.terminosYCondiciones,
                 setTerminosYCondiciones,
@@ -159,7 +153,6 @@ private fun RegisterContent(
                 )
             }
 
-            // ---------- error formulario ----------
             uiState.errorRegistro?.let { errorRes ->
                 Spacer(
                     Modifier.size(Theme.dimens.spacingM)
@@ -178,13 +171,15 @@ private fun RegisterContent(
                 Modifier.size(Theme.dimens.spacingL)
             )
 
-            // ---------- boton ----------
             Button(
                 onClick = registrar,
                 enabled = !uiState.cargando
             ) {
                 if (uiState.cargando) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp
+                    )
                 } else Text(stringResource(R.string.auth_registro_boton))
             }
 
@@ -206,7 +201,6 @@ private fun RegisterContent(
 }
 
 
-// ---------- preview ----------
 @Preview(
     showBackground = true
 )
@@ -218,13 +212,7 @@ private fun RegisterContent(
 private fun PreviewRegisterContent() {
     PagoFlexTheme {
         RegisterContent(
-            uiState = RegisterUiState(
-                preguntas = listOf(
-                    PreguntaRecuperacion(1, stringResource(R.string.auth_pregunta_ejemplo_mascota)),
-                    PreguntaRecuperacion(2, stringResource(R.string.auth_pregunta_ejemplo_ciudad))
-                ),
-                idPreguntaRecuperacion = 1
-            ),
+            uiState = RegisterUiState(),
             setRut = {},
             validarRutField = {},
             setNombres = {},
@@ -237,9 +225,7 @@ private fun PreviewRegisterContent() {
             validarContrasenaField = {},
             setConfirmarContrasena = {},
             validarConfirmarContrasenaField = {},
-            setPreguntaRecuperacion = {},
-            setRespuestaRecuperacion = {},
-            validarRespuestaRecuperacionField = {},
+            setCodigoEmpresa = {},
             setTerminosYCondiciones = {},
             registrar = {},
             volverAlLogin = {}

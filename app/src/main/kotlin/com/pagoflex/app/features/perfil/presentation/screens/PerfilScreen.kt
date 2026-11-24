@@ -51,8 +51,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.pagoflex.app.R
-import com.pagoflex.app.core.data.local.LocalDatabase
-import com.pagoflex.app.core.data.local.dao.PerfilUsuarioRow
 import com.pagoflex.app.core.platform.Permisos
 import com.pagoflex.app.core.ui.components.avatar.Avatar
 import com.pagoflex.app.core.ui.components.buttons.Button
@@ -64,7 +62,6 @@ import com.pagoflex.app.core.ui.components.feedback.SnackbarHost
 import com.pagoflex.app.core.ui.components.inputs.TextField
 import com.pagoflex.app.core.ui.components.model.ComponentSize
 import com.pagoflex.app.core.ui.components.model.ComponentVariant
-import com.pagoflex.app.core.ui.components.overlays.Dialog
 import com.pagoflex.app.core.ui.theme.PagoFlexTheme
 import com.pagoflex.app.core.ui.theme.Theme
 import com.pagoflex.app.features.perfil.data.PerfilRepository
@@ -76,15 +73,13 @@ import kotlinx.coroutines.withContext
 
 @Composable
 fun PerfilScreen(
-    db: LocalDatabase,
-    usuarioId: Int,
     onVolver: () -> Unit,
     onCerrarSesion: () -> Unit
 ) {
     // ---------- estado y dependencias ----------
-    val repositorio = remember(db) { PerfilRepository(db) }
+    val repositorio = remember { PerfilRepository() }
     val viewModel: PerfilViewModel = viewModel(
-        factory = viewModelFactory { initializer { PerfilViewModel(repositorio, usuarioId) } }
+        factory = viewModelFactory { initializer { PerfilViewModel(repositorio) } }
     )
     val estado by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -100,7 +95,7 @@ fun PerfilScreen(
         if (imagen != null) viewModel.guardarAvatar(imagen)
     }
 
-    // --- helper privado ---
+    // --- abrir camara ---
     fun abrirCamara() {
         // 1. iniciar la captura con el permiso concedido
         try {
@@ -133,8 +128,8 @@ fun PerfilScreen(
         }
     }
 
-    // ---------- galería ----------
-    // el selector del sistema permite elegir una imagen sin permiso de almacenamiento
+    // ---------- galeria ----------
+    // 1. elegir una imagen sin permiso de almacenamiento
     val galeria = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         if (uri != null) {
             scope.launch {
@@ -160,7 +155,7 @@ fun PerfilScreen(
         }
     }
 
-    // ---------- mensajes de operación ----------
+    // ---------- mensajes de operacion ----------
     val mensaje = estado.mensaje?.let { stringResource(it) }
     LaunchedEffect(mensaje) {
         if (mensaje != null) {
@@ -216,10 +211,11 @@ private fun PerfilContent(
     onGuardar: (String) -> Unit,
     onReintentar: () -> Unit
 ) {
-    var confirmarSalida by remember { mutableStateOf(false) }
     val modoOscuro = isSystemInDarkTheme()
     val colorCampo = if (modoOscuro) Theme.colores.surfaceContainerLow else Theme.colores.surfaceContainerHigh
     val bordeCampo = Theme.colores.outlineVariant
+    val datoNoDisponible = stringResource(R.string.perfil_dato_no_disponible)
+    val nombreGenerico = stringResource(R.string.home_usuario_generico)
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -276,12 +272,12 @@ private fun PerfilContent(
                                     containerColor = Theme.colores.primaryContainer,
                                     contentColor = Theme.colores.onPrimaryContainer
                                 ),
-                                imagen = perfil.avatar,
+                                imagen = state.avatar,
                                 circular = true,
                                 tamano = 96.dp
                             )
                             Text(
-                                text = "${perfil.nombres} ${perfil.apellidos}",
+                                text = "${perfil.nombres} ${perfil.apellidos}".trim().ifBlank { nombreGenerico },
                                 style = Theme.type.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
@@ -303,7 +299,7 @@ private fun PerfilContent(
                                     variant = ComponentVariant.Secondary
                                 ) { Text(stringResource(R.string.perfil_elegir_galeria)) }
                             }
-                            if (perfil.avatar != null) {
+                            if (!perfil.urlAvatar.isNullOrBlank()) {
                                 TextButton(
                                     onClick = onEliminarFoto,
                                     enabled = !state.guardando && !state.editando,
@@ -409,11 +405,14 @@ private fun PerfilContent(
                                     ) { Text(stringResource(R.string.perfil_guardar)) }
                                 }
                             } else {
-                                DatoPerfil(stringResource(R.string.perfil_nombres), perfil.nombres)
-                                DatoPerfil(stringResource(R.string.perfil_apellidos), perfil.apellidos)
-                                DatoPerfil(stringResource(R.string.perfil_correo), perfil.correo)
+                                DatoPerfil(stringResource(R.string.perfil_nombres), perfil.nombres.ifBlank { datoNoDisponible })
+                                DatoPerfil(stringResource(R.string.perfil_apellidos), perfil.apellidos.ifBlank { datoNoDisponible })
+                                DatoPerfil(stringResource(R.string.perfil_correo), perfil.correo.ifBlank { datoNoDisponible })
                             }
-                            DatoPerfil(stringResource(R.string.perfil_rut), ocultarRut(perfil.rut))
+                            DatoPerfil(
+                                stringResource(R.string.perfil_rut),
+                                ocultarRut(perfil.rut)
+                            )
                     }
 
                     HorizontalDivider(color = Theme.colores.outlineVariant)
@@ -428,26 +427,13 @@ private fun PerfilContent(
                     // ---------- sesion ----------
                     OutlinedButton(
                         modifier = Modifier.fillMaxWidth(),
-                        onClick = { confirmarSalida = true },
+                        onClick = onCerrarSesion,
                         enabled = !state.guardando,
                         variant = ComponentVariant.Destructive
                     ) { Text(stringResource(R.string.perfil_cerrar_sesion)) }
                 }
             }
         }
-    }
-
-    if (confirmarSalida) {
-        Dialog(
-            onDismissRequest = { confirmarSalida = false },
-            title = stringResource(R.string.perfil_cerrar_sesion),
-            text = stringResource(R.string.perfil_confirmar_salida),
-            confirmText = stringResource(R.string.perfil_cerrar_sesion),
-            onConfirm = { confirmarSalida = false; onCerrarSesion() },
-            dismissText = stringResource(R.string.perfil_cancelar),
-            onDismiss = { confirmarSalida = false },
-            variant = ComponentVariant.Destructive
-        )
     }
 }
 

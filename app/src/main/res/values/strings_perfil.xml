@@ -33,4 +33,6 @@
     <string name="perfil_reintentar">Reintentar</string>
     <string name="perfil_cerrar_sesion">Cerrar sesión</string>
     <string name="perfil_confirmar_salida">¿Quieres cerrar tu sesión en este dispositivo?</string>
+    <string name="perfil_dato_no_disponible">Sin información</string>
+    <string name="perfil_datos_pendientes">Información no disponible.</string>
 </resources>

@@ -18,11 +18,16 @@ fun TextoEnlace(
     texto: String,
     textoEnlace: String,
     onClick: () -> Unit,
+    contrasena: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,
+        horizontalArrangement = if(contrasena) {
+            Arrangement.End
+        } else {
+            Arrangement.Center
+        },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(

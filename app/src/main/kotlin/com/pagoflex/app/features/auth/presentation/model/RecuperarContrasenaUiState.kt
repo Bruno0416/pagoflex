@@ -1,22 +1,26 @@
 package com.pagoflex.app.features.auth.presentation.model
 
-import com.pagoflex.app.core.data.local.entities.PreguntaRecuperacion
+enum class PasoRecuperacion {
+    CORREO,
+    CODIGO,
+    CONTRASENA,
+    EXITO
+}
 
 data class RecuperarContrasenaUiState(
+    val paso: PasoRecuperacion = PasoRecuperacion.CORREO,
     val correo: String = "",
-    val preguntas: List<PreguntaRecuperacion> = emptyList(),
-    val idPreguntaRecuperacion: Int? = null,
-    val respuesta: String = "",
-    val identidadValidada: Boolean = false,
+    val codigo: String = "",
     val nuevaContrasena: String = "",
     val confirmarContrasena: String = "",
     val cargando: Boolean = false,
     val recuperacionExitosa: Boolean = false,
     // errores
     val errorCorreo: Int? = null,
-    val errorPregunta: Int? = null,
-    val errorRespuesta: Int? = null,
+    val errorCodigo: Int? = null,
     val errorContrasena: Int? = null,
     val errorConfirmacion: Int? = null,
-    val errorRecuperacion: Int? = null
+    val errorRecuperacion: Int? = null,
+    val codigoReenviado: Boolean = false,
+    val requiereNuevoCodigo: Boolean = false
 )

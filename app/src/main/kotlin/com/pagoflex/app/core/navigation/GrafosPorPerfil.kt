@@ -1,6 +1,11 @@
 package com.pagoflex.app.core.navigation
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -9,149 +14,77 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.pagoflex.app.R
 import com.pagoflex.app.core.data.local.LocalDatabase
+import com.pagoflex.app.core.ui.theme.Theme
 import com.pagoflex.app.features.cobranza.presentation.screens.CompromisosEmpresaScreen
 import com.pagoflex.app.features.cobranza.presentation.screens.DetalleCompromisoEmpresaScreen
 import com.pagoflex.app.features.cobranza.presentation.screens.RegistrarCompromisoScreen
 import com.pagoflex.app.features.cobranza.presentation.screens.ResumenCobranzaScreen
 import com.pagoflex.app.features.detalle.presentation.screens.DetalleCompromisoScreen
-import com.pagoflex.app.features.cumplimiento.presentation.screens.CumplimientoScreen
-import com.pagoflex.app.features.historial.presentation.screens.ComprobanteScreen
-import com.pagoflex.app.features.historial.presentation.screens.HistorialScreen
 import com.pagoflex.app.features.home.presentation.screens.HomeScreen
 import com.pagoflex.app.features.home.presentation.screens.ListaCompromisosScreen
-import com.pagoflex.app.features.reconocimientos.presentation.screens.ReconocimientosScreen
+import com.pagoflex.app.features.perfil.presentation.screens.PerfilScreen
 import com.pagoflex.app.features.reportes.presentation.screens.BandejaReportesScreen
 import com.pagoflex.app.features.reportes.presentation.screens.DetalleReporteScreen
-import com.pagoflex.app.features.reportes.presentation.screens.MisReportesScreen
-import com.pagoflex.app.features.reportes.presentation.screens.ReportarProblemaScreen
 
-// ---------- usuarios finales ----------
+// ---------- usuario final ----------
 fun NavGraphBuilder.grafoUsuario(
-    db: LocalDatabase,
-    usuarioId: Int,
-    navController: NavHostController
+    navController: NavHostController,
+    onCerrarSesion: () -> Unit
 ) {
+    // ---------- inicio y compromisos ----------
     composable(Ruta.Home.ruta) {
         HomeScreen(
-            db = db,
-            usuarioId = usuarioId,
-            onVerPerfil = { navController.navigate(Ruta.Perfil.ruta) },
             onVerTodos = { navController.navigate(Ruta.ListaCompromisos.ruta) },
-            onVerCumplimiento = { navController.navigate(Ruta.Cumplimiento.ruta) },
             onVerCompromiso = { folio ->
                 navController.navigate(Ruta.DetalleCompromiso.ver(folio))
-            }
+            },
+            onVerPerfil = {
+                // 1. abrir perfil solo si inicio sigue siendo la ruta activa
+                if (navController.currentDestination?.route == Ruta.Home.ruta) {
+                    navController.navigate(Ruta.Perfil.ruta) {
+                        launchSingleTop = true
+                    }
+                }
+            },
+            onVerCumplimiento = { navController.navigate(Ruta.Cumplimiento.ruta) }
         )
     }
-    // ---------- cumplimiento ----------
-    composable(Ruta.Cumplimiento.ruta) {
-        CumplimientoScreen(
-            db = db,
-            usuarioId = usuarioId,
-            onVolver = { navController.volverDesde(Ruta.Cumplimiento.ruta) },
-            onVerReconocimientos = { navController.navigate(Ruta.Reconocimientos.ruta) }
-        )
-    }
-
-    // ---------- reconocimientos ----------
-    composable(Ruta.Reconocimientos.ruta) {
-        ReconocimientosScreen(
-            db = db,
-            usuarioId = usuarioId,
-            onVolver = { navController.volverDesde(Ruta.Reconocimientos.ruta) }
-        )
-    }
-
     composable(Ruta.ListaCompromisos.ruta) {
         ListaCompromisosScreen(
-            db = db,
-            usuarioId = usuarioId,
             onVolver = { navController.volverDesde(Ruta.ListaCompromisos.ruta) },
             onVerCompromiso = { folio ->
                 navController.navigate(Ruta.DetalleCompromiso.ver(folio))
             }
         )
     }
-
-    // ---------- historial ----------
-    composable(Ruta.Historial.ruta) {
-        HistorialScreen(
-            db = db,
-            usuarioId = usuarioId,
-            onVerComprobante = { numero ->
-                navController.navigate(
-                    Ruta.DetalleComprobante.ver(numero)
-                )
-            }
-        )
-    }
-
-    // adonys: ayuda con los reportes de problema del usuario (HU-06)
-    composable(Ruta.Ayuda.ruta) {
-        MisReportesScreen(
-            db = db,
-            usuarioId = usuarioId,
-            onReportar = { folio -> navController.navigate(Ruta.ReportarProblema.crear(folio)) }
-        )
-    }
-    composable(Ruta.Avisos.ruta) {
-        Text(stringResource(R.string.nav_avisos))
-    }
-
-    // ---------- detalle de comprobante ----------
-    composable(
-        route = Ruta.DetalleComprobante.ruta,
-        arguments = listOf(
-            navArgument("numero") {
-                type = NavType.StringType
-            }
-        )
-    ) { entrada ->
-        val numero = entrada.arguments?.getString("numero").orEmpty()
-
-        ComprobanteScreen(
-            db = db,
-            usuarioId = usuarioId,
-            numeroComprobante = numero,
-            onCerrar = {
-                navController.volverDesde(Ruta.DetalleComprobante.ruta)
-            },
-        )
-    }
-
-    // ---------- detalle de compromiso ----------
     composable(
         route = Ruta.DetalleCompromiso.ruta,
-        arguments = listOf(
-            navArgument("id") { type = NavType.StringType }
-        )
+        arguments = listOf(navArgument("id") { type = NavType.StringType })
     ) { entrada ->
-        val folio = entrada.arguments?.getString("id").orEmpty()
-
         DetalleCompromisoScreen(
-            db = db,
-            usuarioId = usuarioId,
-            folio = folio,
-            onVolver = {
-                navController.volverDesde(Ruta.DetalleCompromiso.ruta)
-            },
-            onPagoConfirmado = { numero ->
-                navController.navigate(Ruta.DetalleComprobante.ver(numero))
-            }
+            folio = entrada.arguments?.getString("id").orEmpty(),
+            onVolver = { navController.volverDesde(Ruta.DetalleCompromiso.ruta) }
         )
     }
-    // adonys: reportar un problema (HU-06)
+
+    // ---------- rutas con datos pendientes ----------
+    composable(Ruta.Historial.ruta) { PantallaSinDatos() }
     composable(
-        route = Ruta.ReportarProblema.ruta,
-        arguments = listOf(navArgument("folio") { type = NavType.StringType })
-    ) { entrada ->
-        ReportarProblemaScreen(
-            db = db,
-            usuarioId = usuarioId,
-            folio = entrada.arguments?.getString("folio").orEmpty(),
-            onVolver = { navController.popBackStack() }
+        route = Ruta.DetalleComprobante.ruta,
+        arguments = listOf(navArgument("numero") { type = NavType.StringType })
+    ) { PantallaSinDatos() }
+
+    // ---------- perfil y cumplimiento ----------
+    composable(Ruta.Perfil.ruta) {
+        PerfilScreen(
+            onVolver = { navController.volverDesde(Ruta.Perfil.ruta) },
+            onCerrarSesion = onCerrarSesion
         )
     }
+    composable(Ruta.Cumplimiento.ruta) { PantallaSinDatos() }
+
+    // ---------- ayuda ----------
+    composable(Ruta.Ayuda.ruta) { PantallaSinDatos() }
 }
 
 // Agentes
@@ -240,7 +173,19 @@ private fun NavHostController.irAPestana(ruta: String, rutaInicial: String) {
     }
 }
 
-private fun NavHostController.volverDesde(rutaOrigen: String) {
+internal fun NavHostController.volverDesde(rutaOrigen: String) {
     if (currentDestination?.route != rutaOrigen || previousBackStackEntry == null) return
     popBackStack()
+}
+
+// ---------- estados temporales de navegacion ----------
+@Composable
+private fun PantallaSinDatos() {
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text(
+            text = stringResource(R.string.perfil_dato_no_disponible),
+            style = Theme.type.bodyMedium,
+            color = Theme.colores.onSurfaceVariant
+        )
+    }
 }

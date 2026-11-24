@@ -19,7 +19,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.pagoflex.app.R
-import com.pagoflex.app.core.profiles.model.SesionUsuario
 import com.pagoflex.app.core.ui.components.buttons.Button
 import com.pagoflex.app.core.ui.components.inputs.TextField
 import com.pagoflex.app.core.ui.theme.PagoFlexTheme
@@ -32,7 +31,6 @@ import com.pagoflex.app.features.auth.presentation.viewmodel.LoginViewModel
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel,
-    crearSesion: (SesionUsuario) -> Unit,
     irARegistro: () -> Unit,
     irARecuperar: () -> Unit,
 ) {
@@ -44,7 +42,7 @@ fun LoginScreen(
         validarCorreoField = viewModel::validarCorreoField,
         setContrasena = viewModel::setContrasena,
         validarContrasenaField = viewModel::validarContrasenaField,
-        iniciarSesion = { viewModel.iniciarSesion(crearSesion) },
+        iniciarSesion = viewModel::iniciarSesion,
         irARegistro = irARegistro,
         irARecuperar = irARecuperar,
     )
@@ -148,7 +146,8 @@ private fun LoginContent(
             TextoEnlace(
                 texto = "",
                 textoEnlace = stringResource(R.string.auth_login_recuperar_contrasena),
-                onClick = irARecuperar
+                onClick = irARecuperar,
+                contrasena = true
             )
 
             Spacer(
@@ -180,7 +179,6 @@ private fun LoginContent(
 }
 
 
-// ---------- preview ----------
 @Preview(
     showBackground = true
 )

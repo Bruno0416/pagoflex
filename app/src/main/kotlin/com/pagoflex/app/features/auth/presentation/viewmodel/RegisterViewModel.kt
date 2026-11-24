@@ -1,101 +1,67 @@
 package com.pagoflex.app.features.auth.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pagoflex.app.R
 import com.pagoflex.app.features.auth.data.AuthRepository
+import com.pagoflex.app.features.auth.data.remote.dto.request.RegistrarRequest
 import com.pagoflex.app.features.auth.presentation.model.RegisterUiState
 import com.pagoflex.app.features.auth.presentation.validators.AuthValidators
+import java.io.IOException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 class RegisterViewModel(private val authRepository: AuthRepository) : ViewModel() {
     private val _uiState = MutableStateFlow(RegisterUiState())
     val uiState: StateFlow<RegisterUiState> = _uiState
 
-    init {
-        viewModelScope.launch {
-            try {
-                _uiState.update { it.copy(preguntas = authRepository.obtenerPreguntas()) }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (_: Exception) {
-                _uiState.update { it.copy(errorRegistro = R.string.auth_error_registro) }
-            }
-        }
-    }
-
-    // --- rut ---
     fun setRut(rut: String) {
         _uiState.update { it.copy(rut = rut, errorRut = null, errorRegistro = null) }
     }
 
     fun validarRutField() {
-        val error = AuthValidators.validarRut(uiState.value.rut)
-
-        _uiState.update { it.copy(errorRut = error) }
+        _uiState.update { it.copy(errorRut = AuthValidators.validarRut(it.rut)) }
     }
 
-    // --- nombres ---
     fun setNombres(nombres: String) {
         _uiState.update { it.copy(nombres = nombres, errorNombres = null, errorRegistro = null) }
     }
 
     fun validarNombresField() {
-        val error = AuthValidators.validarNombres(uiState.value.nombres)
-        _uiState.update { it.copy(errorNombres = error) }
+        _uiState.update { it.copy(errorNombres = AuthValidators.validarNombres(it.nombres)) }
     }
 
-
-    // --- apellidos ---
     fun setApellidos(apellidos: String) {
-        _uiState.update {
-            it.copy(
-                apellidos = apellidos,
-                errorApellidos = null,
-                errorRegistro = null
-            )
-        }
+        _uiState.update { it.copy(apellidos = apellidos, errorApellidos = null, errorRegistro = null) }
     }
 
     fun validarApellidosField() {
-        val error = AuthValidators.validarApellidos(uiState.value.apellidos)
-        _uiState.update { it.copy(errorApellidos = error) }
+        _uiState.update { it.copy(errorApellidos = AuthValidators.validarApellidos(it.apellidos)) }
     }
 
-    // --- correo ---
     fun setCorreo(correo: String) {
         _uiState.update { it.copy(correo = correo, errorCorreo = null, errorRegistro = null) }
     }
 
     fun validarCorreoField() {
-        val error = AuthValidators.validarCorreo(uiState.value.correo)
-
-        _uiState.update { it.copy(errorCorreo = error) }
+        _uiState.update { it.copy(errorCorreo = AuthValidators.validarCorreo(it.correo)) }
     }
 
-
-    // --- contraseña ---
     fun setContrasena(contrasena: String) {
         _uiState.update {
-            it.copy(
-                contrasena = contrasena,
-                errorContrasena = null,
-                errorRegistro = null
-            )
+            it.copy(contrasena = contrasena, errorContrasena = null, errorRegistro = null)
         }
     }
 
     fun validarContrasenaField() {
-        val error = AuthValidators.validarContrasena(uiState.value.contrasena)
-
-        _uiState.update { it.copy(errorContrasena = error) }
+        _uiState.update { it.copy(errorContrasena = AuthValidators.validarContrasenaSegura(it.contrasena)) }
     }
 
-    // --- confirmar contraseña ---
     fun setConfirmarContrasena(confirmarContrasena: String) {
         _uiState.update {
             it.copy(
@@ -107,41 +73,21 @@ class RegisterViewModel(private val authRepository: AuthRepository) : ViewModel(
     }
 
     fun validarConfirmarContrasenaField() {
-        val error = AuthValidators.validarConfirmarContrasena(
-            uiState.value.contrasena,
-            uiState.value.confirmarContrasena
-        )
-
-        _uiState.update { it.copy(errorConfirmarContrasena = error, errorRegistro = null) }
-    }
-
-    // --- terminos y condiciones ---
-    fun setPreguntaRecuperacion(idPregunta: Int) {
         _uiState.update {
             it.copy(
-                idPreguntaRecuperacion = idPregunta,
-                errorPreguntaRecuperacion = null,
-                errorRegistro = null
+                errorConfirmarContrasena = AuthValidators.validarConfirmarContrasena(
+                    it.contrasena, it.confirmarContrasena
+                )
             )
         }
     }
 
-    fun setRespuestaRecuperacion(respuesta: String) {
+    fun setCodigoEmpresa(codigo: String) {
         _uiState.update {
-            it.copy(
-                respuestaRecuperacion = respuesta,
-                errorRespuestaRecuperacion = null,
-                errorRegistro = null
-            )
+            it.copy(codigoEmpresa = codigo, errorCodigoEmpresa = null, errorRegistro = null)
         }
     }
 
-    fun validarRespuestaRecuperacionField() {
-        val error = AuthValidators.validarRespuestaRecuperacion(uiState.value.respuestaRecuperacion)
-        _uiState.update { it.copy(errorRespuestaRecuperacion = error) }
-    }
-
-    // --- terminos y condiciones ---
     fun setTerminosYCondiciones(value: Boolean) {
         _uiState.update {
             it.copy(
@@ -152,39 +98,21 @@ class RegisterViewModel(private val authRepository: AuthRepository) : ViewModel(
         }
     }
 
-    // --- registro --
     fun registrar(onExito: () -> Unit) {
-        // 1. congelar estado
-        val estado = uiState.value
-        val rut = estado.rut.trim()
-        val nombres = AuthValidators.normalizarNombre(estado.nombres)
-        val apellidos = AuthValidators.normalizarNombre(estado.apellidos)
-        val correo = estado.correo.trim()
-        val contrasena = estado.contrasena
-        val confirmarContrasena = estado.confirmarContrasena
-        val idPreguntaRecuperacion = estado.idPreguntaRecuperacion
-        val respuestaRecuperacion = estado.respuestaRecuperacion
-
-        val terminosYCondiciones = estado.terminosYCondiciones
-
-        // 2. cancelar si esta cargando
+        val estado = _uiState.value
         if (estado.cargando) return
-
-        // 3 validar campos
-        val errorRut = AuthValidators.validarRut(rut)
-        val errorNombres = AuthValidators.validarNombres(nombres)
-        val errorApellidos = AuthValidators.validarApellidos(apellidos)
-        val errorCorreo = AuthValidators.validarCorreo(correo)
-        val errorContrasena = AuthValidators.validarContrasena(contrasena)
-        val errorConfirmarContrasena =
-            AuthValidators.validarConfirmarContrasena(contrasena, confirmarContrasena)
-        val errorPreguntaRecuperacion =
-            AuthValidators.validarPreguntaRecuperacion(idPreguntaRecuperacion)
-        val errorRespuestaRecuperacion =
-            AuthValidators.validarRespuestaRecuperacion(respuestaRecuperacion)
-
-        // 4. si alguno de los campos es inválido, mostrar estado y cancelar operación
-        if (errorRut != null || errorNombres != null || errorApellidos != null || errorCorreo != null || errorContrasena != null || errorConfirmarContrasena != null || errorPreguntaRecuperacion != null || errorRespuestaRecuperacion != null || !terminosYCondiciones) {
+        val errorRut = AuthValidators.validarRut(estado.rut)
+        val errorNombres = AuthValidators.validarNombres(estado.nombres)
+        val errorApellidos = AuthValidators.validarApellidos(estado.apellidos)
+        val errorCorreo = AuthValidators.validarCorreo(estado.correo)
+        val errorContrasena = AuthValidators.validarContrasenaSegura(estado.contrasena)
+        val errorConfirmacion = AuthValidators.validarConfirmarContrasena(
+            estado.contrasena, estado.confirmarContrasena
+        )
+        if (errorRut != null || errorNombres != null || errorApellidos != null ||
+            errorCorreo != null || errorContrasena != null || errorConfirmacion != null ||
+            !estado.terminosYCondiciones
+        ) {
             _uiState.update {
                 it.copy(
                     errorRut = errorRut,
@@ -192,38 +120,78 @@ class RegisterViewModel(private val authRepository: AuthRepository) : ViewModel(
                     errorApellidos = errorApellidos,
                     errorCorreo = errorCorreo,
                     errorContrasena = errorContrasena,
-                    errorConfirmarContrasena = errorConfirmarContrasena,
-                    errorPreguntaRecuperacion = errorPreguntaRecuperacion,
-                    errorRespuestaRecuperacion = errorRespuestaRecuperacion,
-                    errorTerminosYCondiciones = if (terminosYCondiciones) null else R.string.auth_error_terminos_y_condiciones
+                    errorConfirmarContrasena = errorConfirmacion,
+                    errorTerminosYCondiciones = if (estado.terminosYCondiciones) null
+                    else R.string.auth_error_terminos_y_condiciones
                 )
             }
             return
         }
 
-        // 5. registrar usuario si no hay error
-
-        // mostrar estado de carga
         _uiState.update { it.copy(cargando = true, errorRegistro = null) }
-
         viewModelScope.launch {
             try {
-                // el repositorio se encarga de hashear la contrasena
                 authRepository.registrarUsuario(
-                    AuthValidators.normalizarRut(rut),
-                    nombres,
-                    apellidos,
-                    correo.lowercase(),
-                    contrasena,
-                    requireNotNull(idPreguntaRecuperacion),
-                    respuestaRecuperacion
+                    RegistrarRequest(
+                        correo = estado.correo.trim(),
+                        contrasena = estado.contrasena,
+                        rut = AuthValidators.normalizarRut(estado.rut),
+                        nombres = AuthValidators.normalizarNombre(estado.nombres),
+                        apellidos = AuthValidators.normalizarNombre(estado.apellidos),
+                        codigoEmpresa = estado.codigoEmpresa.trim().ifEmpty { null }
+                    )
                 )
-
-                // 6. si no hubo errores se usa el callback de registro exitoso
+                _uiState.update {
+                    it.copy(contrasena = "", confirmarContrasena = "")
+                }
                 onExito()
             } catch (e: CancellationException) {
                 throw e
-            } catch (_: Exception) {
+            } catch (e: HttpException) {
+                val campos = authRepository.camposInvalidos(e).keys
+                val reconocidos = setOf(
+                    "rut", "nombres", "apellidos", "correo", "contrasena", "codigoEmpresa"
+                )
+                val errorGeneral = when (e.code()) {
+                    400, 422 -> if (campos.isEmpty() || campos.any { it !in reconocidos })
+                        R.string.auth_api_registro_datos_invalidos else null
+                    409 -> if (campos.isEmpty() || campos.any { it !in reconocidos })
+                        R.string.auth_api_registro_duplicado else null
+                    429 -> R.string.auth_api_muchas_solicitudes
+                    in 500..599 -> R.string.auth_api_registro_error_servidor
+                    else -> R.string.auth_error_registro
+                }
+                Log.w("PagoFlexAuth", "Registro HTTP ${e.code()}; campos: $campos")
+                _uiState.update {
+                    it.copy(
+                        errorRut = when {
+                            "rut" !in campos -> null
+                            e.code() == 409 -> R.string.auth_api_rut_duplicado
+                            else -> R.string.auth_error_rut_invalido
+                        },
+                        errorNombres = if ("nombres" in campos)
+                            R.string.auth_api_nombres_invalidos else null,
+                        errorApellidos = if ("apellidos" in campos)
+                            R.string.auth_api_apellidos_invalidos else null,
+                        errorCorreo = when {
+                            "correo" !in campos -> null
+                            e.code() == 409 -> R.string.auth_api_correo_duplicado
+                            else -> R.string.auth_error_correo_invalido
+                        },
+                        errorContrasena = if ("contrasena" in campos)
+                            R.string.auth_error_contrasena_segura else null,
+                        errorCodigoEmpresa = if ("codigoEmpresa" in campos)
+                            R.string.auth_api_codigo_empresa_invalido else null,
+                        errorRegistro = errorGeneral
+                    )
+                }
+            } catch (e: IOException) {
+                Log.e("PagoFlexAuth", "Error de conexión al registrar", e)
+                _uiState.update {
+                    it.copy(errorRegistro = R.string.auth_api_error_red)
+                }
+            } catch (e: Exception) {
+                Log.e("PagoFlexAuth", "Error inesperado al registrar", e)
                 _uiState.update {
                     it.copy(errorRegistro = R.string.auth_error_registro)
                 }

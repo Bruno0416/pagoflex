@@ -30,8 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pagoflex.app.R
 import com.pagoflex.app.core.ui.components.avatar.Avatar
-import com.pagoflex.app.features.cumplimiento.data.CategoriaCumplimiento
-import com.pagoflex.app.features.cumplimiento.data.ResultadoCumplimiento
+import com.pagoflex.app.features.home.data.remote.dto.response.CumplimientoHomeResponse
 import com.pagoflex.app.core.ui.theme.PagoFlexTheme
 import com.pagoflex.app.core.ui.theme.Theme
 import java.time.LocalDateTime
@@ -45,15 +44,15 @@ fun HomeAppBar(
     avatarUsuario: ByteArray? = null,
     onVerPerfil: () -> Unit,
     ultimaActualizacion: LocalDateTime,
-    cumplimiento: ResultadoCumplimiento,
+    cumplimiento: CumplimientoHomeResponse,
     onVerCumplimiento: () -> Unit,
 ) {
     val estadoCumplimiento = cumplimiento.porcentaje?.let { porcentaje ->
         val categoria = when (cumplimiento.categoria) {
-            CategoriaCumplimiento.EJEMPLAR -> stringResource(R.string.home_cumplimiento_ejemplar)
-            CategoriaCumplimiento.AL_DIA -> stringResource(R.string.home_cumplimiento_al_dia)
-            CategoriaCumplimiento.EN_CAMINO -> stringResource(R.string.home_cumplimiento_en_camino)
-            null -> stringResource(R.string.home_cumplimiento_historial_parcial)
+            "EJEMPLAR" -> stringResource(R.string.home_cumplimiento_ejemplar)
+            "AL_DIA" -> stringResource(R.string.home_cumplimiento_al_dia)
+            "EN_CAMINO" -> stringResource(R.string.home_cumplimiento_en_camino)
+            else -> stringResource(R.string.home_cumplimiento_historial_parcial)
         }
         stringResource(
             R.string.home_cumplimiento_porcentaje,
@@ -165,7 +164,7 @@ private fun HomeAppBarPreview() {
                 ultimaActualizacion = LocalDateTime.of(
                     2026, 10, 6, 8, 12
                 ),
-                cumplimiento = ResultadoCumplimiento(36, 33, 91.7, CategoriaCumplimiento.AL_DIA),
+                cumplimiento = CumplimientoHomeResponse(36, 33, 91.7, "AL_DIA"),
                 onVerCumplimiento = {},
                 onVerPerfil = {}
             )

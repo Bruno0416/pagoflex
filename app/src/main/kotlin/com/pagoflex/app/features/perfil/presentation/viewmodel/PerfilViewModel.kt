@@ -6,16 +6,17 @@ import androidx.lifecycle.viewModelScope
 import com.pagoflex.app.R
 import com.pagoflex.app.features.auth.presentation.validators.AuthValidators
 import com.pagoflex.app.features.perfil.data.PerfilRepository
+import com.pagoflex.app.features.perfil.data.remote.dto.request.ActualizarPerfilRequest
 import com.pagoflex.app.features.perfil.presentation.model.PerfilUiState
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 class PerfilViewModel(
-    private val repository: PerfilRepository,
-    private val usuarioId: Int
+    private val repository: PerfilRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(PerfilUiState())
     val uiState = _uiState.asStateFlow()
@@ -23,26 +24,36 @@ class PerfilViewModel(
     init { cargarPerfil() }
 
     // ---------- consulta de perfil ----------
-
     fun cargarPerfil() {
         viewModelScope.launch {
-            // 1. preparar el estado de carga
+            // 1. consultar los datos del usuario autenticado
             _uiState.update { it.copy(cargando = true, errorGeneral = null) }
-            // 2. consultar al usuario activo
             try {
-                val perfil = repository.obtenerPerfil(usuarioId)
+                val perfil = repository.obtenerPerfil()
+                // 2. recuperar el avatar sin bloquear el formulario si falla
+                val avatar = if (perfil.urlAvatar.isNullOrBlank()) null else try {
+                    repository.obtenerAvatar()
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    null
+                }
+                // 3. reflejar los datos reales del servidor
                 _uiState.update {
                     it.copy(
                         perfil = perfil,
-                        nombres = perfil?.nombres.orEmpty(),
-                        apellidos = perfil?.apellidos.orEmpty(),
-                        correo = perfil?.correo.orEmpty(),
+                        avatar = avatar,
+                        nombres = perfil.nombres,
+                        apellidos = perfil.apellidos,
+                        correo = perfil.correo,
                         cargando = false,
-                        errorGeneral = if (perfil == null) R.string.perfil_no_disponible else null
+                        editando = false,
+                        errorGeneral = null
                     )
                 }
-            } catch (e: CancellationException) { throw e }
-            catch (_: Exception) {
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
                 _uiState.update { it.copy(cargando = false, errorGeneral = R.string.perfil_error_cargar) }
             }
         }
@@ -89,45 +100,53 @@ class PerfilViewModel(
             R.string.perfil_contrasena_requerida
         } else null
         if (listOf(errorNombres, errorApellidos, errorCorreo, errorContrasena).any { it != null }) {
-            _uiState.update {
-                it.copy(
-                    errorNombres = errorNombres, errorApellidos = errorApellidos,
-                    errorCorreo = errorCorreo, errorContrasena = errorContrasena
-                )
-            }
+            _uiState.update { it.copy(
+                errorNombres = errorNombres, errorApellidos = errorApellidos,
+                errorCorreo = errorCorreo, errorContrasena = errorContrasena
+            ) }
             return
         }
-        // 2. evitar escrituras cuando no hay cambios
+        // 2. evitar peticiones si no hay cambios
         if (nombres == original.nombres && apellidos == original.apellidos && correo == original.correo) {
             cancelarEdicion()
             return
         }
         _uiState.update { it.copy(guardando = true, errorGeneral = null) }
         viewModelScope.launch {
-            // 3. guardar los cambios y reflejar el resultado
             try {
-                when (repository.actualizarDatos(
-                    usuarioId, original.correo, nombres, apellidos, correo, contrasenaActual
-                )) {
-                    PerfilRepository.Resultado.GUARDADO -> _uiState.update {
-                        it.copy(
-                            perfil = original.copy(nombres = nombres, apellidos = apellidos, correo = correo),
-                            nombres = nombres, apellidos = apellidos, correo = correo,
-                            editando = false, mensaje = R.string.perfil_datos_guardados
-                        )
-                    }
-                    PerfilRepository.Resultado.CORREO_OCUPADO -> _uiState.update {
-                        it.copy(errorCorreo = R.string.perfil_correo_ocupado)
-                    }
-                    PerfilRepository.Resultado.CONTRASENA_INCORRECTA -> _uiState.update {
-                        it.copy(errorContrasena = R.string.perfil_contrasena_incorrecta)
-                    }
-                    PerfilRepository.Resultado.SIN_USUARIO -> _uiState.update {
-                        it.copy(errorGeneral = R.string.perfil_no_disponible)
-                    }
-                }
-            } catch (e: CancellationException) { throw e }
-            catch (_: Exception) {
+                // 3. enviar los cambios y renovar la sesion si corresponde
+                val perfil = repository.actualizarDatos(ActualizarPerfilRequest(
+                    nombres = nombres,
+                    apellidos = apellidos,
+                    correo = correo,
+                    contrasenaActual = contrasenaActual.takeIf { correo != original.correo }
+                ))
+                _uiState.update { it.copy(
+                    perfil = perfil,
+                    nombres = perfil.nombres,
+                    apellidos = perfil.apellidos,
+                    correo = perfil.correo,
+                    editando = false,
+                    mensaje = R.string.perfil_datos_guardados,
+                    errorGeneral = null
+                ) }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: HttpException) {
+                // 4. asignar errores del servidor a los campos existentes
+                val campos = repository.camposInvalidos(e)
+                _uiState.update { it.copy(
+                    errorNombres = if ("nombres" in campos) R.string.perfil_error_guardar else null,
+                    errorApellidos = if ("apellidos" in campos) R.string.perfil_error_guardar else null,
+                    errorCorreo = when {
+                        e.code() == 409 -> R.string.perfil_correo_ocupado
+                        "correo" in campos -> R.string.perfil_error_guardar
+                        else -> null
+                    },
+                    errorContrasena = if ("contrasenaActual" in campos) R.string.perfil_contrasena_incorrecta else null,
+                    errorGeneral = if (campos.isEmpty() && e.code() != 409) R.string.perfil_error_guardar else null
+                ) }
+            } catch (_: Exception) {
                 _uiState.update { it.copy(errorGeneral = R.string.perfil_error_guardar) }
             } finally {
                 _uiState.update { it.copy(guardando = false) }
@@ -135,25 +154,33 @@ class PerfilViewModel(
         }
     }
 
-    // ---------- fotografía ----------
+    // ---------- fotografia ----------
     fun guardarAvatar(bitmap: Bitmap) = operarAvatar {
-        val bytes = repository.guardarAvatar(usuarioId, bitmap)
-        _uiState.update { it.copy(perfil = it.perfil?.copy(avatar = bytes), mensaje = R.string.perfil_foto_guardada) }
+        val (perfil, bytes) = repository.guardarAvatar(bitmap)
+        _uiState.update { it.copy(perfil = perfil, avatar = bytes, mensaje = R.string.perfil_foto_guardada) }
     }
 
     fun eliminarAvatar() = operarAvatar {
-        repository.eliminarAvatar(usuarioId)
-        _uiState.update { it.copy(perfil = it.perfil?.copy(avatar = null), mensaje = R.string.perfil_foto_eliminada) }
+        repository.eliminarAvatar()
+        _uiState.update { estado ->
+            estado.copy(perfil = estado.perfil?.copy(urlAvatar = null), avatar = null, mensaje = R.string.perfil_foto_eliminada)
+        }
     }
 
     private fun operarAvatar(operacion: suspend () -> Unit) {
         if (_uiState.value.guardando || _uiState.value.editando || _uiState.value.perfil == null) return
         _uiState.update { it.copy(guardando = true, errorGeneral = null) }
         viewModelScope.launch {
-            try { operacion() }
-            catch (e: CancellationException) { throw e }
-            catch (_: Exception) { _uiState.update { it.copy(errorGeneral = R.string.perfil_error_foto) } }
-            finally { _uiState.update { it.copy(guardando = false) } }
+            try {
+                // 1. guardar el cambio de fotografia en el servidor
+                operacion()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                _uiState.update { it.copy(errorGeneral = R.string.perfil_error_foto) }
+            } finally {
+                _uiState.update { it.copy(guardando = false) }
+            }
         }
     }
 

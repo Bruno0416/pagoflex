@@ -26,7 +26,7 @@ import com.pagoflex.app.core.ui.theme.Dimens.radiusM
 import com.pagoflex.app.core.ui.theme.Dimens.spacingS
 import com.pagoflex.app.core.ui.theme.PagoFlexTheme
 import com.pagoflex.app.core.ui.theme.Theme
-import com.pagoflex.app.features.home.presentation.model.CompromisoInicio
+import com.pagoflex.app.features.home.data.remote.dto.response.MiCompromisoResponse
 import com.pagoflex.app.features.home.presentation.model.EstadoCompromiso
 import com.pagoflex.app.features.home.presentation.model.ResumenInicio
 import java.text.NumberFormat
@@ -119,7 +119,7 @@ fun CardResumen(
                         Text(
                             stringResource(
                                 R.string.home_proximo_vencimiento,
-                                compromiso.fechaVencimiento.format("dd-MM-yyyy")
+                                LocalDate.parse(compromiso.fechaVencimiento).format("dd-MM-yyyy")
                             ),
                             style = Theme.type.bodyMedium
                         )
@@ -130,7 +130,7 @@ fun CardResumen(
                             stringResource(
                                 R.string.home_proximo_detalle,
                                 compromiso.concepto,
-                                compromiso.organizacion,
+                                compromiso.empresa,
                                 compromiso.monto.toCLP()
                             ),
                             style = Theme.type.bodyMedium
@@ -172,33 +172,49 @@ private fun LocalDate.format(patron: String = "dd/MM"): String {
 @Composable
 private fun CardResumenPreview() {
 
-    // proximo compromiso
-    val proximoCompromiso = CompromisoInicio(
-        id = "comp-002",
-        organizacion = "Plaza Oriente",
-        siglaOrganizacion = "PO",
+    // 1. preparar el proximo compromiso de ejemplo
+    val proximoCompromiso = MiCompromisoResponse(
+        folio = "comp-002",
+        empresaCodigo = null,
+        empresa = "Plaza Oriente",
+        correoAtencion = null,
         concepto = "Arriendo oct.",
         numeroCuota = 10,
         totalCuotas = 12,
-        fechaVencimiento = LocalDate.of(2026, 10, 10),
-        monto = 520_000L,
-        estado = EstadoCompromiso.PENDIENTE
+        monto = 520000L,
+        recargo = 0L,
+        total = 520000L,
+        fechaVencimiento = "2026-10-10",
+        estado = "PENDIENTE",
+        diasAtraso = 0L,
+        pagable = true,
+        folioAnterior = null,
+        numeroComprobante = null,
+        fechaPago = null
     )
 
-    // compromiso vencido
-    val vencidoDestacado = CompromisoInicio(
-        id = "comp-001",
-        organizacion = "Club Los Halcones",
-        siglaOrganizacion = "CH",
+    // 2. preparar un compromiso vencido de ejemplo
+    val vencidoDestacado = MiCompromisoResponse(
+        folio = "comp-001",
+        empresaCodigo = null,
+        empresa = "Club Los Halcones",
+        correoAtencion = null,
         concepto = "Cuota social oct.",
         numeroCuota = 10,
         totalCuotas = 12,
-        fechaVencimiento = LocalDate.of(2026, 10, 5),
-        monto = 17_000L,
-        estado = EstadoCompromiso.VENCIDO
+        monto = 17000L,
+        recargo = 0L,
+        total = 17000L,
+        fechaVencimiento = "2026-10-05",
+        estado = "VENCIDO",
+        diasAtraso = 0L,
+        pagable = true,
+        folioAnterior = null,
+        numeroComprobante = null,
+        fechaPago = null
     )
 
-    // datos ficticios del resumen
+    // 3. construir el resumen de ejemplo
     val resumen = ResumenInicio(
         totalPorPagar = 633_400L,
         totalRecargos = 0L,

@@ -1,5 +1,6 @@
 package com.pagoflex.app.features.detalle.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pagoflex.app.R
@@ -12,66 +13,49 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.time.LocalDate
+import retrofit2.HttpException
 
 class DetalleViewModel(private val repository: DetalleRepository) : ViewModel() {
     private val _uiState = MutableStateFlow(DetalleUiState())
     val uiState = _uiState.asStateFlow()
 
-
-    fun cargarDetalle(folio: String, usuarioId: Int) {
-        if (folio.isBlank() || usuarioId <= 0) {
-            _uiState.update { it.copy(cargando = false) }
+    fun cargarDetalle(folio: String) {
+        // 1. rechazar folios vacios antes de consultar
+        if (folio.isBlank()) {
+            _uiState.update {
+                it.copy(cargando = false, detalle = null, mensajeError = R.string.detalle_no_encontrado)
+            }
             return
         }
-
         viewModelScope.launch {
-            _uiState.update { it.copy(cargando = true) }
-
+            _uiState.update { it.copy(cargando = true, mensajeError = null, detalle = null) }
             try {
-                // 1. obtener compromiso
-                val detalle = withContext(Dispatchers.IO) {
-                    repository.obtenerDetalle(folio, usuarioId)
-                }
-
-                if (detalle == null) {
-                    _uiState.update {
-                        it.copy(cargando = false)
-                    }
-
-                    return@launch
-                }
-
-                // 2. calcular información
-                val fechaActual = LocalDate.now()
-
-                val estado = repository.obtenerEstadoActual(detalle, fechaActual)
-                val diasAtraso = repository.calcularDiasAtraso(detalle, fechaActual)
-                val recargo = repository.calcularRecargo(detalle, fechaActual)
-                val total = repository.calcularTotal(detalle, fechaActual)
-
-                // 3. actualizar estado
+                // 2. consultar el compromiso por folio
+                val detalle = withContext(Dispatchers.IO) { repository.obtenerDetalle(folio) }
+                // 3. publicar el detalle obtenido
                 _uiState.update {
                     it.copy(
                         cargando = false,
                         detalle = detalle,
-                        estadoActual = estado,
-                        diasAtraso = diasAtraso,
-                        recargo = recargo,
-                        total = total
+                        mensajeError = null
                     )
                 }
             } catch (e: CancellationException) {
                 throw e
-            } catch (_: Exception) {
+            } catch (e: HttpException) {
+                // 3. diferenciar un folio inexistente de un fallo general
+                Log.e("PagoFlexDetalle", "Error HTTP al consultar el folio", e)
                 _uiState.update {
                     it.copy(
                         cargando = false,
-                        mensajeError = R.string.detalle_error_cargar
+                        mensajeError = if (e.code() == 404) R.string.detalle_no_encontrado
+                                       else R.string.detalle_error_cargar
                     )
                 }
+            } catch (e: Exception) {
+                Log.e("PagoFlexDetalle", "Error al consultar el folio", e)
+                _uiState.update { it.copy(cargando = false, mensajeError = R.string.detalle_error_cargar) }
             }
-
         }
     }
 }

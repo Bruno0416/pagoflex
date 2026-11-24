@@ -23,7 +23,7 @@
     <string name="auth_registro_correo">Correo electrónico</string>
     <string name="auth_registro_correo_placeholder">Ingresa tu correo</string>
     <string name="auth_registro_contrasena">Contraseña</string>
-    <string name="auth_registro_contrasena_placeholder">Ingresa tu contraseña</string>
+    <string name="auth_registro_contrasena_placeholder">Crea tu contraseña</string>
     <string name="auth_registro_confirmar_contrasena">Confirmar contraseña</string>
     <string name="auth_registro_confirmar_contrasena_placeholder">Confirma tu contraseña</string>
     <string name="auth_registro_terminos_condiciones">Acepto los términos y condiciones</string>
@@ -37,6 +37,24 @@
     <string name="auth_error_correo_invalido">Ingresa un correo válido</string>
     <string name="auth_error_contrasena_obligatoria">La contraseña es obligatoria</string>
     <string name="auth_error_contrasena_minima">La contraseña debe tener al menos 6 caracteres</string>
+    <string name="auth_error_contrasena_segura">La contraseña debe tener al menos 8 caracteres, mayúscula, minúscula, número y símbolo.</string>
+    <string name="auth_error_contrasena_segura_longitud">Usa al menos 8 caracteres.</string>
+    <string name="auth_error_contrasena_segura_mayuscula">Incluye una letra mayúscula.</string>
+    <string name="auth_error_contrasena_segura_minuscula">Incluye una letra minúscula.</string>
+    <string name="auth_error_contrasena_segura_numero">Incluye al menos un número.</string>
+    <string name="auth_error_contrasena_segura_especial">Incluye un carácter especial, como @, # o !.</string>
+    <string name="auth_requisito_longitud">8 caracteres como mínimo</string>
+    <string name="auth_requisito_mayuscula">Una letra mayúscula</string>
+    <string name="auth_requisito_minuscula">Una letra minúscula</string>
+    <string name="auth_requisito_numero">Un número</string>
+    <string name="auth_requisito_simbolo">Un carácter especial</string>
+    <string name="auth_requisito_cumplido">Cumplido</string>
+    <string name="auth_requisito_pendiente">Pendiente</string>
+    <string name="auth_api_rut_duplicado">Este RUT ya está registrado.</string>
+    <string name="auth_api_correo_duplicado">Este correo ya está registrado.</string>
+    <string name="auth_api_nombres_invalidos">Ingresa nombres sin números ni símbolos.</string>
+    <string name="auth_api_apellidos_invalidos">Ingresa apellidos sin números ni símbolos.</string>
+    <string name="auth_api_codigo_empresa_invalido">El código de empresa no es válido. Puedes dejarlo vacío si no tienes uno.</string>
     <string name="auth_error_confirmacion_obligatoria">La confirmación de contraseña es obligatoria</string>
     <string name="auth_error_contrasenas_distintas">Las contraseñas no coinciden</string>
     <string name="auth_error_rut_obligatorio">El RUT es obligatorio</string>
@@ -50,4 +68,38 @@
     <string name="auth_error_iniciar_sesion">No se pudo iniciar sesión</string>
     <string name="auth_error_restaurar_sesion">No se pudo obtener la sesión</string>
     <string name="auth_error_registro">No se pudo registrar el usuario</string>
+
+    <!-- recuperación -->
+    <string name="auth_login_recuperar_contrasena">¿Olvidaste tu contraseña?</string>
+    <string name="auth_recuperacion_titulo">Recuperar contraseña</string>
+    <string name="auth_recuperacion_nueva_contrasena">Nueva contraseña</string>
+    <string name="auth_recuperacion_guardar">Cambiar contraseña</string>
+    <string name="auth_recuperacion_cambiar_correo">Cambiar correo</string>
+    <string name="auth_recuperacion_volver">Volver al inicio de sesión</string>
+    <string name="auth_recuperacion_exito">Tu contraseña se actualizó correctamente. Ya puedes iniciar sesión.</string>
+    <string name="auth_recuperacion_error_general">Ocurrió un error. Inténtalo nuevamente.</string>
+
+    <!-- respuestas API -->
+    <string name="auth_api_error_red">No pudimos conectarnos al servidor. Comprueba tu conexión e inténtalo de nuevo.</string>
+    <string name="auth_api_codigo_empresa">Código de empresa (opcional)</string>
+    <string name="auth_api_codigo_empresa_placeholder">Si te entregaron un código, ingrésalo aquí</string>
+    <string name="auth_api_registro_datos_invalidos">Revisa los datos ingresados para completar el registro.</string>
+    <string name="auth_api_registro_error_servidor">No se pudo completar el registro. Inténtalo nuevamente.</string>
+    <string name="auth_api_registro_duplicado">Ya existe una cuenta con alguno de los datos ingresados.</string>
+    <string name="auth_api_recuperacion_correo_descripcion">Ingresa tu correo para recibir un código de recuperación.</string>
+    <string name="auth_api_enviar_codigo">Enviar código</string>
+    <string name="auth_api_recuperacion_codigo_descripcion">Ingresa el código enviado a %1$s.</string>
+    <string name="auth_api_codigo">Código de verificación</string>
+    <string name="auth_api_codigo_placeholder">Código recibido por correo</string>
+    <string name="auth_api_codigo_ayuda">Código de recuperación de seis letras o números</string>
+    <string name="auth_api_codigo_longitud">El código debe tener 6 caracteres.</string>
+    <string name="auth_recuperacion_reenviar_para_continuar">El código anterior ya se verificó. Reenvía uno nuevo para volver a intentarlo.</string>
+    <string name="auth_recuperacion_volver_atras">Volver al paso anterior</string>
+    <string name="auth_api_codigo_obligatorio">Ingresa el código de verificación.</string>
+    <string name="auth_api_codigo_invalido">El código es inválido o ha expirado.</string>
+    <string name="auth_api_codigo_reenviado">Se solicitó un nuevo código.</string>
+    <string name="auth_api_verificar_codigo">Verificar código</string>
+    <string name="auth_api_reenviar_codigo">Reenviar código</string>
+    <string name="auth_api_nueva_contrasena_descripcion">Crea una contraseña nueva para tu cuenta.</string>
+    <string name="auth_api_muchas_solicitudes">Demasiados intentos. Inténtalo más tarde.</string>
 </resources>
