@@ -39,7 +39,7 @@ import com.pagoflex.app.core.ui.components.containers.Card
 import com.pagoflex.app.core.ui.components.navigation.BarraSuperior
 import com.pagoflex.app.core.ui.theme.Theme
 import com.pagoflex.app.features.mensajeria.data.remote.MensajeriaApi
-import com.pagoflex.app.core.data.remote.ApiCliente
+import com.pagoflex.app.core.network.RetrofitClient
 import com.pagoflex.app.features.mensajeria.presentation.model.ConversacionActiva
 import com.pagoflex.app.features.mensajeria.presentation.model.RolChat
 import com.pagoflex.app.features.mensajeria.presentation.viewmodel.BandejaMensajesViewModel
@@ -52,8 +52,8 @@ fun BandejaMensajesScreen(rol: RolChat) {
     val viewModel: BandejaMensajesViewModel = viewModel(
         factory = viewModelFactory {
             initializer {
-                val reportes = ReportesRemoto.crear(contexto)
-                val mensajeria = ApiCliente.api<MensajeriaApi>(contexto)
+                val reportes = ReportesRemoto.crear()
+                val mensajeria = RetrofitClient.retrofit.create(MensajeriaApi::class.java)
                 BandejaMensajesViewModel(
                     reportes = {
                         if (rol == RolChat.AGENTE) reportes.bandeja(LocalDate.now())

@@ -20,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.pagoflex.app.R
@@ -32,8 +31,7 @@ import kotlinx.coroutines.withContext
 // el agente revisa la foto del comprobante para confirmar si el pago se hizo
 @Composable
 fun ComprobanteDialog(numero: String, onCerrar: () -> Unit) {
-    val contexto = LocalContext.current.applicationContext
-    val remoto = remember { ReportesRemoto.crear(contexto) }
+    val remoto = remember { ReportesRemoto.crear() }
     var imagen by remember { mutableStateOf<ImageBitmap?>(null) }
     var error by remember { mutableStateOf(false) }
 
