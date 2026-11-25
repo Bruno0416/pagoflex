@@ -13,18 +13,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import com.pagoflex.app.R
 import com.pagoflex.app.core.ui.theme.Theme
-import com.pagoflex.app.features.cumplimiento.data.CategoriaCumplimiento
-import com.pagoflex.app.features.cumplimiento.data.ResultadoCumplimiento
+import com.pagoflex.app.features.cumplimiento.data.remote.dto.response.CumplimientoResponse
 import java.util.Locale
 
 @Composable
-internal fun IndicadorCumplimiento(resultado: ResultadoCumplimiento) {
+internal fun IndicadorCumplimiento(resultado: CumplimientoResponse) {
     val porcentaje = resultado.porcentaje ?: return
     val categoria = when (resultado.categoria) {
-        CategoriaCumplimiento.EJEMPLAR -> R.string.cumplimiento_categoria_ejemplar
-        CategoriaCumplimiento.AL_DIA -> R.string.cumplimiento_categoria_al_dia
-        CategoriaCumplimiento.EN_CAMINO -> R.string.cumplimiento_categoria_en_camino
-        null -> return
+        "EJEMPLAR" -> R.string.cumplimiento_categoria_ejemplar
+        "AL_DIA" -> R.string.cumplimiento_categoria_al_dia
+        "EN_CAMINO" -> R.string.cumplimiento_categoria_en_camino
+        else -> return
     }
 
     Box(contentAlignment = Alignment.Center) {

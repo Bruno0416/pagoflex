@@ -4,7 +4,7 @@ import com.pagoflex.app.core.data.local.entities.Anulacion
 import com.pagoflex.app.core.data.local.entities.Compromiso
 import com.pagoflex.app.core.data.local.entities.Pago
 import com.pagoflex.app.core.data.local.entities.Usuario
-import com.pagoflex.app.core.profiles.model.PerfilUsuario
+import com.pagoflex.app.core.network.auth.model.PerfilUsuario
 import com.pagoflex.app.core.validators.Validaciones
 import java.time.LocalDate
 import java.time.LocalDateTime

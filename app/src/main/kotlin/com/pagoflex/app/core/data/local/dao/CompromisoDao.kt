@@ -5,8 +5,7 @@ import androidx.room3.Insert
 import androidx.room3.Query
 import com.pagoflex.app.core.data.local.entities.Compromiso
 import com.pagoflex.app.features.cobranza.data.CompromisoEmpresaRow
-import com.pagoflex.app.features.detalle.data.DetalleCompromisoRow
-import com.pagoflex.app.features.home.data.CompromisoHomeRow
+import com.pagoflex.app.features.reportes.data.CompromisoReporteModel
 import com.pagoflex.app.features.reconocimientos.data.CompromisoPagoRow
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -37,11 +36,11 @@ interface CompromisoDao {
         ORDER BY c.fecha_vencimiento ASC, c.id_compromiso ASC
     """
     )
-    suspend fun obtenerParaHome(usuarioId: Int): List<CompromisoHomeRow>
+    suspend fun obtenerParaReportes(usuarioId: Int): List<CompromisoReporteModel>
 
-    // ---------- adonys: cobranza del ejecutivo (HU-11, HU-12) ----------
+    // ---------- cobranza del ejecutivo ----------
 
-    // solo compromisos de la empresa del ejecutivo (RN-22)
+    // ---------- consultas de compromisos por empresa ----------
     @Query("$SELECT_EMPRESA WHERE c.id_empresa = :empresaId ORDER BY c.fecha_vencimiento ASC, c.folio ASC")
     suspend fun obtenerDeEmpresa(empresaId: Int): List<CompromisoEmpresaRow>
 
@@ -54,7 +53,7 @@ interface CompromisoDao {
     @Query("SELECT folio FROM compromiso WHERE folio LIKE :prefijo || '%'")
     suspend fun obtenerFolios(prefijo: String): List<String>
 
-    // misma persona, empresa, concepto y cuota (RN-20)
+    // ---------- validacion de cuotas duplicadas ----------
     @Query(
         """
         SELECT COUNT(*) FROM compromiso
@@ -88,7 +87,7 @@ interface CompromisoDao {
     ): Int
 
     companion object {
-        // compromiso con persona, pago, registro y anulación
+        // ---------- consulta completa del compromiso ----------
         const val SELECT_EMPRESA = """
             SELECT
                 c.id_compromiso AS idCompromiso,
@@ -130,8 +129,7 @@ interface CompromisoDao {
             LEFT JOIN usuario AS ea ON ea.id_usuario = a.id_ejecutivo
         """
     }
-    // -------------- detalle compromiso --------------
-    // ---------- compromisos con pagos ----------
+    // ---------- compromisos asociados a pagos ----------
     @Query(
         """
         SELECT
@@ -150,37 +148,6 @@ interface CompromisoDao {
     )
     suspend fun obtenerCompromisosConPago(usuarioId: Int): List<CompromisoPagoRow>
 
-    // ---------- detalle de compromiso ----------
-    @Query(
-        """
-        SELECT
-            c.id_compromiso AS idCompromiso,
-            c.id_empresa AS idEmpresa,
-            c.folio AS folio,
-            e.nombre_fantasia AS organizacion,
-            c.concepto AS concepto,
-            c.numero_cuota AS numeroCuota,
-            c.total_cuotas AS totalCuotas,
-            c.fecha_vencimiento AS fechaVencimiento,
-            c.monto AS monto,
-            c.recargo_aplicado AS recargoAplicado,
-            e.recargo_atraso AS recargoEmpresa,
-            ec.nombre AS estado,
-            e.correo_atencion AS correoContacto
-        FROM compromiso AS c
-        INNER JOIN empresa_cliente AS e
-            ON e.id_empresa = c.id_empresa
-        INNER JOIN estado_compromiso AS ec
-            ON ec.id_estado_compromiso = c.id_estado_compromiso
-        WHERE c.folio = :folio
-            AND c.id_usuario_final = :usuarioId
-        LIMIT 1
-        """
-    )
-    suspend fun obtenerDetalle(
-        folio: String,
-        usuarioId: Int
-    ): DetalleCompromisoRow?
     // ---------- orden de pago ----------
     @Query(
         """

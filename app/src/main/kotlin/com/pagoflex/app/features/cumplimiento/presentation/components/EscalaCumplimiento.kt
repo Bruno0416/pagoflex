@@ -17,27 +17,26 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.pagoflex.app.R
 import com.pagoflex.app.core.ui.theme.Theme
-import com.pagoflex.app.features.cumplimiento.data.CategoriaCumplimiento
 
 @Composable
-internal fun EscalaCumplimiento(categoria: CategoriaCumplimiento?) {
+internal fun EscalaCumplimiento(categoria: String?) {
     Column(verticalArrangement = Arrangement.spacedBy(Theme.dimens.spacingS)) {
         Text(
             stringResource(R.string.cumplimiento_escala_titulo),
             style = Theme.type.titleLarge,
             fontWeight = FontWeight.SemiBold
         )
-        CategoriaFila(CategoriaCumplimiento.EJEMPLAR, categoria, R.string.cumplimiento_categoria_ejemplar, R.string.cumplimiento_rango_ejemplar)
-        CategoriaFila(CategoriaCumplimiento.AL_DIA, categoria, R.string.cumplimiento_categoria_al_dia, R.string.cumplimiento_rango_al_dia)
-        CategoriaFila(CategoriaCumplimiento.EN_CAMINO, categoria, R.string.cumplimiento_categoria_en_camino, R.string.cumplimiento_rango_en_camino)
+        CategoriaFila("EJEMPLAR", categoria, R.string.cumplimiento_categoria_ejemplar, R.string.cumplimiento_rango_ejemplar)
+        CategoriaFila("AL_DIA", categoria, R.string.cumplimiento_categoria_al_dia, R.string.cumplimiento_rango_al_dia)
+        CategoriaFila("EN_CAMINO", categoria, R.string.cumplimiento_categoria_en_camino, R.string.cumplimiento_rango_en_camino)
     }
 }
 
 // --- fila de categoria ---
 @Composable
 private fun CategoriaFila(
-    valor: CategoriaCumplimiento,
-    seleccionada: CategoriaCumplimiento?,
+    valor: String,
+    seleccionada: String?,
     nombreRes: Int,
     rangoRes: Int
 ) {

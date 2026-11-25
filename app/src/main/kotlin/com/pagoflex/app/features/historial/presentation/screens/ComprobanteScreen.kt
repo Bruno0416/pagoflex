@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
+import com.pagoflex.app.core.ui.components.feedback.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -28,8 +28,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.pagoflex.app.R
-import com.pagoflex.app.core.data.local.LocalDatabase
-import com.pagoflex.app.core.data.local.entities.Comprobante
+import com.pagoflex.app.features.historial.data.remote.dto.response.ComprobanteHistorialResponse
 import com.pagoflex.app.core.ui.components.buttons.IconButton
 import com.pagoflex.app.core.ui.components.model.ComponentVariant
 import com.pagoflex.app.core.ui.theme.PagoFlexTheme
@@ -44,13 +43,11 @@ import java.time.LocalDateTime
 
 @Composable
 fun ComprobanteScreen(
-    db: LocalDatabase,
-    usuarioId: Int,
     numeroComprobante: String,
     onCerrar: () -> Unit,
 ) {
     // ---------- dependencias ----------
-    val repositorio = remember(db) { HistorialRepository(db) }
+    val repositorio = remember { HistorialRepository() }
     val viewModel: ComprobanteViewModel = viewModel(
         factory = viewModelFactory {
             initializer { ComprobanteViewModel(repositorio) }
@@ -59,8 +56,8 @@ fun ComprobanteScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     // ---------- cargar comprobante ----------
-    LaunchedEffect(numeroComprobante, usuarioId) {
-        viewModel.cargarComprobante(numeroComprobante, usuarioId)
+    LaunchedEffect(numeroComprobante) {
+        viewModel.cargarComprobante(numeroComprobante)
     }
 
     ComprobanteContent(
@@ -144,24 +141,22 @@ private fun ComprobanteContent(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun ComprobantePreview() {
-    val ejemplo = Comprobante(
-        numeroComprobante = "CPR-000451",
-        idPago = 1,
-        idUsuarioFinal = 1,
-        fechaHora = LocalDateTime.of(2026, 9, 24, 10, 42),
-        nombrePagador = "Camila Rojas",
-        rut = "15.111.111-3",
-        empresa = "Crédito Andino",
+    val ejemplo = ComprobanteHistorialResponse(
+        numero = "CPR-000451",
         folio = "CP-2026-0104",
+        empresa = "Crédito Andino",
         concepto = "Crédito de consumo",
         numeroCuota = 7,
         totalCuotas = 24,
-        fechaVencimiento = LocalDate.of(2026, 9, 25),
-        montoCuota = 86_400,
+        personaNombre = "Camila Rojas",
+        personaRut = "15.111.111-3",
+        fechaVencimiento = "2026-09-25",
+        monto = 86_400,
         recargo = 0,
-        montoPagado = 86_400,
-        medioPago = "Tarjeta de débito",
-        canal = "Portal de pagos"
+        total = 86_400,
+        canal = "APP",
+        medio = "DEBITO",
+        fechaPago = "2026-09-24T10:42:00"
     )
     PagoFlexTheme {
         ComprobanteContent(

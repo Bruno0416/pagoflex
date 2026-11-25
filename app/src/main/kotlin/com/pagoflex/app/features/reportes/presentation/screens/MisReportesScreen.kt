@@ -114,6 +114,44 @@ fun MisReportesScreen(
     }
 }
 
+/** Fallback temporal de Ayuda mientras se migra el repositorio a Retrofit. */
+@Composable
+fun MisReportesScreenSinDatos() {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(Theme.dimens.spacingM),
+        verticalArrangement = Arrangement.spacedBy(Theme.dimens.spacingS)
+    ) {
+        item {
+            Text(
+                stringResource(R.string.rep_ayuda_titulo),
+                style = Theme.type.headlineSmall.copy(fontWeight = FontWeight.Bold)
+            )
+            Text(
+                stringResource(R.string.rep_ayuda_texto),
+                style = Theme.type.bodyMedium,
+                color = Theme.colores.onSurfaceVariant
+            )
+        }
+        item { Seccion(stringResource(R.string.rep_mis_reportes)) }
+        item {
+            Text(
+                stringResource(R.string.rep_sin_reportes_usuario),
+                style = Theme.type.bodyMedium,
+                color = Theme.colores.onSurfaceVariant
+            )
+        }
+        item { Seccion(stringResource(R.string.rep_problemas_cobro)) }
+        item {
+            Text(
+                stringResource(R.string.rep_sin_compromisos),
+                style = Theme.type.bodyMedium,
+                color = Theme.colores.onSurfaceVariant
+            )
+        }
+    }
+}
+
 @Composable
 private fun Seccion(texto: String) {
     Text(

@@ -17,7 +17,10 @@ data class PerfilUiState(
     @StringRes val errorCorreo: Int? = null,
     @StringRes val errorContrasena: Int? = null,
     @StringRes val mensaje: Int? = null,
-    @StringRes val errorGeneral: Int? = null
+    @StringRes val errorGeneral: Int? = null,
+    val cambiandoContrasena: Boolean = false,
+    @StringRes val errorNuevaContrasena: Int? = null,
+    @StringRes val errorConfirmacion: Int? = null
 ) {
     val cambioCorreo: Boolean get() = perfil?.correo != correo.trim().lowercase()
 }

@@ -18,12 +18,12 @@ import com.pagoflex.app.core.ui.components.containers.Card
 import com.pagoflex.app.core.ui.components.model.ComponentVariant
 import com.pagoflex.app.core.ui.styles.coloresCard
 import com.pagoflex.app.core.ui.theme.Theme
-import com.pagoflex.app.features.historial.data.AnulacionHistorialRow
+import com.pagoflex.app.features.historial.data.remote.dto.response.AnulacionHistorialResponse
 import com.pagoflex.app.features.home.presentation.model.EstadoCompromiso
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun CardAnulacionHistorial(anulacion: AnulacionHistorialRow) {
+fun CardAnulacionHistorial(anulacion: AnulacionHistorialResponse) {
     val colores = EstadoCompromiso.ANULADO.coloresCard
     val siglas = anulacion.empresa.split(" ")
         .filter { it.isNotBlank() }
@@ -31,9 +31,7 @@ fun CardAnulacionHistorial(anulacion: AnulacionHistorialRow) {
             if (palabras.size > 1) palabras.first().take(1) + palabras.last().take(1)
             else palabras.firstOrNull()?.take(2).orEmpty()
         }.uppercase()
-    val cuota = if (anulacion.numeroCuota != null && anulacion.totalCuotas != null) {
-        " · ${anulacion.numeroCuota}/${anulacion.totalCuotas}"
-    } else ""
+
 
     Card(modifier = Modifier.fillMaxWidth(), variant = ComponentVariant.Primary) {
         Row(
@@ -49,11 +47,11 @@ fun CardAnulacionHistorial(anulacion: AnulacionHistorialRow) {
                     maxLines = 1, overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    "${anulacion.concepto}$cuota", style = Theme.type.bodySmall,
+                    anulacion.concepto, style = Theme.type.bodySmall,
                     color = Theme.colores.onSurfaceVariant, maxLines = 2
                 )
                 Text(
-                    anulacion.fecha.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")),
+                    java.time.LocalDateTime.parse(anulacion.fecha).format(DateTimeFormatter.ofPattern("dd-MM-yyyy")),
                     style = Theme.type.bodySmall,
                     color = Theme.colores.onSurfaceVariant
                 )

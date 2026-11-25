@@ -1,27 +1,23 @@
 package com.pagoflex.app.core.navigation
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import androidx.compose.runtime.remember
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.pagoflex.app.R
 import com.pagoflex.app.core.data.local.LocalDatabase
-import com.pagoflex.app.core.ui.theme.Theme
 import com.pagoflex.app.features.cobranza.presentation.screens.CompromisosEmpresaScreen
 import com.pagoflex.app.features.cobranza.presentation.screens.DetalleCompromisoEmpresaScreen
 import com.pagoflex.app.features.cobranza.presentation.screens.RegistrarCompromisoScreen
 import com.pagoflex.app.features.cobranza.presentation.screens.ResumenCobranzaScreen
+import com.pagoflex.app.features.cumplimiento.presentation.screens.CumplimientoScreen
 import com.pagoflex.app.features.detalle.presentation.screens.DetalleCompromisoScreen
+import com.pagoflex.app.features.historial.presentation.screens.ComprobanteScreen
+import com.pagoflex.app.features.historial.presentation.screens.HistorialScreen
 import com.pagoflex.app.features.home.presentation.screens.HomeScreen
 import com.pagoflex.app.features.home.presentation.screens.ListaCompromisosScreen
+import com.pagoflex.app.features.perfil.presentation.screens.CambiarContrasenaScreen
 import com.pagoflex.app.features.perfil.presentation.screens.PerfilScreen
 import com.pagoflex.app.features.reportes.presentation.screens.BandejaReportesScreen
 import com.pagoflex.app.features.reportes.presentation.screens.DetalleReporteScreen
@@ -36,7 +32,19 @@ fun NavGraphBuilder.grafoPerfil(
     composable(Ruta.Perfil.ruta) {
         PerfilScreen(
             onVolver = { navController.volverDesde(Ruta.Perfil.ruta) },
-            onCerrarSesion = onCerrarSesion
+            onCerrarSesion = onCerrarSesion,
+            onCambiarContrasena = {
+                if (navController.currentDestination?.route == Ruta.Perfil.ruta) {
+                    navController.navigate(Ruta.CambiarContrasena.ruta) { launchSingleTop = true }
+                }
+            }
+        )
+    }
+    composable(Ruta.CambiarContrasena.ruta) { entrada ->
+        val perfilOwner = remember(entrada) { navController.getBackStackEntry(Ruta.Perfil.ruta) }
+        CambiarContrasenaScreen(
+            perfilOwner = perfilOwner,
+            onVolver = { navController.volverDesde(Ruta.CambiarContrasena.ruta) }
         )
     }
 }
@@ -96,21 +104,48 @@ fun NavGraphBuilder.grafoUsuario(
         )
     }
 
-    // ---------- rutas con datos pendientes ----------
-    composable(Ruta.Historial.ruta) { PantallaSinDatos() }
+    // ---------- historial y comprobantes ----------
+    composable(Ruta.Historial.ruta) {
+        HistorialScreen(
+            onVerComprobante = { numero ->
+                navController.navigate(Ruta.DetalleComprobante.ver(numero))
+            }
+        )
+    }
     composable(
         route = Ruta.DetalleComprobante.ruta,
         arguments = listOf(navArgument("numero") { type = NavType.StringType })
-    ) { PantallaSinDatos() }
+    ) { entrada ->
+        ComprobanteScreen(
+            numeroComprobante = entrada.arguments?.getString("numero").orEmpty(),
+            onCerrar = { navController.volverDesde(Ruta.DetalleComprobante.ruta) }
+        )
+    }
 
     // ---------- perfil y cumplimiento ----------
     composable(Ruta.Perfil.ruta) {
         PerfilScreen(
             onVolver = { navController.volverDesde(Ruta.Perfil.ruta) },
-            onCerrarSesion = onCerrarSesion
+            onCerrarSesion = onCerrarSesion,
+            onCambiarContrasena = {
+                if (navController.currentDestination?.route == Ruta.Perfil.ruta) {
+                    navController.navigate(Ruta.CambiarContrasena.ruta) { launchSingleTop = true }
+                }
+            }
         )
     }
-    composable(Ruta.Cumplimiento.ruta) { PantallaSinDatos() }
+    composable(Ruta.CambiarContrasena.ruta) { entrada ->
+        val perfilOwner = remember(entrada) { navController.getBackStackEntry(Ruta.Perfil.ruta) }
+        CambiarContrasenaScreen(
+            perfilOwner = perfilOwner,
+            onVolver = { navController.volverDesde(Ruta.CambiarContrasena.ruta) }
+        )
+    }
+    composable(Ruta.Cumplimiento.ruta) {
+        CumplimientoScreen(
+            onVolver = { navController.volverDesde(Ruta.Cumplimiento.ruta) }
+        )
+    }
 
     // ---------- ayuda ----------
     composable(Ruta.Ayuda.ruta) {
@@ -211,16 +246,4 @@ private fun NavHostController.irAPestana(ruta: String, rutaInicial: String) {
 internal fun NavHostController.volverDesde(rutaOrigen: String) {
     if (currentDestination?.route != rutaOrigen || previousBackStackEntry == null) return
     popBackStack()
-}
-
-// ---------- estados temporales de navegacion ----------
-@Composable
-private fun PantallaSinDatos() {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(
-            text = stringResource(R.string.perfil_dato_no_disponible),
-            style = Theme.type.bodyMedium,
-            color = Theme.colores.onSurfaceVariant
-        )
-    }
 }

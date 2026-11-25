@@ -7,8 +7,10 @@ import com.pagoflex.app.R
 import com.pagoflex.app.features.auth.presentation.validators.AuthValidators
 import com.pagoflex.app.features.perfil.data.PerfilRepository
 import com.pagoflex.app.features.perfil.data.remote.dto.request.ActualizarPerfilRequest
+import com.pagoflex.app.features.perfil.data.remote.dto.request.CambiarContrasenaRequest
 import com.pagoflex.app.features.perfil.presentation.model.PerfilUiState
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -16,7 +18,8 @@ import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
 class PerfilViewModel(
-    private val repository: PerfilRepository
+    private val repository: PerfilRepository,
+    private val scope: CoroutineScope? = null
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(PerfilUiState())
     val uiState = _uiState.asStateFlow()
@@ -25,7 +28,7 @@ class PerfilViewModel(
 
     // ---------- consulta de perfil ----------
     fun cargarPerfil() {
-        viewModelScope.launch {
+        (scope ?: viewModelScope).launch {
             // 1. consultar los datos del usuario autenticado
             _uiState.update { it.copy(cargando = true, errorGeneral = null) }
             try {
@@ -61,7 +64,7 @@ class PerfilViewModel(
 
     // ---------- edicion de datos ----------
     fun iniciarEdicion() {
-        if (_uiState.value.perfil == null || _uiState.value.guardando) return
+        if (_uiState.value.perfil == null || _uiState.value.guardando || _uiState.value.cambiandoContrasena) return
         _uiState.update { it.copy(editando = true, mensaje = null) }
     }
 
@@ -112,7 +115,7 @@ class PerfilViewModel(
             return
         }
         _uiState.update { it.copy(guardando = true, errorGeneral = null) }
-        viewModelScope.launch {
+        (scope ?: viewModelScope).launch {
             try {
                 // 3. enviar los cambios y renovar la sesion si corresponde
                 val perfil = repository.actualizarDatos(ActualizarPerfilRequest(
@@ -154,6 +157,83 @@ class PerfilViewModel(
         }
     }
 
+    // ---------- cambio de contrasena ----------
+    fun abrirCambioContrasena() {
+        val estado = _uiState.value
+        if (estado.perfil == null || estado.guardando || estado.editando) return
+        _uiState.update { it.copy(
+            cambiandoContrasena = true, mensaje = null, errorGeneral = null,
+            errorContrasena = null, errorNuevaContrasena = null, errorConfirmacion = null
+        ) }
+    }
+
+    fun cerrarCambioContrasena() {
+        if (_uiState.value.guardando) return
+        _uiState.update { it.copy(
+            cambiandoContrasena = false, errorGeneral = null,
+            errorContrasena = null, errorNuevaContrasena = null, errorConfirmacion = null
+        ) }
+    }
+
+    fun limpiarErrorContrasenaActual() = _uiState.update { it.copy(
+        errorContrasena = null, errorGeneral = null,
+        errorNuevaContrasena = it.errorNuevaContrasena.takeUnless { error -> error == R.string.perfil_contrasena_diferente }
+    ) }
+
+    fun limpiarErrorNuevaContrasena() = _uiState.update { it.copy(
+        errorNuevaContrasena = null, errorConfirmacion = null, errorGeneral = null
+    ) }
+
+    fun limpiarErrorConfirmacion() = _uiState.update { it.copy(errorConfirmacion = null, errorGeneral = null) }
+
+    fun cambiarContrasena(actual: String, nueva: String, confirmacion: String) {
+        val estado = _uiState.value
+        if (!estado.cambiandoContrasena || estado.guardando) return
+        val errorActual = if (actual.isBlank()) R.string.auth_error_contrasena_obligatoria else null
+        val errorNueva = AuthValidators.validarContrasenaSegura(nueva)
+            ?: if (nueva == actual) R.string.perfil_contrasena_diferente else null
+        val errorConfirmacion = AuthValidators.validarConfirmarContrasena(nueva, confirmacion)
+        if (errorActual != null || errorNueva != null || errorConfirmacion != null) {
+            _uiState.update { it.copy(
+                errorContrasena = errorActual, errorNuevaContrasena = errorNueva,
+                errorConfirmacion = errorConfirmacion, errorGeneral = null
+            ) }
+            return
+        }
+        _uiState.update { it.copy(
+            guardando = true, errorContrasena = null, errorNuevaContrasena = null,
+            errorConfirmacion = null, errorGeneral = null
+        ) }
+        (scope ?: viewModelScope).launch {
+            try {
+                repository.cambiarContrasena(CambiarContrasenaRequest(actual, nueva))
+                // La confirmacion es local y el backend mantiene la sesion vigente.
+                _uiState.update { it.copy(
+                    cambiandoContrasena = false, mensaje = R.string.perfil_contrasena_guardada
+                ) }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: HttpException) {
+                val campos = repository.camposInvalidos(e)
+                val errorActualServidor = if ("contrasenaActual" in campos) R.string.perfil_contrasena_incorrecta else null
+                val errorNuevaServidor = when {
+                    campos["nuevaContrasena"] == "La nueva contraseña debe ser diferente" -> R.string.perfil_contrasena_diferente
+                    "nuevaContrasena" in campos -> R.string.auth_error_contrasena_segura
+                    else -> null
+                }
+                _uiState.update { it.copy(
+                    errorContrasena = errorActualServidor, errorNuevaContrasena = errorNuevaServidor,
+                    errorGeneral = if (errorActualServidor == null && errorNuevaServidor == null)
+                        R.string.perfil_error_cambiar_contrasena else null
+                ) }
+            } catch (_: Exception) {
+                _uiState.update { it.copy(errorGeneral = R.string.perfil_error_cambiar_contrasena) }
+            } finally {
+                _uiState.update { it.copy(guardando = false) }
+            }
+        }
+    }
+
     // ---------- fotografia ----------
     fun guardarAvatar(bitmap: Bitmap) = operarAvatar {
         val (perfil, bytes) = repository.guardarAvatar(bitmap)
@@ -168,9 +248,9 @@ class PerfilViewModel(
     }
 
     private fun operarAvatar(operacion: suspend () -> Unit) {
-        if (_uiState.value.guardando || _uiState.value.editando || _uiState.value.perfil == null) return
+        if (_uiState.value.guardando || _uiState.value.editando || _uiState.value.cambiandoContrasena || _uiState.value.perfil == null) return
         _uiState.update { it.copy(guardando = true, errorGeneral = null) }
-        viewModelScope.launch {
+        (scope ?: viewModelScope).launch {
             try {
                 // 1. guardar el cambio de fotografia en el servidor
                 operacion()
@@ -185,6 +265,6 @@ class PerfilViewModel(
     }
 
     // ---------- limpieza de mensajes ----------
-    fun limpiarErrorContrasena() = _uiState.update { it.copy(errorContrasena = null) }
+    fun limpiarErrorContrasena() = _uiState.update { it.copy(errorContrasena = null, errorGeneral = null) }
     fun limpiarMensaje() = _uiState.update { it.copy(mensaje = null) }
 }

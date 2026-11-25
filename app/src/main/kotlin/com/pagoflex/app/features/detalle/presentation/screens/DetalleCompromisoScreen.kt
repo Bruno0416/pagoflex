@@ -4,7 +4,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -20,6 +23,7 @@ import com.pagoflex.app.core.ui.components.feedback.CircularProgressIndicator
 import com.pagoflex.app.features.detalle.data.DetalleRepository
 import com.pagoflex.app.features.detalle.presentation.components.DetalleContent
 import com.pagoflex.app.features.detalle.presentation.viewmodel.DetalleViewModel
+import com.pagoflex.app.features.pago.presentation.components.PagoFlowSheet
 
 @Composable
 fun DetalleCompromisoScreen(
@@ -32,6 +36,7 @@ fun DetalleCompromisoScreen(
         factory = viewModelFactory { initializer { DetalleViewModel(repositorio) } }
     )
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var mostrarPago by rememberSaveable(folio) { mutableStateOf(false) }
 
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         viewModel.cargarDetalle(folio)
@@ -50,9 +55,19 @@ fun DetalleCompromisoScreen(
         else -> DetalleContent(
             uiState = uiState,
             onVolver = onVolver,
-            onPagar = null,
+            onPagar = { if (uiState.puedeIniciarPago) mostrarPago = true },
             onReportar = onReportar
         )
     }
 
+    if (mostrarPago) {
+        PagoFlowSheet(
+            folio = folio,
+            onCerrar = {
+                mostrarPago = false
+                // 1. actualizar el detalle al cerrar el pago
+                viewModel.cargarDetalle(folio)
+            }
+        )
+    }
 }

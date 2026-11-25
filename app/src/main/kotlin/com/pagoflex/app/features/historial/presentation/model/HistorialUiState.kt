@@ -1,11 +1,11 @@
 package com.pagoflex.app.features.historial.presentation.model
 
-import com.pagoflex.app.core.data.local.entities.Comprobante
-import com.pagoflex.app.features.historial.data.AnulacionHistorialRow
+import com.pagoflex.app.features.historial.data.remote.dto.response.PagoHistorialResponse
+import com.pagoflex.app.features.historial.data.remote.dto.response.AnulacionHistorialResponse
 
 data class HistorialUiState(
-    val comprobantes: List<Comprobante> = listOf(),
-    val anulaciones: List<AnulacionHistorialRow> = listOf(),
+    val comprobantes: List<PagoHistorialResponse> = listOf(),
+    val anulaciones: List<AnulacionHistorialResponse> = listOf(),
     val cargando: Boolean = true,
     val mensajeError: Int? = null
 )
