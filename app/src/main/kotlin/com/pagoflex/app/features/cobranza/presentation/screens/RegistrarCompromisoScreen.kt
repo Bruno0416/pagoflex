@@ -11,11 +11,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -41,6 +53,9 @@ import com.pagoflex.app.features.cobranza.data.remote.CobranzaRemoto
 import com.pagoflex.app.features.cobranza.presentation.model.CampoCompromiso
 import com.pagoflex.app.features.cobranza.presentation.model.RegistrarCompromisoUiState
 import com.pagoflex.app.features.cobranza.presentation.viewmodel.RegistrarCompromisoViewModel
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneOffset
 
 @Composable
 fun RegistrarCompromisoScreen(
@@ -109,6 +124,7 @@ private fun FormularioRegistro(
     val f = uiState.formulario
     val e = uiState.errores
     val numerico = KeyboardOptions(keyboardType = KeyboardType.Number)
+    var calendarioAbierto by rememberSaveable { mutableStateOf(false) }
 
     @Composable
     fun error(campo: CampoCompromiso): String? = e[campo]?.let { stringResource(it) }
@@ -192,8 +208,26 @@ private fun FormularioRegistro(
             onUnfocus = { onSalirCampo(CampoCompromiso.VENCIMIENTO) },
             label = stringResource(R.string.cob_vencimiento),
             placeholder = stringResource(R.string.cob_ph_vencimiento),
-            error = error(CampoCompromiso.VENCIMIENTO)
+            error = error(CampoCompromiso.VENCIMIENTO),
+            trailingIcon = {
+                IconButton(onClick = { calendarioAbierto = true }) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_calendar_month),
+                        contentDescription = stringResource(R.string.cob_elegir_fecha)
+                    )
+                }
+            }
         )
+        if (calendarioAbierto) {
+            SelectorFecha(
+                onElegir = { fecha ->
+                    onCampo(CampoCompromiso.VENCIMIENTO, fecha.aTexto())
+                    onSalirCampo(CampoCompromiso.VENCIMIENTO)
+                    calendarioAbierto = false
+                },
+                onCerrar = { calendarioAbierto = false }
+            )
+        }
 
         Row(horizontalArrangement = Arrangement.spacedBy(Theme.dimens.spacingS)) {
             TextField(
@@ -230,6 +264,36 @@ private fun FormularioRegistro(
         Button(onClick = onRegistrar, enabled = !uiState.cargando) {
             Text(stringResource(R.string.cob_registrar_boton))
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SelectorFecha(
+    onElegir: (LocalDate) -> Unit,
+    onCerrar: () -> Unit,
+) {
+    val hoy = LocalDate.now().atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+    val estado = rememberDatePickerState(
+        initialSelectedDateMillis = hoy,
+        selectableDates = object : SelectableDates {
+            override fun isSelectableDate(utcTimeMillis: Long): Boolean = utcTimeMillis >= hoy
+        }
+    )
+    DatePickerDialog(
+        onDismissRequest = onCerrar,
+        confirmButton = {
+            TextButton(onClick = {
+                estado.selectedDateMillis?.let {
+                    onElegir(Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate())
+                }
+            }) { Text(stringResource(R.string.cob_fecha_aceptar)) }
+        },
+        dismissButton = {
+            TextButton(onClick = onCerrar) { Text(stringResource(R.string.cob_fecha_cancelar)) }
+        }
+    ) {
+        DatePicker(state = estado)
     }
 }
 

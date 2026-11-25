@@ -22,6 +22,8 @@ import com.pagoflex.app.features.perfil.presentation.screens.PerfilScreen
 import com.pagoflex.app.features.reportes.presentation.screens.BandejaReportesScreen
 import com.pagoflex.app.features.reportes.presentation.screens.DetalleReporteScreen
 import com.pagoflex.app.features.reportes.presentation.screens.MisReportesScreen
+import com.pagoflex.app.features.mensajeria.presentation.screens.BandejaMensajesScreen
+import com.pagoflex.app.features.mensajeria.presentation.model.RolChat
 import com.pagoflex.app.features.reportes.presentation.screens.ReportarProblemaScreen
 
 // ---------- perfil (agente y ejecutivo) ----------
@@ -163,6 +165,8 @@ fun NavGraphBuilder.grafoAgente(
     usuarioId: Int,
     navController: NavHostController
 ) {
+    composable(Ruta.Mensajes.ruta) { BandejaMensajesScreen(RolChat.AGENTE) }
+
     // adonys: bandeja de reportes (HU-10)
     composable(Ruta.BandejaReportes.ruta) {
         BandejaReportesScreen(
@@ -191,6 +195,8 @@ fun NavGraphBuilder.grafoEjecutivo(
     usuarioId: Int,
     navController: NavHostController
 ) {
+    composable(Ruta.Mensajes.ruta) { BandejaMensajesScreen(RolChat.EJECUTIVO) }
+
     // adonys: resumen de la cobranza del mes (HU-12)
     composable(Ruta.ResumenCobranza.ruta) {
         ResumenCobranzaScreen(

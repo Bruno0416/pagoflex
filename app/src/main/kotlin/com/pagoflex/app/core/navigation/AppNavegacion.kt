@@ -31,8 +31,8 @@ fun AppNavegacion(perfil: PerfilUsuario, onCerrarSesion: () -> Unit) {
     val rutaActual = entradaActual?.destination?.route
     val pestanas = when (perfil) {
         PerfilUsuario.USUARIO_FINAL -> listOf(Ruta.Home, Ruta.Historial, Ruta.Ayuda)
-        PerfilUsuario.AGENTE -> emptyList()
-        PerfilUsuario.EJECUTIVO -> listOf(Ruta.ResumenCobranza, Ruta.CompromisosEmpresa, Ruta.RegistrarCompromiso)
+        PerfilUsuario.AGENTE -> listOf(Ruta.BandejaReportes, Ruta.Mensajes)
+        PerfilUsuario.EJECUTIVO -> listOf(Ruta.ResumenCobranza, Ruta.CompromisosEmpresa, Ruta.RegistrarCompromiso, Ruta.Mensajes)
     }
     val rutaInicial = when (perfil) {
         PerfilUsuario.USUARIO_FINAL -> Ruta.Home.ruta
@@ -69,6 +69,8 @@ fun AppNavegacion(perfil: PerfilUsuario, onCerrarSesion: () -> Unit) {
                                             Ruta.Ayuda -> R.drawable.ic_help
                                             Ruta.ResumenCobranza -> R.drawable.ic_bar_chart
                                             Ruta.CompromisosEmpresa -> R.drawable.ic_list
+                                            Ruta.BandejaReportes -> R.drawable.ic_mail
+                                            Ruta.Mensajes -> R.drawable.ic_chat_bubble
                                             else -> R.drawable.ic_add
                                         }
                                     ),
@@ -84,6 +86,8 @@ fun AppNavegacion(perfil: PerfilUsuario, onCerrarSesion: () -> Unit) {
                                             Ruta.Ayuda -> R.string.nav_ayuda
                                             Ruta.ResumenCobranza -> R.string.nav_resumen
                                             Ruta.CompromisosEmpresa -> R.string.nav_compromisos_empresa
+                                            Ruta.BandejaReportes -> R.string.nav_bandeja
+                                            Ruta.Mensajes -> R.string.nav_mensajes
                                             else -> R.string.nav_registrar_compromiso
                                         }
                                     )

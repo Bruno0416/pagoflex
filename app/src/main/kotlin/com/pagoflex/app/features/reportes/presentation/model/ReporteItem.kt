@@ -30,6 +30,8 @@ data class ReporteItem(
     val diasHabiles: Int,
     // más de 2 días hábiles abierto (RN-23)
     val atrasado: Boolean,
+    // la usuaria adjuntó la foto del comprobante
+    val tieneComprobante: Boolean = false,
 )
 
 // compromiso del usuario que se puede reportar o que ya está en revisión

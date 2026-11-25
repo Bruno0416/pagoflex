@@ -54,6 +54,8 @@ class ReportesRepository(
 
     // el backend revisa que el cobro sea suyo y se pueda reportar; aquí motivo y comentario
     @Suppress("UNUSED_PARAMETER")
+    suspend fun subirComprobante(numero: String, jpeg: ByteArray) = remoto.subirComprobante(numero, jpeg)
+
     suspend fun reportar(
         folio: String,
         usuarioId: Int,

@@ -1,9 +1,14 @@
 package com.pagoflex.app.features.reportes.data.remote
 
+import okhttp3.MultipartBody
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -19,9 +24,20 @@ interface SoporteApi {
         @Query("size") tamano: Int = 50,
     ): Response<PaginaDto<ReporteDto>>
 
+    // foto del comprobante de pago, igual que el avatar de perfil
+    @Multipart
+    @PUT("reportes/me/{numero}/comprobante")
+    suspend fun subirComprobante(@Path("numero") numero: String, @Part imagen: MultipartBody.Part): Response<ReporteDto>
+
     // ---------- agente: abiertos y los suyos ----------
     @GET("reportes")
     suspend fun bandeja(
+        @Query("page") pagina: Int = 0,
+        @Query("size") tamano: Int = 50,
+    ): Response<PaginaDto<ReporteDto>>
+
+    @GET("empresas/me/reportes")
+    suspend fun reportesEmpresa(
         @Query("page") pagina: Int = 0,
         @Query("size") tamano: Int = 50,
     ): Response<PaginaDto<ReporteDto>>
@@ -32,6 +48,9 @@ interface SoporteApi {
 
     @GET("reportes/{numero}")
     suspend fun detalle(@Path("numero") numero: String): Response<ReporteDto>
+
+    @GET("reportes/{numero}/comprobante")
+    suspend fun comprobante(@Path("numero") numero: String): Response<ResponseBody>
 
     // abierto -> asignado
     @POST("reportes/{numero}/asignaciones")
@@ -75,6 +94,7 @@ data class ReporteDto(
     val fechaAtencion: String? = null,
     val respuesta: String?,
     val fechaResolucion: String?,
+    val tieneComprobante: Boolean = false,
 )
 
 data class CobroDto(

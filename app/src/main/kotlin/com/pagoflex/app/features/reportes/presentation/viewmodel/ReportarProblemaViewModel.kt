@@ -52,6 +52,10 @@ class ReportarProblemaViewModel(
         _uiState.update { it.copy(comentario = comentario, error = null) }
     }
 
+    fun setComprobante(jpeg: ByteArray?) {
+        _uiState.update { it.copy(comprobante = jpeg, comprobanteFallo = false) }
+    }
+
     fun enviar(usuarioId: Int) {
         // 1. congelar estado y cancelar si ya se está enviando
         val estado = uiState.value
@@ -67,7 +71,11 @@ class ReportarProblemaViewModel(
                     folio, usuarioId, estado.motivo, estado.comentario, ahora()
                 )) {
                     is ResultadoReporte.Creado -> {
-                        _uiState.update { it.copy(recienEnviado = true) }
+                        // 3. si adjuntó comprobante se sube al reporte recién creado
+                        val fallo = estado.comprobante?.let { jpeg ->
+                            runCatching { reportesRepository.subirComprobante(resultado.numero, jpeg) }.isFailure
+                        } ?: false
+                        _uiState.update { it.copy(recienEnviado = true, comprobante = null, comprobanteFallo = fallo) }
                         cargar(usuarioId, folio)
                     }
 

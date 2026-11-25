@@ -53,6 +53,7 @@ import com.pagoflex.app.features.mensajeria.presentation.model.RolChat
 import com.pagoflex.app.features.mensajeria.presentation.screens.ChatDialog
 import com.pagoflex.app.features.reportes.data.ReportesRepository
 import com.pagoflex.app.features.reportes.data.remote.ReportesRemoto
+import com.pagoflex.app.features.reportes.presentation.components.ComprobanteDialog
 import com.pagoflex.app.features.reportes.presentation.model.DetalleReporteUiState
 import com.pagoflex.app.features.reportes.presentation.model.ReporteItem
 import com.pagoflex.app.features.reportes.presentation.viewmodel.DetalleReporteViewModel
@@ -77,6 +78,7 @@ fun DetalleReporteScreen(
     val snackbar = remember { SnackbarHostState() }
     val context = LocalContext.current
     var chatAbierto by rememberSaveable { mutableStateOf(false) }
+    var comprobanteAbierto by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(numero) {
         viewModel.cargar(usuarioId, numero)
@@ -116,6 +118,7 @@ fun DetalleReporteScreen(
                 onRespuesta = viewModel::setRespuesta,
                 onResolver = viewModel::resolver,
                 onConversar = { chatAbierto = true },
+                onVerComprobante = { comprobanteAbierto = true },
                 modifier = Modifier.padding(padding)
             )
         }
@@ -124,6 +127,9 @@ fun DetalleReporteScreen(
     // chat con el ejecutivo de la empresa; resuelto queda en solo lectura
     if (chatAbierto) {
         ChatDialog(numero = numero, rolPropio = RolChat.AGENTE, onCerrar = { chatAbierto = false })
+    }
+    if (comprobanteAbierto) {
+        ComprobanteDialog(numero = numero, onCerrar = { comprobanteAbierto = false })
     }
 }
 
@@ -135,6 +141,7 @@ private fun DetalleContent(
     onRespuesta: (String) -> Unit,
     onResolver: () -> Unit,
     onConversar: () -> Unit,
+    onVerComprobante: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -161,6 +168,10 @@ private fun DetalleContent(
                 )
             }
             reporte.comentario?.let { FilaDato(stringResource(R.string.rep_campo_comentario), it) }
+            // la usuaria mandó la foto del pago: el agente la revisa antes de responder
+            if (reporte.tieneComprobante) {
+                OutlinedButton(onClick = onVerComprobante) { Text(stringResource(R.string.rep_comprobante_ver)) }
+            }
             FilaDato(stringResource(R.string.rep_campo_recibido), reporte.fechaCreacion.aTexto())
             FilaDato(stringResource(R.string.rep_campo_responsable), reporte.agente ?: stringResource(R.string.rep_sin_asignar))
             reporte.fechaToma?.let { FilaDato(stringResource(R.string.rep_campo_tomado), it.aTexto()) }

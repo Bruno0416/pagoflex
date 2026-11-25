@@ -38,6 +38,9 @@ sealed class Ruta(val ruta: String) {
         fun crear(numero: String) = "agente/reporte/$numero"
     }
 
+    // Agente y ejecutivo
+    data object Mensajes : Ruta("mensajes")
+
     // Ejecutivo
     data object ResumenCobranza : Ruta("ejecutivo/resumen")
     data object CompromisosEmpresa : Ruta("ejecutivo/compromisos")

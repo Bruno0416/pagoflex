@@ -88,6 +88,9 @@
     <string name="cob_ph_concepto">Cuota pie departamento</string>
     <string name="cob_ph_monto">310000</string>
     <string name="cob_ph_vencimiento">30-11-2026</string>
+    <string name="cob_elegir_fecha">Elegir fecha</string>
+    <string name="cob_fecha_aceptar">Aceptar</string>
+    <string name="cob_fecha_cancelar">Cancelar</string>
     <string name="cob_ph_cuota">16</string>
     <string name="cob_ph_total">36</string>
     <string name="cob_ph_telefono">+56 9 1234 5678</string>

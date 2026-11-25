@@ -15,6 +15,9 @@ import com.pagoflex.app.features.home.presentation.model.EstadoCompromiso
 import com.pagoflex.app.features.reportes.data.ResultadoReporte
 import com.pagoflex.app.features.reportes.presentation.model.CompromisoReportable
 import com.pagoflex.app.features.reportes.presentation.model.ReporteItem
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -64,13 +67,24 @@ class ReportesRemoto(
             ResultadoReporte.Error(R.string.api_error_conexion)
         }
 
+    // la foto ya viene en jpeg desde ComprobanteImagen
+    suspend fun subirComprobante(numero: String, jpeg: ByteArray) {
+        val parte = MultipartBody.Part.createFormData("file", "comprobante.jpg", jpeg.toRequestBody("image/jpeg".toMediaType()))
+        llamar { soporte.subirComprobante(numero, parte) }
+    }
+
     // ---------- agente ----------
 
     suspend fun bandeja(hoy: LocalDate): List<ReporteItem> =
         llamar { soporte.bandeja() }.contenido.map { it.aModelo(hoy) }
 
+    suspend fun reportesEmpresa(hoy: LocalDate): List<ReporteItem> =
+        llamar { soporte.reportesEmpresa() }.contenido.map { it.aModelo(hoy) }
+
     suspend fun detalle(numero: String, hoy: LocalDate): ReporteItem? =
         llamarONulo { soporte.detalle(numero) }?.aModelo(hoy)
+
+    suspend fun comprobante(numero: String): ByteArray = llamar { soporte.comprobante(numero) }.bytes()
 
     // al tomarlo queda asignado y en atención; en la app se ve como en gestión
     @StringRes
@@ -144,7 +158,8 @@ class ReportesRemoto(
             correo = usuario.correo.orEmpty(),
             telefono = usuario.telefono,
             diasHabiles = ReglasReporte.diasHabilesEntre(creado.toLocalDate(), hoy),
-            atrasado = atrasado
+            atrasado = atrasado,
+            tieneComprobante = tieneComprobante
         )
     }
 }

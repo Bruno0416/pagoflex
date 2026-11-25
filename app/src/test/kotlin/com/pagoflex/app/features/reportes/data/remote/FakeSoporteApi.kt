@@ -38,6 +38,12 @@ class FakeSoporteApi : SoporteApi {
         return responder(activo)
     }
 
+    override suspend fun reportesEmpresa(pagina: Int, tamano: Int): Response<PaginaDto<ReporteDto>> = error(501)
+
+    override suspend fun subirComprobante(numero: String, imagen: okhttp3.MultipartBody.Part): Response<ReporteDto> = error(501)
+
+    override suspend fun comprobante(numero: String): Response<okhttp3.ResponseBody> = error(501)
+
     override suspend fun detalle(numero: String): Response<ReporteDto> {
         val encontrado = reportes.firstOrNull { it.numero == numero } ?: return error(404)
         return responder(encontrado)
