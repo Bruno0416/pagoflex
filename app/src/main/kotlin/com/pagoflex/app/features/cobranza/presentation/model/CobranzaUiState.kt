@@ -1,8 +1,9 @@
 package com.pagoflex.app.features.cobranza.presentation.model
 
-import com.pagoflex.app.core.data.local.entities.Compromiso
+import com.pagoflex.app.core.data.remote.externa.IndicadoresDia
 import com.pagoflex.app.core.rules.MotivoAnulacion
 import com.pagoflex.app.core.rules.ResumenCobranza
+import com.pagoflex.app.features.cobranza.data.CompromisoRegistrado
 import com.pagoflex.app.features.cobranza.data.EjecutivoSesion
 import com.pagoflex.app.features.cobranza.data.PersonaEncontrada
 import com.pagoflex.app.features.home.presentation.model.EstadoCompromiso
@@ -14,6 +15,8 @@ data class ResumenCobranzaUiState(
     val ejecutivo: EjecutivoSesion? = null,
     val mes: YearMonth = YearMonth.now(),
     val resumen: ResumenCobranza = ResumenCobranza(YearMonth.now()),
+    // uf y dólar del día (api externa); nulo si no respondió
+    val indicadores: IndicadoresDia? = null,
 
     // errores
     val error: Int? = null,
@@ -56,7 +59,7 @@ data class RegistrarCompromisoUiState(
     val personaEncontrada: PersonaEncontrada? = null,
     val rutValido: Boolean = false,
     val cargando: Boolean = false,
-    val registrado: Compromiso? = null,
+    val registrado: CompromisoRegistrado? = null,
 
     // errores
     val errores: Map<CampoCompromiso, Int> = emptyMap(),

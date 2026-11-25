@@ -1,6 +1,6 @@
 package com.pagoflex.app.core.rules
 
-import com.pagoflex.app.core.profiles.model.PerfilUsuario
+import com.pagoflex.app.core.network.auth.model.PerfilUsuario
 
 // acciones de la tabla permisos por rol (anexo 7)
 enum class Accion {

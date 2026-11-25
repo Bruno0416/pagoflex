@@ -10,4 +10,7 @@
     <string name="historial_con_atraso">Con atraso</string>
     <string name="historial_a_tiempo">A tiempo</string>
     <string name="historial_error_cargar">No se pudo cargar el historial.</string>
+    <string name="historial_canal_app">Aplicación</string>
+    <string name="historial_canal_portal">Portal de pagos</string>
+    <string name="historial_canal_agente">Agente conversacional</string>
 </resources>

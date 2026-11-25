@@ -1,5 +1,6 @@
 package com.pagoflex.app.features.reportes.presentation.screens
 
+import com.pagoflex.app.core.data.remote.CuentaRemota
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,6 +39,7 @@ import com.pagoflex.app.core.utils.aPesos
 import com.pagoflex.app.core.utils.aTexto
 import com.pagoflex.app.features.home.presentation.model.EstadoCompromiso
 import com.pagoflex.app.features.reportes.data.ReportesRepository
+import com.pagoflex.app.features.reportes.data.remote.ReportesRemoto
 import com.pagoflex.app.features.reportes.presentation.model.CompromisoReportable
 import com.pagoflex.app.features.reportes.presentation.model.ReporteItem
 import com.pagoflex.app.features.reportes.presentation.viewmodel.MisReportesViewModel
@@ -49,7 +51,7 @@ fun MisReportesScreen(
     onReportar: (String) -> Unit,
 ) {
     // ---------- dependencias ----------
-    val repositorio = remember(db) { ReportesRepository(db) }
+    val repositorio = remember(db) { ReportesRepository(ReportesRemoto.crear(), CuentaRemota.crear()) }
     val viewModel: MisReportesViewModel = viewModel(
         factory = viewModelFactory {
             initializer { MisReportesViewModel(repositorio) }
@@ -106,6 +108,44 @@ fun MisReportesScreen(
         }
         items(uiState.compromisos, key = { it.folio }) { compromiso ->
             CardCompromisoReportable(compromiso, onReportar = { onReportar(compromiso.folio) })
+        }
+    }
+}
+
+/** Fallback temporal de Ayuda mientras se migra el repositorio a Retrofit. */
+@Composable
+fun MisReportesScreenSinDatos() {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(Theme.dimens.spacingM),
+        verticalArrangement = Arrangement.spacedBy(Theme.dimens.spacingS)
+    ) {
+        item {
+            Text(
+                stringResource(R.string.rep_ayuda_titulo),
+                style = Theme.type.headlineSmall.copy(fontWeight = FontWeight.Bold)
+            )
+            Text(
+                stringResource(R.string.rep_ayuda_texto),
+                style = Theme.type.bodyMedium,
+                color = Theme.colores.onSurfaceVariant
+            )
+        }
+        item { Seccion(stringResource(R.string.rep_mis_reportes)) }
+        item {
+            Text(
+                stringResource(R.string.rep_sin_reportes_usuario),
+                style = Theme.type.bodyMedium,
+                color = Theme.colores.onSurfaceVariant
+            )
+        }
+        item { Seccion(stringResource(R.string.rep_problemas_cobro)) }
+        item {
+            Text(
+                stringResource(R.string.rep_sin_compromisos),
+                style = Theme.type.bodyMedium,
+                color = Theme.colores.onSurfaceVariant
+            )
         }
     }
 }

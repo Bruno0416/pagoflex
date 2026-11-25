@@ -18,4 +18,7 @@
     <string name="comprobante_medio_pago">Medio de pago</string>
     <string name="comprobante_canal">Canal</string>
     <string name="comprobante_error_cargar">No se pudo cargar el detalle del comprobante.</string>
+    <string name="comprobante_medio_debito">Tarjeta de débito</string>
+    <string name="comprobante_medio_credito">Tarjeta de crédito</string>
+    <string name="comprobante_medio_transferencia">Transferencia</string>
 </resources>

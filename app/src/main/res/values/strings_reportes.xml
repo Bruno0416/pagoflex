@@ -84,4 +84,16 @@
     <string name="rep_error_sin_respuesta">Escribe la respuesta para el usuario antes de resolver</string>
     <string name="rep_error_cargar">No pudimos cargar la información</string>
     <string name="rep_error_generico">No pudimos completar la operación. Intenta de nuevo.</string>
+    <string name="rep_sin_reportes_usuario">Todavía no hay reportes para mostrar.</string>
+    <!-- comprobante de pago -->
+    <string name="rep_comprobante_adjuntar">Adjuntar foto del comprobante (opcional)</string>
+    <string name="rep_comprobante_listo">Comprobante listo para enviar</string>
+    <string name="rep_comprobante_quitar">Quitar</string>
+    <string name="rep_comprobante_no_subido">El reporte se envió, pero no pudimos subir el comprobante.</string>
+    <string name="rep_campo_comprobante">Comprobante</string>
+    <string name="rep_comprobante_adjunto">Adjunto</string>
+    <string name="rep_comprobante_ver">Ver comprobante</string>
+    <string name="rep_comprobante_titulo">Comprobante de pago</string>
+    <string name="rep_comprobante_cerrar">Cerrar</string>
+    <string name="rep_comprobante_error">No pudimos cargar el comprobante.</string>
 </resources>

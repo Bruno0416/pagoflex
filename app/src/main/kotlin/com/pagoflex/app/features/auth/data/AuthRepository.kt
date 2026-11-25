@@ -1,118 +1,60 @@
 package com.pagoflex.app.features.auth.data
 
-import androidx.room3.withWriteTransaction
-import com.pagoflex.app.core.data.local.LocalDatabase
-import com.pagoflex.app.core.data.local.entities.Usuario
-import com.pagoflex.app.core.profiles.model.PerfilUsuario
-import com.pagoflex.app.core.profiles.model.SesionUsuario
-import com.pagoflex.app.core.security.Hasher
-import com.pagoflex.app.features.auth.presentation.validators.AuthValidators
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.time.LocalDateTime
+import org.json.JSONObject
+import retrofit2.HttpException
+import com.pagoflex.app.core.network.RetrofitClient
+import com.pagoflex.app.core.network.auth.model.SesionUsuario
+import com.pagoflex.app.core.network.auth.model.TokensSesion
+import com.pagoflex.app.features.auth.data.remote.AuthApi
+import com.pagoflex.app.features.auth.data.remote.dto.request.*
+import com.pagoflex.app.features.auth.data.remote.dto.response.*
+import retrofit2.create
 
-class AuthRepository(
-    private val db: LocalDatabase
-) {
-    // --------------- login ---------------
-    suspend fun iniciarSesion(correo: String, contrasena: String): SesionUsuario? {
-        // 1. buscar acceso por correo
-        val acceso = db.usuarioDao().obtenerAccesoPorCorreo(correo.trim().lowercase())
-            ?: return null
-        val hash = acceso.passwordHash ?: return null
+class AuthRepository {
 
-        // 2. verificar contrasena
-        val esValida = withContext(Dispatchers.Default) {
-            Hasher.verificar(contrasena, hash)
-        }
+    private val api = RetrofitClient.retrofit.create<AuthApi>()
 
-        // 3. retornar null si no es valido
-        if (!esValida) return null
+    suspend fun iniciarSesion(request: LoginRequest): AuthResponse {
+        val response = api.login(request)
 
-        // 4. retornar sesion del usuario (id + rol)
-        return db.usuarioDao().obtenerSesionUsuario(acceso.idUsuario)
-    }
-
-    suspend fun obtenerSesion(usuarioId: Int): SesionUsuario? {
-        return db.usuarioDao().obtenerSesionUsuario(usuarioId)
-    }
-
-    // --------------- registro ---------------
-    suspend fun registrarUsuario(
-        rut: String,
-        nombres: String,
-        apellidos: String,
-        correo: String,
-        contrasena: String,
-        idPreguntaRecuperacion: Int,
-        respuestaRecuperacion: String
-    ) {
-        // 1. hashear contrasena y respuesta
-        val contrasenaHash = withContext(Dispatchers.Default) {
-            Hasher.genHash(contrasena)
-        }
-        val respuestaHash = withContext(Dispatchers.Default) {
-            Hasher.genHash(AuthValidators.normalizarRespuesta(respuestaRecuperacion))
-        }
-
-        // 2. insertar usuario en una operación transaccional
-        db.withWriteTransaction {
-            // obtener id rol
-            val idRol = db.referenciasDao()
-                .obtenerIdRolPorCodigo(PerfilUsuario.USUARIO_FINAL.name)
-                ?: throw Exception("No se encontró el rol USUARIO_FINAL")
-
-            // insertar usuario con su acceso
-            db.usuarioDao().insertarUsuario(
-                Usuario(
-                    idRol = idRol,
-                    rut = rut,
-                    nombres = nombres,
-                    apellidos = apellidos,
-                    correo = correo,
-                    activo = true,
-                    fechaCreacion = LocalDateTime.now(),
-                    passwordHash = contrasenaHash,
-                    idPreguntaRecuperacion = idPreguntaRecuperacion,
-                    respuestaRecuperacionHash = respuestaHash
-                )
+        RetrofitClient.sessionManager.iniciarSesion(
+            usuario = SesionUsuario(perfil = response.rol),
+            tokens = TokensSesion(
+                accessToken = response.tokenAcceso,
+                refreshToken = response.tokenRenovacion
             )
-        }
+        )
+
+        return response
     }
 
-    // --------------- recuperación ---------------
-    suspend fun obtenerPreguntas() = db.preguntaRecuperacionDao().obtenerPreguntas()
-
-    suspend fun validarIdentidadRecuperacion(
-        correo: String,
-        idPregunta: Int,
-        respuesta: String
-    ): Boolean {
-        val acceso = db.usuarioDao().obtenerAccesoPorCorreo(correo.trim().lowercase())
-            ?: return false
-        if (acceso.idPreguntaRecuperacion != idPregunta) return false
-        val hashRespuesta = acceso.respuestaRecuperacionHash ?: return false
-
-        return withContext(Dispatchers.Default) {
-            Hasher.verificar(AuthValidators.normalizarRespuesta(respuesta), hashRespuesta)
-        }
+    fun camposInvalidos(error: HttpException): Map<String, String> {
+        val contenido = error.response()?.errorBody()?.string().orEmpty()
+        return runCatching {
+            val campos = JSONObject(contenido).optJSONObject("invalid_fields")
+                ?: return@runCatching emptyMap()
+            buildMap {
+                val claves = campos.keys()
+                while (claves.hasNext()) {
+                    val nombre = claves.next()
+                    put(nombre, campos.optString(nombre))
+                }
+            }
+        }.getOrDefault(emptyMap())
     }
 
-    suspend fun restablecerContrasena(
-        correo: String,
-        idPregunta: Int,
-        respuesta: String,
-        nuevaContrasena: String
-    ): Boolean {
-        // 1. verificar de nuevo la pregunta y respuesta
-        if (!validarIdentidadRecuperacion(correo, idPregunta, respuesta)) return false
+    suspend fun registrarUsuario(request: RegistrarRequest) = api.registrar(request)
 
-        // 2. actualizar la contrasena solo si la identidad coincide
-        val acceso = db.usuarioDao().obtenerAccesoPorCorreo(correo.trim().lowercase())
-            ?: return false
-        val nuevoHash = withContext(Dispatchers.Default) {
-            Hasher.genHash(nuevaContrasena)
-        }
-        return db.usuarioDao().actualizarContrasena(acceso.idUsuario, nuevoHash) > 0
-    }
+    suspend fun solicitarRecuperacion(request: RecuperacionRequest) =
+        api.solicitarRecuperacion(request)
+
+    suspend fun reenviarCodigo(request: RecuperacionRequest) =
+        api.reenviarCodigo(request)
+
+    suspend fun verificarCodigoRecuperacion(
+        request: VerificarCodigoRequest
+    ): VerificarCodigoResponse = api.verificarCodigoRecuperacion(request)
+
+    suspend fun restablecerContrasena(request: RecuperarContrasenaRequest) =
+        api.recuperar(request)
 }

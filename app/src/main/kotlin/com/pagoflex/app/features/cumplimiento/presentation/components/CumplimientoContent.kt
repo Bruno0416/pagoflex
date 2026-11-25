@@ -33,12 +33,11 @@ import com.pagoflex.app.core.ui.components.buttons.OutlinedButton
 import com.pagoflex.app.core.ui.components.model.ComponentVariant
 import com.pagoflex.app.core.ui.theme.PagoFlexTheme
 import com.pagoflex.app.core.ui.theme.Theme
-import com.pagoflex.app.features.cumplimiento.data.CategoriaCumplimiento
-import com.pagoflex.app.features.cumplimiento.data.ResultadoCumplimiento
+import com.pagoflex.app.features.cumplimiento.data.remote.dto.response.CumplimientoResponse
 
 @Composable
 internal fun CumplimientoContent(
-    resultado: ResultadoCumplimiento,
+    resultado: CumplimientoResponse,
     onVolver: () -> Unit,
     onVerReconocimientos: (() -> Unit)?
 ) {
@@ -82,7 +81,7 @@ internal fun CumplimientoContent(
                             fontWeight = FontWeight.SemiBold
                         )
                         Text(
-                            stringResource(R.string.cumplimiento_insuficiente_detalle, resultado.totalElegibles),
+                            stringResource(R.string.cumplimiento_insuficiente_detalle, resultado.elegibles),
                             style = Theme.type.bodyLarge,
                             textAlign = TextAlign.Center
                         )
@@ -92,7 +91,7 @@ internal fun CumplimientoContent(
                             stringResource(
                                 R.string.cumplimiento_resumen,
                                 resultado.pagadosATiempo,
-                                resultado.totalElegibles
+                                resultado.elegibles
                             ),
                             style = Theme.type.bodyLarge,
                             textAlign = TextAlign.Center
@@ -152,7 +151,7 @@ internal fun CumplimientoContent(
 private fun CumplimientoContentPreview() {
     PagoFlexTheme {
         CumplimientoContent(
-            resultado = ResultadoCumplimiento(36, 33, 91.6667, CategoriaCumplimiento.AL_DIA),
+            resultado = CumplimientoResponse("2025-11-23", "2026-11-23", 36, 33, 91.6667, "AL_DIA"),
             onVolver = {},
             onVerReconocimientos = {}
         )
@@ -164,7 +163,7 @@ private fun CumplimientoContentPreview() {
 private fun CumplimientoInsuficientePreview() {
     PagoFlexTheme {
         CumplimientoContent(
-            resultado = ResultadoCumplimiento(totalElegibles = 2, pagadosATiempo = 1),
+            resultado = CumplimientoResponse("2025-11-23", "2026-11-23", 2, 1, null, null),
             onVolver = {},
             onVerReconocimientos = null
         )

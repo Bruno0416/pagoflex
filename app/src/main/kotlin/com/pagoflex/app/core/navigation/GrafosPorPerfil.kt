@@ -1,155 +1,160 @@
 package com.pagoflex.app.core.navigation
 
-import androidx.compose.material3.Text
-import androidx.compose.ui.res.stringResource
+import androidx.compose.runtime.remember
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.pagoflex.app.R
 import com.pagoflex.app.core.data.local.LocalDatabase
 import com.pagoflex.app.features.cobranza.presentation.screens.CompromisosEmpresaScreen
 import com.pagoflex.app.features.cobranza.presentation.screens.DetalleCompromisoEmpresaScreen
 import com.pagoflex.app.features.cobranza.presentation.screens.RegistrarCompromisoScreen
 import com.pagoflex.app.features.cobranza.presentation.screens.ResumenCobranzaScreen
-import com.pagoflex.app.features.detalle.presentation.screens.DetalleCompromisoScreen
 import com.pagoflex.app.features.cumplimiento.presentation.screens.CumplimientoScreen
+import com.pagoflex.app.features.detalle.presentation.screens.DetalleCompromisoScreen
 import com.pagoflex.app.features.historial.presentation.screens.ComprobanteScreen
 import com.pagoflex.app.features.historial.presentation.screens.HistorialScreen
 import com.pagoflex.app.features.home.presentation.screens.HomeScreen
 import com.pagoflex.app.features.home.presentation.screens.ListaCompromisosScreen
-import com.pagoflex.app.features.reconocimientos.presentation.screens.ReconocimientosScreen
+import com.pagoflex.app.features.perfil.presentation.screens.CambiarContrasenaScreen
+import com.pagoflex.app.features.perfil.presentation.screens.PerfilScreen
 import com.pagoflex.app.features.reportes.presentation.screens.BandejaReportesScreen
 import com.pagoflex.app.features.reportes.presentation.screens.DetalleReporteScreen
 import com.pagoflex.app.features.reportes.presentation.screens.MisReportesScreen
+import com.pagoflex.app.features.mensajeria.presentation.screens.BandejaMensajesScreen
+import com.pagoflex.app.features.mensajeria.presentation.model.RolChat
 import com.pagoflex.app.features.reportes.presentation.screens.ReportarProblemaScreen
 
-// ---------- usuarios finales ----------
-fun NavGraphBuilder.grafoUsuario(
-    db: LocalDatabase,
-    usuarioId: Int,
-    navController: NavHostController
+// ---------- perfil (agente y ejecutivo) ----------
+fun NavGraphBuilder.grafoPerfil(
+    navController: NavHostController,
+    onCerrarSesion: () -> Unit
 ) {
-    composable(Ruta.Home.ruta) {
-        HomeScreen(
-            db = db,
-            usuarioId = usuarioId,
-            onVerPerfil = { navController.navigate(Ruta.Perfil.ruta) },
-            onVerTodos = { navController.navigate(Ruta.ListaCompromisos.ruta) },
-            onVerCumplimiento = { navController.navigate(Ruta.Cumplimiento.ruta) },
-            onVerCompromiso = { folio ->
-                navController.navigate(Ruta.DetalleCompromiso.ver(folio))
+    composable(Ruta.Perfil.ruta) {
+        PerfilScreen(
+            onVolver = { navController.volverDesde(Ruta.Perfil.ruta) },
+            onCerrarSesion = onCerrarSesion,
+            onCambiarContrasena = {
+                if (navController.currentDestination?.route == Ruta.Perfil.ruta) {
+                    navController.navigate(Ruta.CambiarContrasena.ruta) { launchSingleTop = true }
+                }
             }
         )
     }
-    // ---------- cumplimiento ----------
-    composable(Ruta.Cumplimiento.ruta) {
-        CumplimientoScreen(
-            db = db,
-            usuarioId = usuarioId,
-            onVolver = { navController.volverDesde(Ruta.Cumplimiento.ruta) },
-            onVerReconocimientos = { navController.navigate(Ruta.Reconocimientos.ruta) }
+    composable(Ruta.CambiarContrasena.ruta) { entrada ->
+        val perfilOwner = remember(entrada) { navController.getBackStackEntry(Ruta.Perfil.ruta) }
+        CambiarContrasenaScreen(
+            perfilOwner = perfilOwner,
+            onVolver = { navController.volverDesde(Ruta.CambiarContrasena.ruta) }
         )
     }
+}
 
-    // ---------- reconocimientos ----------
-    composable(Ruta.Reconocimientos.ruta) {
-        ReconocimientosScreen(
-            db = db,
-            usuarioId = usuarioId,
-            onVolver = { navController.volverDesde(Ruta.Reconocimientos.ruta) }
+// ---------- usuario final ----------
+fun NavGraphBuilder.grafoUsuario(
+    db: LocalDatabase,
+    navController: NavHostController,
+    onCerrarSesion: () -> Unit
+) {
+    // ---------- inicio y compromisos ----------
+    composable(Ruta.Home.ruta) {
+        HomeScreen(
+            onVerTodos = { navController.navigate(Ruta.ListaCompromisos.ruta) },
+            onVerCompromiso = { folio ->
+                navController.navigate(Ruta.DetalleCompromiso.ver(folio))
+            },
+            onVerPerfil = {
+                // 1. abrir perfil solo si inicio sigue siendo la ruta activa
+                if (navController.currentDestination?.route == Ruta.Home.ruta) {
+                    navController.navigate(Ruta.Perfil.ruta) {
+                        launchSingleTop = true
+                    }
+                }
+            },
+            onVerCumplimiento = { navController.navigate(Ruta.Cumplimiento.ruta) }
         )
     }
-
     composable(Ruta.ListaCompromisos.ruta) {
         ListaCompromisosScreen(
-            db = db,
-            usuarioId = usuarioId,
             onVolver = { navController.volverDesde(Ruta.ListaCompromisos.ruta) },
             onVerCompromiso = { folio ->
                 navController.navigate(Ruta.DetalleCompromiso.ver(folio))
             }
         )
     }
-
-    // ---------- historial ----------
-    composable(Ruta.Historial.ruta) {
-        HistorialScreen(
-            db = db,
-            usuarioId = usuarioId,
-            onVerComprobante = { numero ->
-                navController.navigate(
-                    Ruta.DetalleComprobante.ver(numero)
-                )
-            }
-        )
-    }
-
-    // adonys: ayuda con los reportes de problema del usuario (HU-06)
-    composable(Ruta.Ayuda.ruta) {
-        MisReportesScreen(
-            db = db,
-            usuarioId = usuarioId,
-            onReportar = { folio -> navController.navigate(Ruta.ReportarProblema.crear(folio)) }
-        )
-    }
-    composable(Ruta.Avisos.ruta) {
-        Text(stringResource(R.string.nav_avisos))
-    }
-
-    // ---------- detalle de comprobante ----------
-    composable(
-        route = Ruta.DetalleComprobante.ruta,
-        arguments = listOf(
-            navArgument("numero") {
-                type = NavType.StringType
-            }
-        )
-    ) { entrada ->
-        val numero = entrada.arguments?.getString("numero").orEmpty()
-
-        ComprobanteScreen(
-            db = db,
-            usuarioId = usuarioId,
-            numeroComprobante = numero,
-            onCerrar = {
-                navController.volverDesde(Ruta.DetalleComprobante.ruta)
-            },
-        )
-    }
-
-    // ---------- detalle de compromiso ----------
     composable(
         route = Ruta.DetalleCompromiso.ruta,
-        arguments = listOf(
-            navArgument("id") { type = NavType.StringType }
-        )
+        arguments = listOf(navArgument("id") { type = NavType.StringType })
     ) { entrada ->
         val folio = entrada.arguments?.getString("id").orEmpty()
-
         DetalleCompromisoScreen(
-            db = db,
-            usuarioId = usuarioId,
             folio = folio,
-            onVolver = {
-                navController.volverDesde(Ruta.DetalleCompromiso.ruta)
-            },
-            onPagoConfirmado = { numero ->
-                navController.navigate(Ruta.DetalleComprobante.ver(numero))
-            }
+            onVolver = { navController.volverDesde(Ruta.DetalleCompromiso.ruta) },
+            onReportar = { navController.navigate(Ruta.ReportarProblema.crear(folio)) }
         )
     }
-    // adonys: reportar un problema (HU-06)
     composable(
         route = Ruta.ReportarProblema.ruta,
         arguments = listOf(navArgument("folio") { type = NavType.StringType })
     ) { entrada ->
         ReportarProblemaScreen(
             db = db,
-            usuarioId = usuarioId,
+            usuarioId = 0,
             folio = entrada.arguments?.getString("folio").orEmpty(),
             onVolver = { navController.popBackStack() }
+        )
+    }
+
+    // ---------- historial y comprobantes ----------
+    composable(Ruta.Historial.ruta) {
+        HistorialScreen(
+            onVerComprobante = { numero ->
+                navController.navigate(Ruta.DetalleComprobante.ver(numero))
+            }
+        )
+    }
+    composable(
+        route = Ruta.DetalleComprobante.ruta,
+        arguments = listOf(navArgument("numero") { type = NavType.StringType })
+    ) { entrada ->
+        ComprobanteScreen(
+            numeroComprobante = entrada.arguments?.getString("numero").orEmpty(),
+            onCerrar = { navController.volverDesde(Ruta.DetalleComprobante.ruta) }
+        )
+    }
+
+    // ---------- perfil y cumplimiento ----------
+    composable(Ruta.Perfil.ruta) {
+        PerfilScreen(
+            onVolver = { navController.volverDesde(Ruta.Perfil.ruta) },
+            onCerrarSesion = onCerrarSesion,
+            onCambiarContrasena = {
+                if (navController.currentDestination?.route == Ruta.Perfil.ruta) {
+                    navController.navigate(Ruta.CambiarContrasena.ruta) { launchSingleTop = true }
+                }
+            }
+        )
+    }
+    composable(Ruta.CambiarContrasena.ruta) { entrada ->
+        val perfilOwner = remember(entrada) { navController.getBackStackEntry(Ruta.Perfil.ruta) }
+        CambiarContrasenaScreen(
+            perfilOwner = perfilOwner,
+            onVolver = { navController.volverDesde(Ruta.CambiarContrasena.ruta) }
+        )
+    }
+    composable(Ruta.Cumplimiento.ruta) {
+        CumplimientoScreen(
+            onVolver = { navController.volverDesde(Ruta.Cumplimiento.ruta) }
+        )
+    }
+
+    // ---------- ayuda ----------
+    composable(Ruta.Ayuda.ruta) {
+        MisReportesScreen(
+            db = db,
+            usuarioId = 0,
+            onReportar = { folio -> navController.navigate(Ruta.ReportarProblema.crear(folio)) }
         )
     }
 }
@@ -160,6 +165,8 @@ fun NavGraphBuilder.grafoAgente(
     usuarioId: Int,
     navController: NavHostController
 ) {
+    composable(Ruta.Mensajes.ruta) { BandejaMensajesScreen(RolChat.AGENTE) }
+
     // adonys: bandeja de reportes (HU-10)
     composable(Ruta.BandejaReportes.ruta) {
         BandejaReportesScreen(
@@ -188,6 +195,8 @@ fun NavGraphBuilder.grafoEjecutivo(
     usuarioId: Int,
     navController: NavHostController
 ) {
+    composable(Ruta.Mensajes.ruta) { BandejaMensajesScreen(RolChat.EJECUTIVO) }
+
     // adonys: resumen de la cobranza del mes (HU-12)
     composable(Ruta.ResumenCobranza.ruta) {
         ResumenCobranzaScreen(
@@ -240,7 +249,7 @@ private fun NavHostController.irAPestana(ruta: String, rutaInicial: String) {
     }
 }
 
-private fun NavHostController.volverDesde(rutaOrigen: String) {
+internal fun NavHostController.volverDesde(rutaOrigen: String) {
     if (currentDestination?.route != rutaOrigen || previousBackStackEntry == null) return
     popBackStack()
 }

@@ -28,7 +28,7 @@ import com.pagoflex.app.core.ui.components.buttons.OutlinedButton
 import com.pagoflex.app.core.ui.components.model.ComponentVariant
 import com.pagoflex.app.core.ui.theme.PagoFlexTheme
 import com.pagoflex.app.core.ui.theme.Theme
-import com.pagoflex.app.features.detalle.data.DetalleCompromisoRow
+import com.pagoflex.app.features.home.data.remote.dto.response.MiCompromisoResponse
 import com.pagoflex.app.features.detalle.presentation.model.DetalleUiState
 import com.pagoflex.app.features.home.presentation.model.EstadoCompromiso
 import java.text.NumberFormat
@@ -45,12 +45,7 @@ internal fun DetalleContent(
     val detalle = uiState.detalle ?: return
 
     // ---------- estado y colores ----------
-    val estado = EstadoCompromiso.entries.firstOrNull {
-        it.name.replace('_', ' ').equals(
-            uiState.estadoActual.trim().replace('ó', 'o'),
-            ignoreCase = true
-        )
-    }
+    val estado = EstadoCompromiso.entries.firstOrNull { it.name == detalle.estado }
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -98,17 +93,17 @@ internal fun DetalleContent(
                         Text(
                             stringResource(
                                 R.string.detalle_pagar,
-                                uiState.total.formatoCLP()
+                                detalle.total.formatoCLP()
                             )
                         )
                     }
-                } else if (uiState.estadoActual.equals("En revisión", ignoreCase = true)) {
+                } else if (detalle.estado == "EN_REVISION") {
                     Text(
                         text = stringResource(R.string.pago_no_pagable_revision),
                         style = Theme.type.bodyMedium,
                         color = Theme.colores.onSurfaceVariant
                     )
-                } else if (uiState.estadoActual.equals("Anulado", ignoreCase = true)) {
+                } else if (detalle.estado == "ANULADO") {
                     Text(
                         text = stringResource(R.string.pago_no_pagable_anulado),
                         style = Theme.type.bodyMedium,
@@ -136,7 +131,7 @@ internal fun DetalleContent(
                 Theme.dimens.spacingL
             )
         ) {
-            ResumenDetalle(detalle, uiState, estado)
+            ResumenDetalle(detalle, estado)
             InformacionDetalle(detalle)
             if (estado == EstadoCompromiso.VENCIDO) {
                 AvisoAtraso()
@@ -147,7 +142,7 @@ internal fun DetalleContent(
     }
 }
 
-// --- formato CLP ---
+// --- formatear monto en clp ---
 private fun Long.formatoCLP(): String {
     val formato = NumberFormat.getNumberInstance(
         Locale.forLanguageTag("es-CL")
@@ -164,20 +159,24 @@ private fun Long.formatoCLP(): String {
 )
 @Composable
 private fun DetalleCompromisoPreview() {
-    val ejemplo = DetalleCompromisoRow(
-        idCompromiso = 2,
-        idEmpresa = 6,
+    val ejemplo = MiCompromisoResponse(
         folio = "CP-2026-0102",
-        organizacion = "Club Los Halcones",
+        empresaCodigo = null,
+        empresa = "Club Los Halcones",
+        correoAtencion = "tesoreria@loshalcones.ejemplo",
         concepto = "Cuota social octubre",
         numeroCuota = 10,
         totalCuotas = 12,
-        fechaVencimiento = LocalDate.of(2026, 10, 5),
-        monto = 15_000,
-        recargoAplicado = 2_000,
-        recargoEmpresa = 2_000,
-        estado = "Vencido",
-        correoContacto = "tesoreria@loshalcones.ejemplo"
+        monto = 15000L,
+        recargo = 2000L,
+        total = 17000L,
+        fechaVencimiento = "2026-10-05",
+        estado = "VENCIDO",
+        diasAtraso = 17L,
+        pagable = true,
+        folioAnterior = null,
+        numeroComprobante = null,
+        fechaPago = null
     )
 
     PagoFlexTheme {
@@ -186,10 +185,6 @@ private fun DetalleCompromisoPreview() {
                 uiState = DetalleUiState(
                     cargando = false,
                     detalle = ejemplo,
-                    estadoActual = "Vencido",
-                    diasAtraso = 17,
-                    recargo = 2_000,
-                    total = 17_000
                 ),
                 onVolver = {},
                 onPagar = {},

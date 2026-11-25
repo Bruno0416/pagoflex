@@ -1,5 +1,8 @@
 package com.pagoflex.app.features.cobranza.presentation.screens
 
+import com.pagoflex.app.core.data.remote.externa.IndicadoresRemoto
+import com.pagoflex.app.features.cobranza.presentation.components.CardIndicadores
+import com.pagoflex.app.core.data.remote.CuentaRemota
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +32,7 @@ import com.pagoflex.app.core.ui.components.navigation.BarraSuperior
 import com.pagoflex.app.core.ui.components.navigation.BotonPerfil
 import com.pagoflex.app.core.ui.theme.Theme
 import com.pagoflex.app.features.cobranza.data.CobranzaRepository
+import com.pagoflex.app.features.cobranza.data.remote.CobranzaRemoto
 import com.pagoflex.app.features.cobranza.presentation.components.CardResumenCobranza
 import com.pagoflex.app.features.cobranza.presentation.components.SelectorMes
 import com.pagoflex.app.features.cobranza.presentation.viewmodel.ResumenCobranzaViewModel
@@ -41,10 +45,10 @@ fun ResumenCobranzaScreen(
     onVerPerfil: () -> Unit,
 ) {
     // ---------- dependencias ----------
-    val repositorio = remember(db) { CobranzaRepository(db) }
+    val repositorio = remember(db) { CobranzaRepository(CobranzaRemoto.crear(), CuentaRemota.crear()) }
     val viewModel: ResumenCobranzaViewModel = viewModel(
         factory = viewModelFactory {
-            initializer { ResumenCobranzaViewModel(repositorio) }
+            initializer { ResumenCobranzaViewModel(repositorio, IndicadoresRemoto.crear()) }
         }
     )
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -99,6 +103,9 @@ fun ResumenCobranzaScreen(
                     onSiguiente = { viewModel.mesSiguiente(usuarioId) }
                 )
                 CardResumenCobranza(resumen = uiState.resumen)
+                uiState.indicadores?.let {
+                    CardIndicadores(indicadores = it, montoRecaudado = uiState.resumen.montoRecaudado)
+                }
                 OutlinedButton(onClick = onVerCompromisos) {
                     Text(stringResource(R.string.cob_ver_compromisos))
                 }

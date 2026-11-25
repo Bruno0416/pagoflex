@@ -24,7 +24,7 @@ import com.pagoflex.app.core.ui.components.model.ComponentVariant
 import com.pagoflex.app.core.ui.styles.coloresCard
 import com.pagoflex.app.core.ui.theme.PagoFlexTheme
 import com.pagoflex.app.core.ui.theme.Theme
-import com.pagoflex.app.features.home.presentation.model.CompromisoInicio
+import com.pagoflex.app.features.home.data.remote.dto.response.MiCompromisoResponse
 import com.pagoflex.app.features.home.presentation.model.EstadoCompromiso
 import java.text.NumberFormat
 import java.time.LocalDate
@@ -34,7 +34,7 @@ import java.util.Locale
 @Composable
 fun CardCompromiso(
     modifier: Modifier = Modifier,
-    compromiso: CompromisoInicio,
+    compromiso: MiCompromisoResponse,
     onClick: () -> Unit
 ) {
     val detalleCuota = if (
@@ -49,8 +49,9 @@ fun CardCompromiso(
     } else {
         ""
     }
-    val fechaVencimiento = compromiso.fechaVencimiento.format()
-    val colores = compromiso.estado.coloresCard
+    val fechaVencimiento = LocalDate.parse(compromiso.fechaVencimiento).format()
+    val estado = EstadoCompromiso.valueOf(compromiso.estado)
+    val colores = estado.coloresCard
 
     Card(
         variant = ComponentVariant.Primary,
@@ -58,7 +59,8 @@ fun CardCompromiso(
         onClick = onClick
     ) {
         Row(Modifier.padding(Theme.dimens.paddingCardsCompromiso)) {
-            Avatar(fallback = compromiso.siglaOrganizacion, colores = colores)
+            Avatar(fallback = compromiso.empresa.split(' ').filter { it.isNotBlank() }
+                .take(2).joinToString("") { it.take(1).uppercase() }, colores = colores)
 
             Spacer(
                 Modifier.size(Theme.dimens.spacingS)
@@ -68,7 +70,7 @@ fun CardCompromiso(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    compromiso.organizacion,
+                    compromiso.empresa,
                     style = Theme.type.titleMedium
                 )
                 Spacer(
@@ -111,7 +113,7 @@ fun CardCompromiso(
                 )
 
                 StatusChip(
-                    label = stringResource(compromiso.estado.labelRes),
+                    label = stringResource(estado.labelRes),
                     colores = colores,
 
                     )
@@ -149,30 +151,46 @@ private fun LocalDate.format(patron: String = "dd-MM-yyyy"): String {
 @Composable
 private fun CardCompromisoPreview() {
 
-    // compromiso vencido
-    val compromisoVencido = CompromisoInicio(
-        id = "comp-001",
-        organizacion = "Club Los Halcones",
-        siglaOrganizacion = "CH",
+    // 1. preparar un compromiso vencido de ejemplo
+    val compromisoVencido = MiCompromisoResponse(
+        folio = "comp-001",
+        empresaCodigo = null,
+        empresa = "Club Los Halcones",
+        correoAtencion = null,
         concepto = "Cuota social oct.",
         numeroCuota = 10,
         totalCuotas = 12,
-        fechaVencimiento = LocalDate.of(2026, 10, 5),
-        monto = 17_000L,
-        estado = EstadoCompromiso.VENCIDO
+        monto = 17000L,
+        recargo = 0L,
+        total = 17000L,
+        fechaVencimiento = "2026-10-05",
+        estado = "VENCIDO",
+        diasAtraso = 0L,
+        pagable = true,
+        folioAnterior = null,
+        numeroComprobante = null,
+        fechaPago = null
     )
 
-    // compromiso pendiente
-    val compromisoPendiente = CompromisoInicio(
-        id = "comp-002",
-        organizacion = "Plaza Oriente",
-        siglaOrganizacion = "PO",
+    // 2. preparar un compromiso pendiente de ejemplo
+    val compromisoPendiente = MiCompromisoResponse(
+        folio = "comp-002",
+        empresaCodigo = null,
+        empresa = "Plaza Oriente",
+        correoAtencion = null,
         concepto = "Arriendo oct.",
         numeroCuota = 10,
         totalCuotas = 12,
-        fechaVencimiento = LocalDate.of(2026, 10, 10),
-        monto = 520_000L,
-        estado = EstadoCompromiso.PENDIENTE
+        monto = 520000L,
+        recargo = 0L,
+        total = 520000L,
+        fechaVencimiento = "2026-10-10",
+        estado = "PENDIENTE",
+        diasAtraso = 0L,
+        pagable = true,
+        folioAnterior = null,
+        numeroComprobante = null,
+        fechaPago = null
     )
 
     PagoFlexTheme {

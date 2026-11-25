@@ -3,6 +3,7 @@ package com.pagoflex.app.core.navigation
 sealed class Ruta(val ruta: String) {
     // Ruta compartida por los tres roles; solo usuario final tiene acceso UI en esta entrega.
     data object Perfil : Ruta("perfil")
+    data object CambiarContrasena : Ruta("perfil/contrasena")
 
     // Usuario final
     data object Home : Ruta("home")
@@ -36,6 +37,9 @@ sealed class Ruta(val ruta: String) {
     data object DetalleReporte : Ruta("agente/reporte/{numero}") {
         fun crear(numero: String) = "agente/reporte/$numero"
     }
+
+    // Agente y ejecutivo
+    data object Mensajes : Ruta("mensajes")
 
     // Ejecutivo
     data object ResumenCobranza : Ruta("ejecutivo/resumen")

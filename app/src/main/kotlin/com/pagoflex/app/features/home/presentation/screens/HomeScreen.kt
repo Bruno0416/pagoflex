@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
+import com.pagoflex.app.core.ui.components.feedback.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,18 +29,16 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.pagoflex.app.core.data.local.LocalDatabase
+import com.pagoflex.app.R
 import com.pagoflex.app.core.ui.theme.PagoFlexTheme
 import com.pagoflex.app.core.ui.theme.Theme
 import com.pagoflex.app.features.home.data.HomeRepository
-import com.pagoflex.app.features.reconocimientos.data.ReconocimientosRepository
-import com.pagoflex.app.features.cumplimiento.data.CumplimientoRepository
 import com.pagoflex.app.features.home.presentation.components.AvisoVencimiento
 import com.pagoflex.app.features.home.presentation.components.CardCompromiso
 import com.pagoflex.app.features.home.presentation.components.CardResumen
 import com.pagoflex.app.features.home.presentation.components.HomeAppBar
 import com.pagoflex.app.features.home.presentation.components.SeccionCompromisos
-import com.pagoflex.app.features.home.presentation.model.CompromisoInicio
+import com.pagoflex.app.features.home.data.remote.dto.response.MiCompromisoResponse
 import com.pagoflex.app.features.home.presentation.model.EstadoCompromiso
 import com.pagoflex.app.features.home.presentation.model.HomeUiState
 import com.pagoflex.app.features.home.presentation.model.ResumenInicio
@@ -51,27 +49,23 @@ import java.time.YearMonth
 
 @Composable
 fun HomeScreen(
-    db: LocalDatabase,
-    usuarioId: Int,
     onVerTodos: () -> Unit = {},
     onVerCompromiso: (String) -> Unit = {},
     onVerCumplimiento: () -> Unit = {},
     onVerPerfil: () -> Unit = {}
 ) {
     // ---------- dependencias ----------
-    val repositorio = remember(db) { HomeRepository(db) }
-    val cumplimientoRepository = remember(db) { CumplimientoRepository(db) }
-    val reconocimientosRepository = remember(db) { ReconocimientosRepository(db) }
+    val repositorio = remember { HomeRepository() }
     val viewModel: HomeViewModel = viewModel(
         factory = viewModelFactory {
-            initializer { HomeViewModel(repositorio, cumplimientoRepository, reconocimientosRepository) }
+            initializer { HomeViewModel(repositorio) }
         }
     )
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     // 1. recargar el resumen al volver a inicio
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
-        viewModel.cargarInicio(usuarioId)
+        viewModel.cargarInicio()
     }
 
     // ---------- contenido ----------
@@ -88,6 +82,13 @@ fun HomeScreen(
             contentAlignment = Alignment.Center
         ) {
             Text(stringResource(uiState.mensajeError!!))
+        }
+
+        uiState.periodo == null || uiState.ultimaActualizacion == null -> Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(stringResource(R.string.home_error_cargar))
         }
 
         else -> HomeContent(
@@ -113,11 +114,12 @@ private fun HomeContent(
         uiState.ultimaActualizacion ?: return
 
     Scaffold(
+        containerColor = Theme.colores.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         // ---------- appbar ----------
         topBar = {
             HomeAppBar(
-                nombreUsuario = uiState.nombreUsuario,
+                nombreUsuario = uiState.nombreUsuario.ifBlank { stringResource(R.string.home_usuario_generico) },
                 inicialesUsuario = uiState.inicialesUsuario,
                 avatarUsuario = uiState.avatarUsuario,
                 onVerPerfil = onVerPerfil,
@@ -156,7 +158,7 @@ private fun HomeContent(
                 resumen = uiState.resumen,
                 onClick = {
                     uiState.resumen.vencidoDestacado
-                        ?.id
+                        ?.folio
                         ?.let(onVerCompromiso)
                 }
             )
@@ -179,7 +181,7 @@ private fun HomeContent(
                     CardCompromiso(
                         compromiso = compromiso,
                         onClick = {
-                            onVerCompromiso(compromiso.id)
+                            onVerCompromiso(compromiso.folio)
                         }
                     )
                 }
@@ -200,17 +202,24 @@ private fun HomeContent(
 )
 @Composable
 private fun HomeScreenPreview() {
-    val ejemplo = CompromisoInicio(
-        id = "CP-2026-0102",
-        organizacion = "Club Los Halcones",
-        siglaOrganizacion = "CL",
+    val ejemplo = MiCompromisoResponse(
+        folio = "CP-2026-0102",
+        empresaCodigo = null,
+        empresa = "Club Los Halcones",
+        correoAtencion = null,
         concepto = "Cuota social octubre",
         numeroCuota = 10,
         totalCuotas = 12,
-        fechaVencimiento = LocalDate.of(2026, 10, 5),
-        monto = 15_000L,
-        recargo = 2_000L,
-        estado = EstadoCompromiso.VENCIDO
+        monto = 15000L,
+        recargo = 2000L,
+        total = 17000L,
+        fechaVencimiento = "2026-10-05",
+        estado = "VENCIDO",
+        diasAtraso = 0L,
+        pagable = true,
+        folioAnterior = null,
+        numeroComprobante = null,
+        fechaPago = null
     )
 
     PagoFlexTheme {

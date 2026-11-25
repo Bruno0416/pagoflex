@@ -1,57 +1,53 @@
 package com.pagoflex.app.features.perfil.data
 
 import android.graphics.Bitmap
-import com.pagoflex.app.core.data.local.LocalDatabase
-import com.pagoflex.app.core.data.local.dao.PerfilUsuarioRow
-import com.pagoflex.app.core.security.Hasher
+import com.pagoflex.app.core.network.RetrofitClient
+import com.pagoflex.app.core.network.auth.model.SesionUsuario
+import com.pagoflex.app.core.network.auth.model.TokensSesion
+import com.pagoflex.app.features.perfil.data.remote.PerfilApi
+import com.pagoflex.app.features.perfil.data.remote.dto.request.ActualizarPerfilRequest
+import com.pagoflex.app.features.perfil.data.remote.dto.request.CambiarContrasenaRequest
+import com.pagoflex.app.features.perfil.data.remote.dto.response.PerfilResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
+import retrofit2.HttpException
+import retrofit2.create
 import java.io.ByteArrayOutputStream
 
-// Exclusivamente para el usuario identificado por la sesión
-class PerfilRepository(private val db: LocalDatabase) {
-    enum class Resultado { GUARDADO, CORREO_OCUPADO, CONTRASENA_INCORRECTA, SIN_USUARIO }
+class PerfilRepository(
+    private val api: PerfilApi = RetrofitClient.retrofit.create<PerfilApi>()
+) {
 
-    // ---------- consulta y actualización ----------
-    suspend fun obtenerPerfil(usuarioId: Int): PerfilUsuarioRow? = withContext(Dispatchers.IO) {
-        db.usuarioDao().obtenerPerfil(usuarioId)
+    // ---------- consulta y edicion ----------
+    suspend fun obtenerPerfil(): PerfilResponse = api.obtenerPerfil()
+
+    suspend fun obtenerAvatar(): ByteArray = api.descargarAvatar().use { it.bytes() }
+
+    suspend fun actualizarDatos(request: ActualizarPerfilRequest): PerfilResponse {
+        // 1. enviar los datos personales al servicio de usuarios
+        val respuesta = api.actualizar(request)
+        // 2. guardar los nuevos tokens si cambio el correo
+        respuesta.sesion?.let { sesion ->
+            RetrofitClient.sessionManager.iniciarSesion(
+                SesionUsuario(sesion.rol),
+                TokensSesion(sesion.tokenAcceso, sesion.tokenRenovacion)
+            )
+        }
+        return respuesta.perfil
     }
 
-    suspend fun actualizarDatos(
-        usuarioId: Int,
-        correoAnterior: String,
-        nombres: String,
-        apellidos: String,
-        correo: String,
-        contrasenaActual: String
-    ): Resultado {
-        // 1. comprobar si se modifico el correo
-        val dao = db.usuarioDao()
-        val cambioCorreo = correoAnterior != correo
-        if (cambioCorreo) {
-            // 2. verificar la contrasena actual antes de cambiar el correo
-            val hash = withContext(Dispatchers.IO) { dao.obtenerHashParaPerfil(usuarioId) }
-                ?: return Resultado.SIN_USUARIO
-            val coincide = withContext(Dispatchers.Default) {
-                Hasher.verificar(contrasenaActual, hash)
-            }
-            if (!coincide) return Resultado.CONTRASENA_INCORRECTA
-            val otroId = withContext(Dispatchers.IO) { dao.obtenerIdPorCorreo(correo) }
-            if (otroId != null && otroId != usuarioId) return Resultado.CORREO_OCUPADO
-        }
-        // 3. actualizar solo los datos de perfil; la restricción unique protege el correo
-        val filas = withContext(Dispatchers.IO) {
-            dao.actualizarPerfil(usuarioId, nombres, apellidos, correo, correoAnterior)
-        }
-        return if (filas == 1) Resultado.GUARDADO else Resultado.SIN_USUARIO
-    }
+    suspend fun cambiarContrasena(request: CambiarContrasenaRequest) = api.cambiarContrasena(request)
 
-    // ---------- fotografía ----------
-    suspend fun guardarAvatar(usuarioId: Int, imagen: Bitmap): ByteArray {
-        // 1. reducir y comprimir la fotografía sin bloquear la interfaz
+    // ---------- fotografia ----------
+    suspend fun guardarAvatar(imagen: Bitmap): Pair<PerfilResponse, ByteArray> {
+        // 1. comprimir la imagen antes de enviarla
         val bytes = withContext(Dispatchers.Default) {
             val maximo = maxOf(imagen.width, imagen.height)
-            require(maximo > 0) { "Imagen vacía" }
+            require(maximo > 0)
             val bitmap = if (maximo > 256) {
                 val escala = 256f / maximo
                 Bitmap.createScaledBitmap(
@@ -66,18 +62,40 @@ class PerfilRepository(private val db: LocalDatabase) {
                 salida.toByteArray()
             }
         }
-        require(bytes.size <= 256 * 1024) { "Imagen demasiado grande" }
-        // 2. persistir solo los bytes del avatar
-        val filas = withContext(Dispatchers.IO) {
-            db.usuarioDao().actualizarAvatar(usuarioId, bytes)
-        }
-        check(filas == 1) { "Usuario no disponible" }
-        return bytes
+        // 2. enviar archivo jpeg con el nombre de parte esperado
+        val cuerpo = bytes.toRequestBody("image/jpeg".toMediaType())
+        val parte = MultipartBody.Part.createFormData("file", "avatar.jpg", cuerpo)
+        val perfil = api.guardarAvatar(parte)
+        return perfil to bytes
     }
 
-    suspend fun eliminarAvatar(usuarioId: Int) = withContext(Dispatchers.IO) {
-        check(db.usuarioDao().actualizarAvatar(usuarioId, null) == 1) {
-            "Usuario no disponible"
-        }
+    suspend fun eliminarAvatar() = api.eliminarAvatar()
+
+    // --- detectar campos rechazados por el servidor ---
+    fun camposInvalidos(error: HttpException): Map<String, String> {
+        val texto = error.response()?.errorBody()?.string().orEmpty()
+        return runCatching {
+            val json = JSONObject(texto)
+            val campos = json.optJSONObject("invalid_fields")
+            if (campos == null || campos.length() == 0) {
+                // Los errores de negocio no siempre incluyen invalid_fields.
+                val mensajes = listOf(
+                    json.optString("detail"), json.optString("message"),
+                    json.optString("error"), json.optString("title")
+                )
+                return@runCatching when {
+                    "Contraseña actual incorrecta" in mensajes -> mapOf("contrasenaActual" to "Contraseña actual incorrecta")
+                    "La nueva contraseña debe ser diferente" in mensajes -> mapOf("nuevaContrasena" to "La nueva contraseña debe ser diferente")
+                    else -> emptyMap()
+                }
+            }
+            buildMap {
+                val claves = campos.keys()
+                while (claves.hasNext()) {
+                    val nombre = claves.next()
+                    put(nombre, campos.optString(nombre))
+                }
+            }
+        }.getOrDefault(emptyMap())
     }
 }

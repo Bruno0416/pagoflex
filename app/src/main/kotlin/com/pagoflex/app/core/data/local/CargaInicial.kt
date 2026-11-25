@@ -21,7 +21,7 @@ import com.pagoflex.app.core.data.local.entities.Reporte
 import com.pagoflex.app.core.data.local.entities.Rol
 import com.pagoflex.app.core.data.local.entities.Rubro
 import com.pagoflex.app.core.data.local.entities.Usuario
-import com.pagoflex.app.core.profiles.model.PerfilUsuario
+import com.pagoflex.app.core.network.auth.model.PerfilUsuario
 import com.pagoflex.app.core.security.Hasher
 import java.time.LocalDate
 import java.time.LocalDateTime

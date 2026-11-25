@@ -4,22 +4,18 @@ import androidx.room3.Dao
 import androidx.room3.Insert
 import androidx.room3.Query
 import com.pagoflex.app.core.data.local.entities.Usuario
-import com.pagoflex.app.core.profiles.model.SesionUsuario
+import com.pagoflex.app.core.network.auth.model.PerfilUsuario
+
+data class SesionLocalRow(
+    val usuarioId: Int,
+    val perfil: PerfilUsuario
+)
 
 data class AccesoUsuarioRow(
     val idUsuario: Int,
     val passwordHash: String?,
     val idPreguntaRecuperacion: Int?,
     val respuestaRecuperacionHash: String?
-)
-
-data class PerfilUsuarioRow(
-    val idUsuario: Int,
-    val nombres: String,
-    val apellidos: String,
-    val correo: String,
-    val rut: String,
-    val avatar: ByteArray?
 )
 
 data class CabeceraUsuarioRow(
@@ -48,40 +44,13 @@ interface UsuarioDao {
             LIMIT 1
         """
     )
-    suspend fun obtenerSesionUsuario(usuarioId: Int): SesionUsuario?
-
-    @Query("""
-        SELECT id_usuario AS idUsuario, nombres, apellidos, correo, rut, avatar
-        FROM usuario WHERE id_usuario = :usuarioId AND activo = 1 LIMIT 1
-    """)
-    suspend fun obtenerPerfil(usuarioId: Int): PerfilUsuarioRow?
+    suspend fun obtenerSesionUsuario(usuarioId: Int): SesionLocalRow?
 
     @Query("""
         SELECT nombres, apellidos, avatar
         FROM usuario WHERE id_usuario = :usuarioId AND activo = 1 LIMIT 1
     """)
     suspend fun obtenerCabecera(usuarioId: Int): CabeceraUsuarioRow?
-
-    @Query("SELECT password_hash FROM usuario WHERE id_usuario = :usuarioId AND activo = 1")
-    suspend fun obtenerHashParaPerfil(usuarioId: Int): String?
-
-    @Query("SELECT id_usuario FROM usuario WHERE correo = :correo AND activo = 1 LIMIT 1")
-    suspend fun obtenerIdPorCorreo(correo: String): Int?
-
-    @Query("""
-        UPDATE usuario SET nombres = :nombres, apellidos = :apellidos, correo = :correo
-        WHERE id_usuario = :usuarioId AND activo = 1 AND correo = :correoAnterior
-    """)
-    suspend fun actualizarPerfil(
-        usuarioId: Int,
-        nombres: String,
-        apellidos: String,
-        correo: String,
-        correoAnterior: String
-    ): Int
-
-    @Query("UPDATE usuario SET avatar = :avatar WHERE id_usuario = :usuarioId AND activo = 1")
-    suspend fun actualizarAvatar(usuarioId: Int, avatar: ByteArray?): Int
 
 
     // ---------- adonys: cobranza y reportes ----------

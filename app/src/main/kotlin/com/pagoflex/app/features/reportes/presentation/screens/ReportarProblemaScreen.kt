@@ -1,6 +1,16 @@
 package com.pagoflex.app.features.reportes.presentation.screens
 
+import com.pagoflex.app.core.data.remote.CuentaRemota
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.rememberCoroutineScope
+import com.pagoflex.app.features.reportes.data.remote.ComprobanteImagen
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -19,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -43,6 +54,7 @@ import com.pagoflex.app.core.ui.theme.Theme
 import com.pagoflex.app.core.utils.aPesos
 import com.pagoflex.app.core.utils.aTexto
 import com.pagoflex.app.features.reportes.data.ReportesRepository
+import com.pagoflex.app.features.reportes.data.remote.ReportesRemoto
 import com.pagoflex.app.features.reportes.presentation.model.ReportarProblemaUiState
 import com.pagoflex.app.features.reportes.presentation.model.ReporteItem
 import com.pagoflex.app.features.reportes.presentation.viewmodel.ReportarProblemaViewModel
@@ -55,7 +67,7 @@ fun ReportarProblemaScreen(
     onVolver: () -> Unit,
 ) {
     // ---------- dependencias ----------
-    val repositorio = remember(db) { ReportesRepository(db) }
+    val repositorio = remember(db) { ReportesRepository(ReportesRemoto.crear(), CuentaRemota.crear()) }
     val viewModel: ReportarProblemaViewModel = viewModel(
         key = "reportar-$folio",
         factory = viewModelFactory {
@@ -66,6 +78,16 @@ fun ReportarProblemaScreen(
 
     LaunchedEffect(folio) {
         viewModel.cargar(usuarioId, folio)
+    }
+
+    // galería sin permiso de almacenamiento, como en perfil
+    val contexto = LocalContext.current.applicationContext
+    val scope = rememberCoroutineScope()
+    val galeria = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) scope.launch {
+            val jpeg = withContext(Dispatchers.IO) { ComprobanteImagen.comprimir(contexto, uri) }
+            viewModel.setComprobante(jpeg)
+        }
     }
 
     // ---------- contenido ----------
@@ -88,6 +110,8 @@ fun ReportarProblemaScreen(
                 onMotivo = viewModel::setMotivo,
                 onComentario = viewModel::setComentario,
                 onEnviar = { viewModel.enviar(usuarioId) },
+                onAdjuntar = { galeria.launch("image/*") },
+                onQuitar = { viewModel.setComprobante(null) },
                 onVolver = onVolver,
                 modifier = Modifier.padding(padding)
             )
@@ -101,6 +125,8 @@ private fun ReportarContent(
     onMotivo: (MotivoReporte) -> Unit,
     onComentario: (String) -> Unit,
     onEnviar: () -> Unit,
+    onAdjuntar: () -> Unit,
+    onQuitar: () -> Unit,
     onVolver: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -130,6 +156,9 @@ private fun ReportarContent(
         val activo = uiState.reporteActivo
         if (activo != null) {
             ReporteExistente(activo, recienEnviado = uiState.recienEnviado)
+            if (uiState.comprobanteFallo) {
+                Text(stringResource(R.string.rep_comprobante_no_subido), style = Theme.type.bodyMedium, color = Theme.colores.error)
+            }
             OutlinedButton(onClick = onVolver) { Text(stringResource(R.string.rep_volver)) }
             return@Column
         }
@@ -155,6 +184,16 @@ private fun ReportarContent(
             singleLine = false,
             error = uiState.error?.let { stringResource(it) }
         )
+
+        // foto del comprobante para que el agente confirme el pago
+        if (uiState.comprobante == null) {
+            OutlinedButton(onClick = onAdjuntar) { Text(stringResource(R.string.rep_comprobante_adjuntar)) }
+        } else {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.rep_comprobante_listo), style = Theme.type.bodyMedium, modifier = Modifier.weight(1f))
+                TextButton(onClick = onQuitar) { Text(stringResource(R.string.rep_comprobante_quitar)) }
+            }
+        }
 
         Text(
             stringResource(R.string.rep_aviso_revision),
@@ -183,6 +222,9 @@ private fun ReporteExistente(reporte: ReporteItem, recienEnviado: Boolean) {
             FilaDato(stringResource(R.string.rep_campo_numero), reporte.numero)
             FilaDato(stringResource(R.string.rep_campo_motivo), stringResource(reporte.motivo.labelRes))
             FilaDato(stringResource(R.string.rep_campo_enviado), reporte.fechaCreacion.aTexto())
+            if (reporte.tieneComprobante) {
+                FilaDato(stringResource(R.string.rep_campo_comprobante), stringResource(R.string.rep_comprobante_adjunto))
+            }
             Text(
                 stringResource(R.string.rep_te_avisaremos),
                 style = Theme.type.bodySmall,

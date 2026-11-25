@@ -23,6 +23,9 @@ data class ReportarProblemaUiState(
     val comentario: String = "",
     val enviando: Boolean = false,
     val recienEnviado: Boolean = false,
+    // foto del comprobante en jpeg, se sube después de crear el reporte
+    val comprobante: ByteArray? = null,
+    val comprobanteFallo: Boolean = false,
 
     // errores
     val error: Int? = null,

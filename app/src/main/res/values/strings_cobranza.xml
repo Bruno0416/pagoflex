@@ -88,6 +88,9 @@
     <string name="cob_ph_concepto">Cuota pie departamento</string>
     <string name="cob_ph_monto">310000</string>
     <string name="cob_ph_vencimiento">30-11-2026</string>
+    <string name="cob_elegir_fecha">Elegir fecha</string>
+    <string name="cob_fecha_aceptar">Aceptar</string>
+    <string name="cob_fecha_cancelar">Cancelar</string>
     <string name="cob_ph_cuota">16</string>
     <string name="cob_ph_total">36</string>
     <string name="cob_ph_telefono">+56 9 1234 5678</string>
@@ -102,4 +105,10 @@
     <string name="cob_error_sin_empresa">Tu usuario no tiene una empresa asociada</string>
     <string name="cob_error_generico">No pudimos completar la operación. Intenta de nuevo.</string>
     <string name="cob_error_cargar">No pudimos cargar la información</string>
+    <!-- api externa mindicador.cl -->
+    <string name="cob_indicadores_titulo">Indicadores del día · %1$s</string>
+    <string name="cob_indicadores_uf">UF %1$s</string>
+    <string name="cob_indicadores_dolar">Dólar %1$s</string>
+    <string name="cob_indicadores_recaudado_uf">Recaudado del mes ≈ %1$s UF</string>
+    <string name="cob_indicadores_fuente">Fuente: mindicador.cl</string>
 </resources>

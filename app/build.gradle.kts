@@ -18,7 +18,7 @@ android {
         minSdk = 24
         targetSdk = 37
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
 
     // --- compose ---
     implementation(platform(libs.androidx.compose.bom))
@@ -73,6 +74,13 @@ dependencies {
     // --- SQLite ---
     implementation(libs.androidx.sqlite.bundled)
 
+    // --- red (backend) ---
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+
+    // --- mostrar foto servidor ---
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
 
     // --- herramientas de depuración compose ---
     debugImplementation(libs.androidx.compose.ui.tooling)

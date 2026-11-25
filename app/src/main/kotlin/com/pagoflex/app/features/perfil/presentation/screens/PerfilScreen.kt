@@ -1,12 +1,12 @@
 package com.pagoflex.app.features.perfil.presentation.screens
 
-import android.content.res.Configuration
 import android.content.ActivityNotFoundException
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,13 +16,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
@@ -39,20 +41,19 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.pagoflex.app.R
-import com.pagoflex.app.core.data.local.LocalDatabase
-import com.pagoflex.app.core.data.local.dao.PerfilUsuarioRow
 import com.pagoflex.app.core.platform.Permisos
 import com.pagoflex.app.core.ui.components.avatar.Avatar
 import com.pagoflex.app.core.ui.components.buttons.Button
@@ -64,8 +65,6 @@ import com.pagoflex.app.core.ui.components.feedback.SnackbarHost
 import com.pagoflex.app.core.ui.components.inputs.TextField
 import com.pagoflex.app.core.ui.components.model.ComponentSize
 import com.pagoflex.app.core.ui.components.model.ComponentVariant
-import com.pagoflex.app.core.ui.components.overlays.Dialog
-import com.pagoflex.app.core.ui.theme.PagoFlexTheme
 import com.pagoflex.app.core.ui.theme.Theme
 import com.pagoflex.app.features.perfil.data.PerfilRepository
 import com.pagoflex.app.features.perfil.presentation.model.PerfilUiState
@@ -76,15 +75,14 @@ import kotlinx.coroutines.withContext
 
 @Composable
 fun PerfilScreen(
-    db: LocalDatabase,
-    usuarioId: Int,
     onVolver: () -> Unit,
-    onCerrarSesion: () -> Unit
+    onCerrarSesion: () -> Unit,
+    onCambiarContrasena: () -> Unit
 ) {
     // ---------- estado y dependencias ----------
-    val repositorio = remember(db) { PerfilRepository(db) }
+    val repositorio = remember { PerfilRepository() }
     val viewModel: PerfilViewModel = viewModel(
-        factory = viewModelFactory { initializer { PerfilViewModel(repositorio, usuarioId) } }
+        factory = viewModelFactory { initializer { PerfilViewModel(repositorio) } }
     )
     val estado by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -100,7 +98,7 @@ fun PerfilScreen(
         if (imagen != null) viewModel.guardarAvatar(imagen)
     }
 
-    // --- helper privado ---
+    // --- abrir camara ---
     fun abrirCamara() {
         // 1. iniciar la captura con el permiso concedido
         try {
@@ -133,8 +131,8 @@ fun PerfilScreen(
         }
     }
 
-    // ---------- galería ----------
-    // el selector del sistema permite elegir una imagen sin permiso de almacenamiento
+    // ---------- galeria ----------
+    // 1. elegir una imagen sin permiso de almacenamiento
     val galeria = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         if (uri != null) {
             scope.launch {
@@ -160,7 +158,7 @@ fun PerfilScreen(
         }
     }
 
-    // ---------- mensajes de operación ----------
+    // ---------- mensajes de operacion ----------
     val mensaje = estado.mensaje?.let { stringResource(it) }
     LaunchedEffect(mensaje) {
         if (mensaje != null) {
@@ -192,7 +190,13 @@ fun PerfilScreen(
         onNombres = viewModel::setNombres,
         onApellidos = viewModel::setApellidos,
         onCorreo = viewModel::setCorreo,
-        onCambiarContrasena = viewModel::limpiarErrorContrasena,
+        onLimpiarErrorContrasena = viewModel::limpiarErrorContrasena,
+        onAbrirCambioContrasena = {
+            if (!viewModel.uiState.value.cambiandoContrasena) {
+                viewModel.abrirCambioContrasena()
+                if (viewModel.uiState.value.cambiandoContrasena) onCambiarContrasena()
+            }
+        },
         onGuardar = viewModel::guardarCambios,
         onReintentar = viewModel::cargarPerfil
     )
@@ -212,14 +216,16 @@ private fun PerfilContent(
     onNombres: (String) -> Unit,
     onApellidos: (String) -> Unit,
     onCorreo: (String) -> Unit,
-    onCambiarContrasena: () -> Unit,
+    onLimpiarErrorContrasena: () -> Unit,
+    onAbrirCambioContrasena: () -> Unit,
     onGuardar: (String) -> Unit,
     onReintentar: () -> Unit
 ) {
-    var confirmarSalida by remember { mutableStateOf(false) }
     val modoOscuro = isSystemInDarkTheme()
     val colorCampo = if (modoOscuro) Theme.colores.surfaceContainerLow else Theme.colores.surfaceContainerHigh
     val bordeCampo = Theme.colores.outlineVariant
+    val datoNoDisponible = stringResource(R.string.perfil_dato_no_disponible)
+    val nombreGenerico = stringResource(R.string.home_usuario_generico)
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -259,7 +265,7 @@ private fun PerfilContent(
             else -> {
                 val perfil = checkNotNull(state.perfil)
                 Column(
-                    modifier = Modifier.fillMaxSize().padding(padding)
+                    modifier = Modifier.fillMaxSize().padding(padding).imePadding()
                         .verticalScroll(rememberScrollState())
                         .padding(Theme.dimens.paddingSides),
                     verticalArrangement = Arrangement.spacedBy(Theme.dimens.spacingM)
@@ -276,13 +282,13 @@ private fun PerfilContent(
                                     containerColor = Theme.colores.primaryContainer,
                                     contentColor = Theme.colores.onPrimaryContainer
                                 ),
-                                imagen = perfil.avatar,
+                                imagen = state.avatar,
                                 circular = true,
                                 tamano = 96.dp
                             )
                             Text(
-                                text = "${perfil.nombres} ${perfil.apellidos}",
-                                style = Theme.type.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                                text = "${perfil.nombres} ${perfil.apellidos}".trim().ifBlank { nombreGenerico },
+                                style = Theme.type.titleLarge.copy(fontWeight = FontWeight.SemiBold),
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
                                 textAlign = TextAlign.Center
@@ -291,8 +297,9 @@ private fun PerfilContent(
                                 horizontalArrangement = Arrangement.spacedBy(Theme.dimens.spacingS),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Button(
+                                OutlinedButton(
                                     onClick = onTomarFoto,
+                                    variant = ComponentVariant.Secondary,
                                     enabled = !state.guardando && !state.editando,
                                     size = ComponentSize.Small
                                 ) { Text(stringResource(R.string.perfil_cambiar_foto)) }
@@ -303,7 +310,7 @@ private fun PerfilContent(
                                     variant = ComponentVariant.Secondary
                                 ) { Text(stringResource(R.string.perfil_elegir_galeria)) }
                             }
-                            if (perfil.avatar != null) {
+                            if (!perfil.urlAvatar.isNullOrBlank()) {
                                 TextButton(
                                     onClick = onEliminarFoto,
                                     enabled = !state.guardando && !state.editando,
@@ -312,8 +319,6 @@ private fun PerfilContent(
                                 ) { Text(stringResource(R.string.perfil_eliminar_foto)) }
                             }
                     }
-
-                    HorizontalDivider(color = Theme.colores.outlineVariant)
 
                     // ---------- datos personales ----------
                     Column(
@@ -380,7 +385,7 @@ private fun PerfilContent(
                                         modifier = Modifier.fillMaxWidth(),
                                         value = contrasena,
                                         enabled = !state.guardando,
-                                        onValueChange = { contrasena = it; onCambiarContrasena() },
+                                        onValueChange = { contrasena = it; onLimpiarErrorContrasena() },
                                         label = stringResource(R.string.perfil_contrasena_actual),
                                         containerColor = colorCampo,
                                         outlineColor = bordeCampo,
@@ -409,14 +414,34 @@ private fun PerfilContent(
                                     ) { Text(stringResource(R.string.perfil_guardar)) }
                                 }
                             } else {
-                                DatoPerfil(stringResource(R.string.perfil_nombres), perfil.nombres)
-                                DatoPerfil(stringResource(R.string.perfil_apellidos), perfil.apellidos)
-                                DatoPerfil(stringResource(R.string.perfil_correo), perfil.correo)
+                                DatoPerfil(stringResource(R.string.perfil_nombres), perfil.nombres.ifBlank { datoNoDisponible })
+                                DatoPerfil(stringResource(R.string.perfil_apellidos), perfil.apellidos.ifBlank { datoNoDisponible })
+                                DatoPerfil(stringResource(R.string.perfil_correo), perfil.correo.ifBlank { datoNoDisponible })
                             }
-                            DatoPerfil(stringResource(R.string.perfil_rut), ocultarRut(perfil.rut))
+                            DatoPerfil(
+                                stringResource(R.string.perfil_rut),
+                                ocultarRut(perfil.rut)
+                            )
                     }
 
-                    HorizontalDivider(color = Theme.colores.outlineVariant)
+                    Spacer(Modifier.size(Theme.dimens.spacingXS))
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                            .clip(RoundedCornerShape(Theme.dimens.radiusS))
+                            .clickable(enabled = !state.guardando && !state.editando, onClick = onAbrirCambioContrasena)
+                            .padding(horizontal = Theme.dimens.spacingXS, vertical = Theme.dimens.spacingM),
+                        horizontalArrangement = Arrangement.spacedBy(Theme.dimens.spacingM),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(Theme.dimens.spacingXXS)) {
+                            Text(stringResource(R.string.perfil_cambiar_contrasena), style = Theme.type.bodyLarge)
+                            Text(stringResource(R.string.perfil_seguridad_descripcion),
+                                style = Theme.type.bodySmall, color = Theme.colores.onSurfaceVariant)
+                        }
+                        Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null,
+                            tint = Theme.colores.onSurfaceVariant)
+                    }
 
                     if (state.guardando) {
                         CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
@@ -426,28 +451,17 @@ private fun PerfilContent(
                     }
 
                     // ---------- sesion ----------
+                    Spacer(Modifier.size(Theme.dimens.spacingS))
                     OutlinedButton(
                         modifier = Modifier.fillMaxWidth(),
-                        onClick = { confirmarSalida = true },
+                        onClick = onCerrarSesion,
                         enabled = !state.guardando,
                         variant = ComponentVariant.Destructive
                     ) { Text(stringResource(R.string.perfil_cerrar_sesion)) }
+                    Spacer(Modifier.size(Theme.dimens.spacingL))
                 }
             }
         }
-    }
-
-    if (confirmarSalida) {
-        Dialog(
-            onDismissRequest = { confirmarSalida = false },
-            title = stringResource(R.string.perfil_cerrar_sesion),
-            text = stringResource(R.string.perfil_confirmar_salida),
-            confirmText = stringResource(R.string.perfil_cerrar_sesion),
-            onConfirm = { confirmarSalida = false; onCerrarSesion() },
-            dismissText = stringResource(R.string.perfil_cancelar),
-            onDismiss = { confirmarSalida = false },
-            variant = ComponentVariant.Destructive
-        )
     }
 }
 
@@ -455,9 +469,15 @@ private fun PerfilContent(
 
 @Composable
 private fun DatoPerfil(titulo: String, valor: String) {
-    Column(verticalArrangement = Arrangement.spacedBy(Theme.dimens.spacingXXS)) {
-        Text(titulo, style = Theme.type.labelMedium, color = Theme.colores.onSurfaceVariant)
-        Text(valor, style = Theme.type.bodyLarge)
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = Theme.dimens.spacingXS),
+        horizontalArrangement = Arrangement.spacedBy(Theme.dimens.spacingM),
+        verticalAlignment = Alignment.Top
+    ) {
+        Text(titulo, modifier = Modifier.weight(0.4f), style = Theme.type.bodyMedium,
+            color = Theme.colores.onSurfaceVariant)
+        Text(valor, modifier = Modifier.weight(0.6f), style = Theme.type.bodyMedium,
+            textAlign = TextAlign.End)
     }
 }
 

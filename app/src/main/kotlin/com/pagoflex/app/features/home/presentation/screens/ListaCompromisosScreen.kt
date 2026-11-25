@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
+import com.pagoflex.app.core.ui.components.feedback.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -29,13 +29,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.pagoflex.app.R
-import com.pagoflex.app.core.data.local.LocalDatabase
 import com.pagoflex.app.core.ui.components.buttons.IconButton
 import com.pagoflex.app.core.ui.theme.PagoFlexTheme
 import com.pagoflex.app.core.ui.theme.Theme
 import com.pagoflex.app.features.home.data.HomeRepository
 import com.pagoflex.app.features.home.presentation.components.CardCompromiso
-import com.pagoflex.app.features.home.presentation.model.CompromisoInicio
+import com.pagoflex.app.features.home.data.remote.dto.response.MiCompromisoResponse
 import com.pagoflex.app.features.home.presentation.model.EstadoCompromiso
 import com.pagoflex.app.features.home.presentation.model.ListaCompromisosUiState
 import com.pagoflex.app.features.home.presentation.viewmodel.ListaCompromisosViewModel
@@ -43,13 +42,11 @@ import java.time.LocalDate
 
 @Composable
 fun ListaCompromisosScreen(
-    db: LocalDatabase,
-    usuarioId: Int,
     onVolver: () -> Unit,
     onVerCompromiso: (String) -> Unit
 ) {
     // ---------- dependencias ----------
-    val repositorio = remember(db) { HomeRepository(db) }
+    val repositorio = remember { HomeRepository() }
     val viewModel: ListaCompromisosViewModel = viewModel(
         factory = viewModelFactory {
             initializer { ListaCompromisosViewModel(repositorio) }
@@ -59,7 +56,7 @@ fun ListaCompromisosScreen(
 
     // 1. recargar los compromisos al volver a la lista
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
-        viewModel.cargarCompromisos(usuarioId)
+        viewModel.cargarCompromisos()
     }
 
     // ---------- contenido ----------
@@ -128,7 +125,7 @@ private fun ListaCompromisosContent(
                     uiState.compromisos.forEach { compromiso ->
                         CardCompromiso(
                             compromiso = compromiso,
-                            onClick = { onVerCompromiso(compromiso.id) }
+                            onClick = { onVerCompromiso(compromiso.folio) }
                         )
                     }
                 }
@@ -147,40 +144,63 @@ private fun ListaCompromisosContent(
 @Composable
 private fun ListaCompromisosPreview() {
     val compromisos = listOf(
-        CompromisoInicio(
-            id = "CP-2026-0102",
-            organizacion = "Club Los Halcones",
-            siglaOrganizacion = "CL",
-            concepto = "Cuota social octubre",
-            numeroCuota = 10,
-            totalCuotas = 12,
-            fechaVencimiento = LocalDate.of(2026, 10, 5),
-            monto = 15_000L,
-            recargo = 2_000L,
-            estado = EstadoCompromiso.VENCIDO
-        ),
-        CompromisoInicio(
-            id = "CP-2026-0105",
-            organizacion = "Crédito Andino",
-            siglaOrganizacion = "CA",
-            concepto = "Crédito de consumo",
-            numeroCuota = 8,
-            totalCuotas = 24,
-            fechaVencimiento = LocalDate.of(2026, 10, 25),
-            monto = 86_400L,
-            estado = EstadoCompromiso.PENDIENTE
-        ),
-        CompromisoInicio(
-            id = "CP-2026-0104",
-            organizacion = "Crédito Andino",
-            siglaOrganizacion = "CA",
-            concepto = "Crédito de consumo",
-            numeroCuota = 7,
-            totalCuotas = 24,
-            fechaVencimiento = LocalDate.of(2026, 9, 25),
-            monto = 86_400L,
-            estado = EstadoCompromiso.PAGADO
-        )
+        MiCompromisoResponse(
+        folio = "CP-2026-0102",
+        empresaCodigo = null,
+        empresa = "Club Los Halcones",
+        correoAtencion = null,
+        concepto = "Cuota social octubre",
+        numeroCuota = 10,
+        totalCuotas = 12,
+        monto = 15000L,
+        recargo = 2000L,
+        total = 17000L,
+        fechaVencimiento = "2026-10-05",
+        estado = "VENCIDO",
+        diasAtraso = 0L,
+        pagable = true,
+        folioAnterior = null,
+        numeroComprobante = null,
+        fechaPago = null
+    ),
+        MiCompromisoResponse(
+        folio = "CP-2026-0105",
+        empresaCodigo = null,
+        empresa = "Crédito Andino",
+        correoAtencion = null,
+        concepto = "Crédito de consumo",
+        numeroCuota = 8,
+        totalCuotas = 24,
+        monto = 86400L,
+        recargo = 0L,
+        total = 86400L,
+        fechaVencimiento = "2026-10-25",
+        estado = "PENDIENTE",
+        diasAtraso = 0L,
+        pagable = true,
+        folioAnterior = null,
+        numeroComprobante = null,
+        fechaPago = null
+    ),
+        MiCompromisoResponse(
+        folio = "CP-2026-0104",
+        empresaCodigo = null,
+        empresa = "Crédito Andino",
+        correoAtencion = null,
+        concepto = "Crédito de consumo",
+        numeroCuota = 7,
+        totalCuotas = 24,
+        monto = 86400L,
+        recargo = 0L,
+        total = 86400L,
+        fechaVencimiento = "2026-09-25",
+        estado = "PAGADO",
+        diasAtraso = 0L,
+        pagable = true,
+        folioAnterior = null,
+        numeroComprobante = null,
+        fechaPago = null
+    )
     )
 
     PagoFlexTheme {

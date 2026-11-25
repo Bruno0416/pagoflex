@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_mensajes">Mensajes</string>
+    <string name="nav_bandeja">Reportes</string>
+    <string name="msj_titulo">Mensajes</string>
+    <string name="msj_subtitulo">Reportes en gestión con su conversación</string>
+    <string name="msj_vacio">No hay reportes en gestión con conversación.</string>
+    <string name="msj_error_cargar">No se pudieron cargar los mensajes. Revisa tu conexión.</string>
+    <plurals name="msj_cantidad">
+        <item quantity="one">%d mensaje</item>
+        <item quantity="other">%d mensajes</item>
+    </plurals>
+</resources>

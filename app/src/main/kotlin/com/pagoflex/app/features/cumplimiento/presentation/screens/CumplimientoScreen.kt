@@ -15,7 +15,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.pagoflex.app.core.data.local.LocalDatabase
+import com.pagoflex.app.R
 import com.pagoflex.app.core.ui.components.feedback.CircularProgressIndicator
 import com.pagoflex.app.features.cumplimiento.data.CumplimientoRepository
 import com.pagoflex.app.features.cumplimiento.presentation.components.CumplimientoContent
@@ -23,22 +23,18 @@ import com.pagoflex.app.features.cumplimiento.presentation.viewmodel.Cumplimient
 
 @Composable
 fun CumplimientoScreen(
-    db: LocalDatabase,
-    usuarioId: Int,
     onVolver: () -> Unit,
     onVerReconocimientos: (() -> Unit)? = null
 ) {
-    val repositorio = remember(db) { CumplimientoRepository(db) }
+    val repositorio = remember { CumplimientoRepository() }
     val viewModel: CumplimientoViewModel = viewModel(
-        factory = viewModelFactory {
-            initializer { CumplimientoViewModel(repositorio) }
-        }
+        factory = viewModelFactory { initializer { CumplimientoViewModel(repositorio) } }
     )
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    // 1. actualizar el indicador al abrir la pantalla
+    // 1. actualizar el resultado cada vez que regresa a la pantalla
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
-        viewModel.cargarCumplimiento(usuarioId)
+        viewModel.cargarCumplimiento()
     }
 
     when {
@@ -46,10 +42,10 @@ fun CumplimientoScreen(
             CircularProgressIndicator()
         }
         uiState.mensajeError != null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(stringResource(uiState.mensajeError!!))
+            Text(stringResource(uiState.mensajeError ?: R.string.cumplimiento_error_cargar))
         }
-        else -> CumplimientoContent(
-            resultado = uiState.resultado,
+        uiState.resultado != null -> CumplimientoContent(
+            resultado = checkNotNull(uiState.resultado),
             onVolver = onVolver,
             onVerReconocimientos = onVerReconocimientos
         )

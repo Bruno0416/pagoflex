@@ -1,5 +1,6 @@
 package com.pagoflex.app.features.cobranza.presentation.screens
 
+import com.pagoflex.app.core.data.remote.CuentaRemota
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,10 +19,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -47,10 +51,13 @@ import com.pagoflex.app.core.ui.theme.Theme
 import com.pagoflex.app.core.utils.aPesos
 import com.pagoflex.app.core.utils.aTexto
 import com.pagoflex.app.features.cobranza.data.CobranzaRepository
+import com.pagoflex.app.features.cobranza.data.remote.CobranzaRemoto
 import com.pagoflex.app.features.cobranza.presentation.model.CompromisoEmpresa
 import com.pagoflex.app.features.cobranza.presentation.model.DetalleCompromisoUiState
 import com.pagoflex.app.features.cobranza.presentation.viewmodel.DetalleCompromisoViewModel
 import com.pagoflex.app.features.home.presentation.model.EstadoCompromiso
+import com.pagoflex.app.features.mensajeria.presentation.model.RolChat
+import com.pagoflex.app.features.mensajeria.presentation.screens.ChatDialog
 
 @Composable
 fun DetalleCompromisoEmpresaScreen(
@@ -60,7 +67,7 @@ fun DetalleCompromisoEmpresaScreen(
     onVolver: () -> Unit,
 ) {
     // ---------- dependencias ----------
-    val repositorio = remember(db) { CobranzaRepository(db) }
+    val repositorio = remember(db) { CobranzaRepository(CobranzaRemoto.crear(), CuentaRemota.crear()) }
     val viewModel: DetalleCompromisoViewModel = viewModel(
         key = "detalle-$folio",
         factory = viewModelFactory {
@@ -69,7 +76,9 @@ fun DetalleCompromisoEmpresaScreen(
     )
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
-    val context = LocalContext.current
+    val resources = LocalResources.current
+    // número del reporte cuyo chat está abierto
+    var chatReporte by rememberSaveable { mutableStateOf<String?>(null) }
 
     LaunchedEffect(folio) {
         viewModel.cargar(usuarioId, folio)
@@ -78,7 +87,7 @@ fun DetalleCompromisoEmpresaScreen(
     // mostrar el aviso de anulación una sola vez
     LaunchedEffect(uiState.mensaje) {
         uiState.mensaje?.let {
-            snackbar.showSnackbar(context.getString(it))
+            snackbar.showSnackbar(resources.getString(it))
             viewModel.mensajeMostrado()
         }
     }
@@ -111,6 +120,7 @@ fun DetalleCompromisoEmpresaScreen(
                 compromiso = compromiso,
                 uiState = uiState,
                 onAnular = viewModel::abrirAnulacion,
+                onConversar = { chatReporte = it },
                 modifier = Modifier.padding(padding)
             )
         }
@@ -125,6 +135,11 @@ fun DetalleCompromisoEmpresaScreen(
             onCerrar = viewModel::cerrarAnulacion
         )
     }
+
+    // chat con el agente que tomó el reporte; si nadie lo tomó el chat lo avisa
+    chatReporte?.let { numero ->
+        ChatDialog(numero = numero, rolPropio = RolChat.EJECUTIVO, onCerrar = { chatReporte = null })
+    }
 }
 
 @Composable
@@ -132,6 +147,7 @@ private fun DetalleContent(
     compromiso: CompromisoEmpresa,
     uiState: DetalleCompromisoUiState,
     onAnular: () -> Unit,
+    onConversar: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -186,6 +202,9 @@ private fun DetalleContent(
                 reporte.comentario?.let { FilaDato(stringResource(R.string.cob_campo_comentario), it) }
                 FilaDato(stringResource(R.string.cob_campo_estado), stringResource(reporte.estadoRes))
                 FilaDato(stringResource(R.string.cob_campo_fecha), reporte.fecha.aTexto())
+            }
+            OutlinedButton(onClick = { onConversar(reporte.numero) }) {
+                Text(stringResource(R.string.chat_conversar_agente))
             }
         }
 

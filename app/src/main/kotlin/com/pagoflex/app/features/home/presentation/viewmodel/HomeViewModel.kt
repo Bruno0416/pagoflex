@@ -1,14 +1,13 @@
 package com.pagoflex.app.features.home.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pagoflex.app.R
-import com.pagoflex.app.features.cumplimiento.data.CumplimientoRepository
 import com.pagoflex.app.features.home.data.HomeRepository
-import com.pagoflex.app.features.reconocimientos.data.ReconocimientosRepository
-import com.pagoflex.app.features.home.presentation.model.EstadoCompromiso
 import com.pagoflex.app.features.home.presentation.model.HomeUiState
 import com.pagoflex.app.features.home.presentation.model.ResumenInicio
+import com.pagoflex.app.features.home.data.remote.dto.response.CumplimientoHomeResponse
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,78 +19,74 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 
-class HomeViewModel(
-    private val homeRepository: HomeRepository,
-    private val cumplimientoRepository: CumplimientoRepository,
-    private val reconocimientosRepository: ReconocimientosRepository
-) : ViewModel() {
-
+class HomeViewModel(private val homeRepository: HomeRepository) : ViewModel() {
     private val _uiState = MutableStateFlow(HomeUiState(cargando = true))
     val uiState = _uiState.asStateFlow()
 
-    // ---------- cargar datos del usuario ----------
-    fun cargarInicio(usuarioId: Int) {
-        if (usuarioId <= 0) return
-
+    fun cargarInicio() {
         viewModelScope.launch {
             _uiState.update { it.copy(cargando = true, mensajeError = null) }
-
             try {
-                // 1. consultar datos en room
                 val fechaActual = LocalDate.now()
-                val (cabecera, compromisos) = withContext(Dispatchers.IO) {
-                    homeRepository.obtenerCabecera(usuarioId) to
-                            homeRepository.obtenerCompromisos(usuarioId, fechaActual)
-                }
-                val cumplimiento = withContext(Dispatchers.IO) {
-                    cumplimientoRepository.obtenerCumplimiento(usuarioId, fechaActual)
-                }
-
-                if (cabecera == null) {
-                    _uiState.update {
-                        it.copy(
-                            cargando = false,
-                            mensajeError = R.string.home_error_usuario_no_encontrado
-                        )
-                    }
-                    return@launch
-                }
-
-                // 2. filtrar compromisos del mes
                 val periodo = YearMonth.from(fechaActual)
+                // 1. consultar resumen mensual y compromisos del usuario
+                val (resumenApi, compromisos) = withContext(Dispatchers.IO) {
+                    homeRepository.obtenerResumen(periodo) to homeRepository.obtenerCompromisos()
+                }
+                // 2. recuperar los datos opcionales sin bloquear el inicio
+                val cabecera = try {
+                    withContext(Dispatchers.IO) { homeRepository.obtenerCabecera() }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    null
+                }
+                val avatar = try {
+                    withContext(Dispatchers.IO) { homeRepository.obtenerAvatar() }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    null
+                }
+                val cumplimiento = try {
+                    withContext(Dispatchers.IO) { homeRepository.obtenerCumplimiento() }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    CumplimientoHomeResponse(0, 0, null, null)
+                }
+
+                // 3. filtrar compromisos del periodo y ordenar vencimientos
                 val compromisosMes = compromisos.filter { compromiso ->
-                    YearMonth.from(compromiso.fechaVencimiento) == periodo &&
-                            compromiso.estado in listOf(
-                        EstadoCompromiso.PENDIENTE,
-                        EstadoCompromiso.VENCIDO
-                    )
+                    YearMonth.from(LocalDate.parse(compromiso.fechaVencimiento)) == periodo &&
+                        compromiso.estado in setOf("PENDIENTE", "VENCIDO")
                 }.sortedBy { it.fechaVencimiento }
 
-                val pendientes = compromisos.filter {
-                    it.estado == EstadoCompromiso.PENDIENTE
-                }.sortedBy { it.fechaVencimiento }
-                val vencidos = compromisos.filter {
-                    it.estado == EstadoCompromiso.VENCIDO
-                }.sortedBy { it.fechaVencimiento }
+                val pendientes = compromisos.filter { it.estado == "PENDIENTE" }
+                    .sortedBy { it.fechaVencimiento }
+                val vencidos = compromisos.filter { it.estado == "VENCIDO" }
+                    .sortedBy { it.fechaVencimiento }
 
-                // 3. calcular resumen
+                // 4. construir el resumen con los datos disponibles
                 val resumen = ResumenInicio(
-                    totalPorPagar = compromisosMes.sumOf { it.total },
+                    totalPorPagar = resumenApi.porPagarMes,
                     totalRecargos = compromisosMes.sumOf { it.recargo },
                     cantidadCompromisos = compromisosMes.size,
-                    cantidadOrganizaciones = compromisosMes.map { it.organizacion }.distinct().size,
-                    cantidadVencidos = vencidos.size,
+                    cantidadOrganizaciones = compromisosMes.map { it.empresa }.distinct().size,
+                    cantidadVencidos = resumenApi.vencidos,
                     proximoCompromiso = pendientes.firstOrNull(),
                     vencidoDestacado = vencidos.firstOrNull(),
                     cumplimiento = cumplimiento
                 )
 
-                // 4. actualizar la pantalla
+                val nombres = cabecera?.nombres.orEmpty().trim()
+                val apellidos = cabecera?.apellidos.orEmpty().trim()
+                // 5. publicar el contenido del inicio
                 _uiState.update {
                     it.copy(
-                        nombreUsuario = cabecera.nombres.trim().substringBefore(" "),
-                        inicialesUsuario = (cabecera.nombres.trim().take(1) + cabecera.apellidos.trim().take(1)).uppercase(),
-                        avatarUsuario = cabecera.avatar,
+                        nombreUsuario = nombres.substringBefore(' '),
+                        inicialesUsuario = (nombres.take(1) + apellidos.take(1)).uppercase(),
+                        avatarUsuario = avatar,
                         periodo = periodo,
                         resumen = resumen,
                         compromisos = compromisosMes,
@@ -100,23 +95,12 @@ class HomeViewModel(
                         mensajeError = null
                     )
                 }
-
-                // 5. recuperar reconocimientos sin retrasar el resumen
-                viewModelScope.launch(Dispatchers.IO) {
-                    try {
-                        reconocimientosRepository.evaluar(usuarioId)
-                    } catch (e: CancellationException) {
-                        throw e
-                    } catch (_: Exception) {
-                        // el resumen no depende de los reconocimientos
-                    }
-                }
             } catch (e: CancellationException) {
                 throw e
-            } catch (_: Exception) {
-                _uiState.update {
-                    it.copy(cargando = false, mensajeError = R.string.home_error_cargar)
-                }
+            } catch (e: Exception) {
+                // 5. mostrar un error si falla la consulta principal
+                Log.e("PagoFlexHome", "No fue posible cargar el resumen", e)
+                _uiState.update { it.copy(cargando = false, mensajeError = R.string.home_error_cargar) }
             }
         }
     }

@@ -4,69 +4,34 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.pagoflex.app.core.data.local.LocalDatabase
-import com.pagoflex.app.features.pago.data.MetodoPagoPreferences
 import com.pagoflex.app.features.pago.data.PagoRepository
 import com.pagoflex.app.features.pago.presentation.viewmodel.PagoViewModel
-import com.pagoflex.app.features.reconocimientos.data.ReconocimientosRepository
+import java.util.UUID
 
 @Composable
-fun PagoFlowSheet(
-    db: LocalDatabase,
-    usuarioId: Int,
-    folio: String,
-    onCerrar: () -> Unit,
-    onPagoConfirmado: (String) -> Unit
-) {
-    val contexto = LocalContext.current
-    val repositorio = remember(db) { PagoRepository(db) }
-    val preferencias = remember(contexto) { MetodoPagoPreferences(contexto) }
-    val reconocimientosRepository = remember(db) { ReconocimientosRepository(db) }
+fun PagoFlowSheet(folio: String, onCerrar: () -> Unit) {
+    // 1. conservar la identidad de la hoja durante la sesion actual
+    val sesionId = rememberSaveable { UUID.randomUUID().toString() }
+    val repositorio = remember { PagoRepository() }
     val viewModel: PagoViewModel = viewModel(
-        factory = viewModelFactory {
-            initializer { PagoViewModel(repositorio, preferencias, reconocimientosRepository) }
-        }
+        factory = viewModelFactory { initializer { PagoViewModel(repositorio) } }
     )
     val estado by viewModel.uiState.collectAsStateWithLifecycle()
 
-    // 1. consultar el resumen actualizado al abrir la hoja
-    LaunchedEffect(folio, usuarioId) {
-        viewModel.iniciarPago(folio, usuarioId)
-    }
+    // 2. preparar el pago al abrir la hoja
+    LaunchedEffect(folio, sesionId) { viewModel.iniciarPago(folio, sesionId) }
 
-    // 2. abrir el comprobante solo después de confirmar el pago
-    LaunchedEffect(estado.comprobanteConfirmado) {
-        val numero = estado.comprobanteConfirmado ?: return@LaunchedEffect
-        viewModel.consumirComprobante()
-        onPagoConfirmado(numero)
-    }
-
-    // 3. mantener el formulario y la confirmación dentro de la misma hoja
     ConfirmacionPagoSheet(
         estado = estado,
-        onCerrar = {
-            if (!estado.procesando) {
-                viewModel.limpiarDatosTarjeta()
-                onCerrar()
-            }
-        },
-        onSeleccionarMetodo = { viewModel.seleccionarMetodo(it, usuarioId) },
-        onAvanzarADatos = viewModel::avanzarADatos,
-        onUsarGuardado = viewModel::usarMetodoGuardado,
-        onCambiarNumeroTarjeta = viewModel::cambiarNumeroTarjeta,
-        onCambiarVencimientoTarjeta = viewModel::cambiarVencimientoTarjeta,
-        onCambiarCodigoSeguridad = viewModel::cambiarCodigoSeguridad,
-        onValidarNumeroTarjeta = viewModel::validarNumeroTarjetaField,
-        onValidarVencimientoTarjeta = viewModel::validarVencimientoTarjetaField,
-        onValidarCodigoSeguridad = viewModel::validarCodigoSeguridadField,
-        onRecordar = viewModel::cambiarRecordar,
+        onCerrar = onCerrar,
+        onSeleccionarMetodo = viewModel::seleccionarMetodo,
         onAvanzarAConfirmacion = viewModel::avanzarAConfirmacion,
         onVolver = viewModel::volver,
-        onConfirmar = { viewModel.confirmarPago(usuarioId) }
+        onConfirmar = viewModel::confirmarPago
     )
 }

@@ -6,26 +6,27 @@ import com.pagoflex.app.R
 import com.pagoflex.app.features.historial.data.HistorialRepository
 import com.pagoflex.app.features.historial.presentation.model.HistorialUiState
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
-class HistorialViewModel(
-    private val repositorio: HistorialRepository
-) : ViewModel() {
-
+class HistorialViewModel(private val repositorio: HistorialRepository) : ViewModel() {
     private val _uiState = MutableStateFlow(HistorialUiState())
     val uiState = _uiState.asStateFlow()
 
-    fun cargarHistorial(usuarioId: Int) {
+    fun cargarHistorial() {
         viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(cargando = true, mensajeError = null)
             try {
-                val (comprobantes, anulaciones) = withContext(Dispatchers.IO) {
-                    repositorio.obtenerHistorial(usuarioId) to repositorio.obtenerAnulaciones(usuarioId)
+                // 1. consultar pagos y anulaciones en paralelo
+                val (comprobantes, anulaciones) = coroutineScope {
+                    val pagos = async { repositorio.obtenerHistorial() }
+                    val anulados = async { repositorio.obtenerAnulaciones() }
+                    pagos.await() to anulados.await()
                 }
-
+                // 2. publicar los movimientos recibidos
                 _uiState.value = HistorialUiState(
                     comprobantes = comprobantes,
                     anulaciones = anulaciones,
@@ -34,6 +35,7 @@ class HistorialViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
+                // 2. informar si no se puede cargar el historial
                 _uiState.value = HistorialUiState(
                     cargando = false,
                     mensajeError = R.string.historial_error_cargar

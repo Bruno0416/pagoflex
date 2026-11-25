@@ -1,5 +1,6 @@
 package com.pagoflex.app.features.reportes.presentation.screens
 
+import com.pagoflex.app.core.data.remote.CuentaRemota
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,10 +19,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -31,6 +35,7 @@ import com.pagoflex.app.R
 import com.pagoflex.app.core.data.local.LocalDatabase
 import com.pagoflex.app.core.rules.EstadoReporte
 import com.pagoflex.app.core.ui.components.buttons.Button
+import com.pagoflex.app.core.ui.components.buttons.OutlinedButton
 import com.pagoflex.app.core.ui.components.chips.StatusChip
 import com.pagoflex.app.core.ui.components.containers.Card
 import com.pagoflex.app.core.ui.components.containers.FilaDato
@@ -44,7 +49,11 @@ import com.pagoflex.app.core.ui.styles.coloresCard
 import com.pagoflex.app.core.ui.theme.Theme
 import com.pagoflex.app.core.utils.aPesos
 import com.pagoflex.app.core.utils.aTexto
+import com.pagoflex.app.features.mensajeria.presentation.model.RolChat
+import com.pagoflex.app.features.mensajeria.presentation.screens.ChatDialog
 import com.pagoflex.app.features.reportes.data.ReportesRepository
+import com.pagoflex.app.features.reportes.data.remote.ReportesRemoto
+import com.pagoflex.app.features.reportes.presentation.components.ComprobanteDialog
 import com.pagoflex.app.features.reportes.presentation.model.DetalleReporteUiState
 import com.pagoflex.app.features.reportes.presentation.model.ReporteItem
 import com.pagoflex.app.features.reportes.presentation.viewmodel.DetalleReporteViewModel
@@ -57,7 +66,7 @@ fun DetalleReporteScreen(
     onVolver: () -> Unit,
 ) {
     // ---------- dependencias ----------
-    val repositorio = remember(db) { ReportesRepository(db) }
+    val repositorio = remember(db) { ReportesRepository(ReportesRemoto.crear(), CuentaRemota.crear()) }
     val viewModel: DetalleReporteViewModel = viewModel(
         key = "reporte-$numero",
         factory = viewModelFactory {
@@ -66,7 +75,9 @@ fun DetalleReporteScreen(
     )
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
-    val context = LocalContext.current
+    val resources = LocalResources.current
+    var chatAbierto by rememberSaveable { mutableStateOf(false) }
+    var comprobanteAbierto by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(numero) {
         viewModel.cargar(usuarioId, numero)
@@ -74,7 +85,7 @@ fun DetalleReporteScreen(
 
     LaunchedEffect(uiState.mensaje) {
         uiState.mensaje?.let {
-            snackbar.showSnackbar(context.getString(it))
+            snackbar.showSnackbar(resources.getString(it))
             viewModel.mensajeMostrado()
         }
     }
@@ -105,9 +116,19 @@ fun DetalleReporteScreen(
                 onTomar = { viewModel.tomar(usuarioId) },
                 onRespuesta = viewModel::setRespuesta,
                 onResolver = viewModel::resolver,
+                onConversar = { chatAbierto = true },
+                onVerComprobante = { comprobanteAbierto = true },
                 modifier = Modifier.padding(padding)
             )
         }
+    }
+
+    // chat con el ejecutivo de la empresa; resuelto queda en solo lectura
+    if (chatAbierto) {
+        ChatDialog(numero = numero, rolPropio = RolChat.AGENTE, onCerrar = { chatAbierto = false })
+    }
+    if (comprobanteAbierto) {
+        ComprobanteDialog(numero = numero, onCerrar = { comprobanteAbierto = false })
     }
 }
 
@@ -118,6 +139,8 @@ private fun DetalleContent(
     onTomar: () -> Unit,
     onRespuesta: (String) -> Unit,
     onResolver: () -> Unit,
+    onConversar: () -> Unit,
+    onVerComprobante: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -144,6 +167,10 @@ private fun DetalleContent(
                 )
             }
             reporte.comentario?.let { FilaDato(stringResource(R.string.rep_campo_comentario), it) }
+            // la usuaria mandó la foto del pago: el agente la revisa antes de responder
+            if (reporte.tieneComprobante) {
+                OutlinedButton(onClick = onVerComprobante) { Text(stringResource(R.string.rep_comprobante_ver)) }
+            }
             FilaDato(stringResource(R.string.rep_campo_recibido), reporte.fechaCreacion.aTexto())
             FilaDato(stringResource(R.string.rep_campo_responsable), reporte.agente ?: stringResource(R.string.rep_sin_asignar))
             reporte.fechaToma?.let { FilaDato(stringResource(R.string.rep_campo_tomado), it.aTexto()) }
@@ -202,6 +229,13 @@ private fun DetalleContent(
                         color = Theme.colores.onSurfaceVariant
                     )
                 }
+            }
+        }
+
+        // ---------- conversar con la empresa: ya tomado o resuelto ----------
+        if (reporte.estado == EstadoReporte.EN_GESTION || reporte.estado == EstadoReporte.RESUELTO) {
+            OutlinedButton(onClick = onConversar) {
+                Text(stringResource(R.string.chat_conversar_empresa))
             }
         }
 

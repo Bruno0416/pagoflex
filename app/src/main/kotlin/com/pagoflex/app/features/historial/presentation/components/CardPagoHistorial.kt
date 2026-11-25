@@ -13,7 +13,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import com.pagoflex.app.R
-import com.pagoflex.app.core.data.local.entities.Comprobante
+import com.pagoflex.app.features.historial.data.remote.dto.response.PagoHistorialResponse
 import com.pagoflex.app.core.ui.components.chips.StatusChip
 import com.pagoflex.app.core.ui.components.containers.Card
 import com.pagoflex.app.core.ui.components.model.ComponentVariant
@@ -25,15 +25,10 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun CardPagoHistorial(
-    comprobante: Comprobante,
+    comprobante: PagoHistorialResponse,
     onClick: () -> Unit
 ) {
-    val pagadoATiempo = !comprobante.fechaHora.toLocalDate().isAfter(comprobante.fechaVencimiento)
-    val colores = if (pagadoATiempo) {
-        EstadoCompromiso.PAGADO.coloresCard
-    } else {
-        EstadoCompromiso.VENCIDO.coloresCard
-    }
+    val colores = EstadoCompromiso.PAGADO.coloresCard
     val siglas = comprobante.empresa.split(" ")
         .filter { it.isNotBlank() }
         .let { palabras ->
@@ -66,7 +61,7 @@ fun CardPagoHistorial(
                     color = Theme.colores.onSurfaceVariant, maxLines = 2
                 )
                 Text(
-                    "${comprobante.fechaHora.format(DateTimeFormatter.ofPattern("dd-MM"))} · ${comprobante.canal}",
+                    "${java.time.LocalDateTime.parse(comprobante.fechaHora).format(DateTimeFormatter.ofPattern("dd-MM"))} · ${nombreCanalPago(comprobante.canal)}",
                     style = Theme.type.bodySmall,
                     color = Theme.colores.onSurfaceVariant,
                     maxLines = 2
@@ -78,12 +73,11 @@ fun CardPagoHistorial(
                 verticalArrangement = Arrangement.spacedBy(Theme.dimens.spacingXXS)
             ) {
                 Text(
-                    comprobante.montoPagado.toLong().formatoCLP(),
+                    comprobante.montoPagado.formatoCLP(),
                     style = Theme.type.titleMedium.copy(fontWeight = FontWeight.Bold)
                 )
                 StatusChip(
-                    label = if (pagadoATiempo) stringResource(R.string.historial_a_tiempo)
-                    else stringResource(R.string.historial_con_atraso),
+                    label = stringResource(R.string.home_estado_pagado),
                     colores = colores
                 )
             }

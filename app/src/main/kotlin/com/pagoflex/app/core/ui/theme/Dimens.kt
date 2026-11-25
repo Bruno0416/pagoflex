@@ -5,6 +5,7 @@ import androidx.compose.ui.unit.dp
 
 object Dimens {
     // ---- alto componentes ----
+    val avatarHeight = 80.dp
     val componentsHeight = 45.dp
     val componentsHeightSmall = 34.dp
 

@@ -44,4 +44,6 @@
     <!-- errores de carga -->
     <string name="home_error_usuario_no_encontrado">Usuario no encontrado</string>
     <string name="home_error_cargar">No se pudo cargar el inicio</string>
+    <string name="home_usuario_generico">Usuario</string>
+    <string name="home_perfil_pendiente">La edición del perfil estará disponible cuando integremos esta pantalla con el backend. Puedes cerrar sesión desde aquí.</string>
 </resources>

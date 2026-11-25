@@ -21,7 +21,7 @@ import com.pagoflex.app.core.ui.components.model.ComponentVariant
 import com.pagoflex.app.core.ui.styles.ChipColors
 import com.pagoflex.app.core.ui.theme.PagoFlexTheme
 import com.pagoflex.app.core.ui.theme.Theme
-import com.pagoflex.app.features.home.presentation.model.CompromisoInicio
+import com.pagoflex.app.features.home.data.remote.dto.response.MiCompromisoResponse
 import com.pagoflex.app.features.home.presentation.model.EstadoCompromiso
 import com.pagoflex.app.features.home.presentation.model.ResumenInicio
 import java.time.LocalDate
@@ -40,7 +40,7 @@ fun AvisoVencimiento(
 
 
     if (cantidadVencidos > 0 && vencidoDestacado != null) {
-        val mes = vencidoDestacado.fechaVencimiento.month.getDisplayName(
+        val mes = LocalDate.parse(vencidoDestacado.fechaVencimiento).month.getDisplayName(
             TextStyle.FULL,
             Locale.forLanguageTag("es-CL")
         )
@@ -71,7 +71,7 @@ fun AvisoVencimiento(
                     stringResource(
                         R.string.home_aviso_cuota,
                         mes,
-                        vencidoDestacado.organizacion
+                        vencidoDestacado.empresa
                     ),
                     style = Theme.type.bodyMedium
                 )
@@ -91,20 +91,28 @@ fun AvisoVencimiento(
 @Composable
 private fun AvisoVencimientoPreview() {
 
-    // compromiso vencido ficticio
-    val compromisoVencido = CompromisoInicio(
-        id = "comp-001",
-        organizacion = "Club Los Halcones",
-        siglaOrganizacion = "CH",
+    // 1. preparar un compromiso vencido de ejemplo
+    val compromisoVencido = MiCompromisoResponse(
+        folio = "comp-001",
+        empresaCodigo = null,
+        empresa = "Club Los Halcones",
+        correoAtencion = null,
         concepto = "Cuota de octubre del",
         numeroCuota = 10,
         totalCuotas = 12,
-        fechaVencimiento = LocalDate.of(2026, 10, 5),
-        monto = 17_000L,
-        estado = EstadoCompromiso.VENCIDO
+        monto = 17000L,
+        recargo = 0L,
+        total = 17000L,
+        fechaVencimiento = "2026-10-05",
+        estado = "VENCIDO",
+        diasAtraso = 0L,
+        pagable = true,
+        folioAnterior = null,
+        numeroComprobante = null,
+        fechaPago = null
     )
 
-    // resumen ficticio
+    // 2. preparar el resumen de ejemplo
     val resumen = ResumenInicio(
         totalPorPagar = 633_400L,
         totalRecargos = 0L,
