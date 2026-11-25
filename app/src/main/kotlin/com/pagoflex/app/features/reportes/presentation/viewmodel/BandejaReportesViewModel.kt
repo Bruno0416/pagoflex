@@ -39,7 +39,7 @@ class BandejaReportesViewModel(
                         cargando = false,
                         nombreAgente = cabecera?.nombres?.substringBefore(" ").orEmpty(),
                         inicialesAgente = iniciales.orEmpty(),
-                        avatarAgente = cabecera?.avatar,
+                        avatarAgente = null,
                         cantidadPorEstado = todos.groupingBy { r -> r.estado }.eachCount(),
                         atrasados = todos.count { r -> r.atrasado },
                         error = null

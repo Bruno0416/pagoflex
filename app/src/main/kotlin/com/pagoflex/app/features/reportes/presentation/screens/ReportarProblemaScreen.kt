@@ -1,5 +1,6 @@
 package com.pagoflex.app.features.reportes.presentation.screens
 
+import com.pagoflex.app.core.data.remote.CuentaRemota
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,6 +44,7 @@ import com.pagoflex.app.core.ui.theme.Theme
 import com.pagoflex.app.core.utils.aPesos
 import com.pagoflex.app.core.utils.aTexto
 import com.pagoflex.app.features.reportes.data.ReportesRepository
+import com.pagoflex.app.features.reportes.data.remote.ReportesRemoto
 import com.pagoflex.app.features.reportes.presentation.model.ReportarProblemaUiState
 import com.pagoflex.app.features.reportes.presentation.model.ReporteItem
 import com.pagoflex.app.features.reportes.presentation.viewmodel.ReportarProblemaViewModel
@@ -55,7 +57,7 @@ fun ReportarProblemaScreen(
     onVolver: () -> Unit,
 ) {
     // ---------- dependencias ----------
-    val repositorio = remember(db) { ReportesRepository(db) }
+    val repositorio = remember(db) { ReportesRepository(ReportesRemoto.crear(), CuentaRemota.crear()) }
     val viewModel: ReportarProblemaViewModel = viewModel(
         key = "reportar-$folio",
         factory = viewModelFactory {

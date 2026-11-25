@@ -1,5 +1,6 @@
 package com.pagoflex.app.features.cobranza.presentation.screens
 
+import com.pagoflex.app.core.data.remote.CuentaRemota
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,6 +36,7 @@ import com.pagoflex.app.core.ui.theme.Theme
 import com.pagoflex.app.core.utils.aPesos
 import com.pagoflex.app.core.utils.aTexto
 import com.pagoflex.app.features.cobranza.data.CobranzaRepository
+import com.pagoflex.app.features.cobranza.data.remote.CobranzaRemoto
 import com.pagoflex.app.features.cobranza.presentation.model.CampoCompromiso
 import com.pagoflex.app.features.cobranza.presentation.model.RegistrarCompromisoUiState
 import com.pagoflex.app.features.cobranza.presentation.viewmodel.RegistrarCompromisoViewModel
@@ -46,7 +48,7 @@ fun RegistrarCompromisoScreen(
     onVolverResumen: () -> Unit,
 ) {
     // ---------- dependencias ----------
-    val repositorio = remember(db) { CobranzaRepository(db) }
+    val repositorio = remember(db) { CobranzaRepository(CobranzaRemoto.crear(), CuentaRemota.crear()) }
     val viewModel: RegistrarCompromisoViewModel = viewModel(
         factory = viewModelFactory {
             initializer { RegistrarCompromisoViewModel(repositorio) }
@@ -78,7 +80,7 @@ fun RegistrarCompromisoScreen(
             text = stringResource(
                 R.string.cob_registrado_texto,
                 compromiso.folio,
-                compromiso.monto.toLong().aPesos(),
+                compromiso.monto.aPesos(),
                 compromiso.fechaVencimiento.aTexto()
             ),
             confirmText = stringResource(R.string.cob_volver_resumen),
@@ -133,7 +135,7 @@ private fun FormularioRegistro(
         uiState.personaEncontrada?.let {
             Card(variant = ComponentVariant.Secondary) {
                 Text(
-                    text = stringResource(R.string.cob_persona_encontrada, it.nombre, it.correo),
+                    text = it.correo?.let { correo -> stringResource(R.string.cob_persona_encontrada, it.nombre, correo) } ?: it.nombre,
                     style = Theme.type.bodyMedium,
                     modifier = Modifier.padding(Theme.dimens.spacingM)
                 )

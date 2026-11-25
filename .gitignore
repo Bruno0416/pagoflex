@@ -13,3 +13,8 @@
 .externalNativeBuild
 .cxx
 local.properties
+# llave de firma, nunca a github
+*.jks
+*.keystore
+keystore.properties
+/app/release

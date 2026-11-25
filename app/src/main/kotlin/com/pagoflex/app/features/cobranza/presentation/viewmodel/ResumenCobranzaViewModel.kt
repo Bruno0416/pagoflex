@@ -1,5 +1,6 @@
 package com.pagoflex.app.features.cobranza.presentation.viewmodel
 
+import com.pagoflex.app.core.data.remote.externa.IndicadoresRemoto
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pagoflex.app.R
@@ -7,6 +8,7 @@ import com.pagoflex.app.core.rules.CalculoCobranza
 import com.pagoflex.app.core.rules.ItemCobranza
 import com.pagoflex.app.features.cobranza.data.CobranzaRepository
 import com.pagoflex.app.features.cobranza.presentation.model.ResumenCobranzaUiState
+import com.pagoflex.app.features.home.presentation.model.EstadoCompromiso
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,6 +20,7 @@ import java.time.YearMonth
 
 class ResumenCobranzaViewModel(
     private val cobranzaRepository: CobranzaRepository,
+    private val indicadores: IndicadoresRemoto? = null,
     private val hoy: () -> LocalDate = LocalDate::now,
 ) : ViewModel() {
 
@@ -25,6 +28,13 @@ class ResumenCobranzaViewModel(
     val uiState: StateFlow<ResumenCobranzaUiState> = _uiState.asStateFlow()
 
     fun cargar(usuarioId: Int) {
+        // la api externa va aparte: si falla, el resumen se muestra igual
+        indicadores?.let { api ->
+            viewModelScope.launch {
+                val delDia = api.delDia()
+                _uiState.update { it.copy(indicadores = delDia) }
+            }
+        }
         viewModelScope.launch {
             try {
                 // 1. obtener ejecutivo y su empresa
@@ -41,7 +51,11 @@ class ResumenCobranzaViewModel(
                 // 3. calcular el resumen del mes seleccionado (RN-24)
                 val mes = uiState.value.mes
                 val resumen = CalculoCobranza.calcularResumen(
-                    compromisos.map { ItemCobranza(it.fechaVencimiento, it.estado, it.pago?.monto) },
+                    // en línea aún no hay pagos: lo pagado se cuenta por su total, igual que el backend
+                    compromisos.map {
+                        val pagado = it.pago?.monto ?: it.total.takeIf { _ -> it.estado == EstadoCompromiso.PAGADO }
+                        ItemCobranza(it.fechaVencimiento, it.estado, pagado)
+                    },
                     mes,
                     hoy()
                 )
