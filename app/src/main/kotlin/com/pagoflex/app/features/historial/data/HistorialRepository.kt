@@ -1,16 +1,19 @@
 package com.pagoflex.app.features.historial.data
 
-import com.pagoflex.app.core.data.local.LocalDatabase
-import com.pagoflex.app.core.data.local.entities.Comprobante
+import com.pagoflex.app.core.network.RetrofitClient
+import com.pagoflex.app.features.historial.data.remote.HistorialApi
+import com.pagoflex.app.features.historial.data.remote.dto.response.AnulacionHistorialResponse
+import com.pagoflex.app.features.historial.data.remote.dto.response.ComprobanteHistorialResponse
+import com.pagoflex.app.features.historial.data.remote.dto.response.PagoHistorialResponse
+import retrofit2.create
 
-class HistorialRepository(private val db: LocalDatabase) {
+/** Consulta movimientos y comprobantes sin transformar ni duplicar los contratos del backend. */
+class HistorialRepository {
+    private val api = RetrofitClient.retrofit.create<HistorialApi>()
 
-    suspend fun obtenerHistorial(usuarioId: Int): List<Comprobante> =
-        db.pagoDao().obtenerHistorial(usuarioId)
+    suspend fun obtenerHistorial(): List<PagoHistorialResponse> = api.pagos()
 
-    suspend fun obtenerAnulaciones(usuarioId: Int): List<AnulacionHistorialRow> =
-        db.anulacionDao().obtenerHistorial(usuarioId)
+    suspend fun obtenerAnulaciones(): List<AnulacionHistorialResponse> = api.anulaciones()
 
-    suspend fun obtenerDetalleCompromiso(numeroComprobante: String, usuarioId: Int) =
-        db.pagoDao().obtenerDetalleComprobante(numeroComprobante, usuarioId)
+    suspend fun obtenerComprobante(numero: String): ComprobanteHistorialResponse = api.comprobante(numero)
 }

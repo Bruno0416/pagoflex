@@ -6,7 +6,7 @@ import com.pagoflex.app.R
 import com.pagoflex.app.core.data.local.LocalDatabase
 import com.pagoflex.app.core.data.local.dao.CabeceraUsuarioRow
 import com.pagoflex.app.core.data.local.entities.Reporte
-import com.pagoflex.app.core.profiles.ControlAcceso
+import com.pagoflex.app.core.data.local.ControlAccesoLocal
 import com.pagoflex.app.core.rules.Accion
 import com.pagoflex.app.core.rules.EstadoReporte
 import com.pagoflex.app.core.rules.MotivoReporte
@@ -24,15 +24,14 @@ import java.time.LocalDateTime
 sealed class ResultadoReporte {
     data class Creado(val numero: String) : ResultadoReporte()
 
-    // si ya hay un reporte abierto se muestra ese (HU-06 CA-2)
     data class YaExiste(val numero: String) : ResultadoReporte()
     data class Error(@StringRes val mensaje: Int) : ResultadoReporte()
 }
 
-// reportes de problema: el usuario reporta (HU-06) y el agente gestiona (HU-10)
+// ---------- gestion local de reportes ----------
 class ReportesRepository(private val db: LocalDatabase) {
 
-    private val acceso = ControlAcceso(db)
+    private val acceso = ControlAccesoLocal(db)
 
     private val estadosVigentes = setOf(
         EstadoCompromiso.PENDIENTE,
@@ -71,7 +70,7 @@ class ReportesRepository(private val db: LocalDatabase) {
             return ResultadoReporte.Error(R.string.rep_error_no_encontrado)
         }
 
-        // 2. si ya está en revisión no se crea otro reporte
+        // 2. rechazar compromisos que ya estan en revision
         obtenerReporteActivo(folio, ahora.toLocalDate())?.let {
             return ResultadoReporte.YaExiste(it.numero)
         }
@@ -84,11 +83,11 @@ class ReportesRepository(private val db: LocalDatabase) {
             return ResultadoReporte.Error(it)
         }
 
-        // 4. si venció y el recargo aún no se guardó, se guarda antes de pasar a revisión (RN-03)
+        // 4. aplicar el recargo pendiente antes de reportar
         val recargoEmpresa = db.empresaClienteDao().obtenerPorId(compromiso.idEmpresa)?.recargoAtraso ?: 0
         val recargo = ReglasCompromiso.recargoEfectivo(estado, compromiso.recargoAplicado, recargoEmpresa)
 
-        // 5. guardar el reporte abierto y dejar el compromiso en revisión (RN-09)
+        // 5. guardar el reporte y marcar el compromiso en revision
         val numero = db.withWriteTransaction {
             val numero = ReglasReporte.siguienteNumero(db.reporteDao().obtenerNumeros())
             db.reporteDao().insertarReporte(
@@ -113,11 +112,11 @@ class ReportesRepository(private val db: LocalDatabase) {
 
     // ---------- agente ----------
 
-    // nombre y avatar del agente para la barra superior
+    // ---------- cabecera del agente ----------
     suspend fun obtenerCabecera(usuarioId: Int): CabeceraUsuarioRow? =
         db.usuarioDao().obtenerCabecera(usuarioId)
 
-    // solo el agente ve los reportes de todos los usuarios (RF-14)
+    // ---------- reportes disponibles para el agente ----------
     suspend fun obtenerTodos(agenteId: Int, hoy: LocalDate): List<ReporteItem> {
         if (!acceso.puede(agenteId, Accion.VER_TODOS_LOS_REPORTES)) return emptyList()
         return db.reporteDao().obtenerTodos().map { it.aModelo(hoy) }
@@ -128,7 +127,7 @@ class ReportesRepository(private val db: LocalDatabase) {
         return db.reporteDao().obtenerPorNumero(numero)?.aModelo(hoy)
     }
 
-    // queda registrado como responsable (RN-23)
+    // ---------- asignacion de reporte ----------
     @StringRes
     suspend fun tomar(numero: String, agenteId: Int, ahora: LocalDateTime): Int? {
         if (!acceso.puede(agenteId, Accion.GESTIONAR_REPORTE)) return R.string.per_sin_permiso
@@ -142,7 +141,7 @@ class ReportesRepository(private val db: LocalDatabase) {
         return null
     }
 
-    // solo lo resuelve el agente responsable y con respuesta para el usuario (RN-23)
+    // ---------- resolucion de reporte ----------
     @StringRes
     suspend fun resolver(numero: String, agenteId: Int, respuesta: String, ahora: LocalDateTime): Int? {
         if (!acceso.puede(agenteId, Accion.GESTIONAR_REPORTE)) return R.string.per_sin_permiso
@@ -160,7 +159,7 @@ class ReportesRepository(private val db: LocalDatabase) {
                 reporte.idReporte, idEstadoReporte(EstadoReporte.RESUELTO), respuesta.trim(), ahora
             )
 
-            // 2. el compromiso sale de revisión: anulado o según su fecha (RN-09)
+            // 2. actualizar el compromiso segun la resolucion
             val estadoActual = estadoCompromisoDesdeNombre(reporte.estadoCompromiso)
             val nuevoEstado = ReglasReporte.estadoAlResolver(estadoActual, reporte.fechaVencimiento, ahora.toLocalDate())
             if (nuevoEstado != estadoActual) {
@@ -176,7 +175,7 @@ class ReportesRepository(private val db: LocalDatabase) {
     // ---------- helpers privados ----------
 
     private suspend fun obtenerCompromisosDeUsuario(usuarioId: Int, hoy: LocalDate): List<CompromisoReportable> =
-        db.compromisoDao().obtenerParaHome(usuarioId).map { fila ->
+        db.compromisoDao().obtenerParaReportes(usuarioId).map { fila ->
             val estado = ReglasCompromiso.estadoEfectivo(
                 estadoCompromisoDesdeNombre(fila.estado), fila.fechaVencimiento, hoy
             )

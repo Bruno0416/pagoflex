@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
+import com.pagoflex.app.core.ui.components.feedback.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,12 +28,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.pagoflex.app.R
-import com.pagoflex.app.core.data.local.LocalDatabase
-import com.pagoflex.app.core.data.local.entities.Comprobante
+import com.pagoflex.app.features.historial.data.remote.dto.response.PagoHistorialResponse
 import com.pagoflex.app.core.ui.theme.PagoFlexTheme
 import com.pagoflex.app.core.ui.theme.Theme
 import com.pagoflex.app.features.historial.data.HistorialRepository
-import com.pagoflex.app.features.historial.data.AnulacionHistorialRow
+import com.pagoflex.app.features.historial.data.remote.dto.response.AnulacionHistorialResponse
 import com.pagoflex.app.features.historial.presentation.components.CardAnulacionHistorial
 import com.pagoflex.app.features.historial.presentation.components.CardPagoHistorial
 import com.pagoflex.app.features.historial.presentation.components.FiltrosHistorial
@@ -45,23 +44,16 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @Composable
-fun HistorialScreen(
-    db: LocalDatabase,
-    usuarioId: Int,
-    onVerComprobante: (String) -> Unit
-) {
-    // ---------- dependencias ----------
-    val repositorio = remember(db) { HistorialRepository(db) }
+fun HistorialScreen(onVerComprobante: (String) -> Unit) {
+    val repositorio = remember { HistorialRepository() }
     val viewModel: HistorialViewModel = viewModel(
-        factory = viewModelFactory {
-            initializer { HistorialViewModel(repositorio) }
-        }
+        factory = viewModelFactory { initializer { HistorialViewModel(repositorio) } }
     )
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    // 1. recargar el historial al volver de un comprobante
+    // 1. actualizar el historial al recuperar el foco
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
-        viewModel.cargarHistorial(usuarioId)
+        viewModel.cargarHistorial()
     }
 
     HistorialContent(uiState, onVerComprobante)
@@ -171,24 +163,15 @@ private fun HistorialContent(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun HistorialPreview() {
-    val ejemplo = Comprobante(
+    val ejemplo = PagoHistorialResponse(
         numeroComprobante = "CPR-000451",
-        idPago = 1,
-        idUsuarioFinal = 1,
-        fechaHora = LocalDateTime.of(2026, 9, 24, 10, 42),
-        nombrePagador = "Camila Rojas",
-        rut = "15.111.111-3",
+        fechaHora = "2026-09-24T10:42:00",
         empresa = "Crédito Andino",
-        folio = "CP-2026-0104",
         concepto = "Crédito de consumo",
         numeroCuota = 7,
         totalCuotas = 24,
-        fechaVencimiento = java.time.LocalDate.of(2026, 9, 25),
-        montoCuota = 86_400,
-        recargo = 0,
         montoPagado = 86_400,
-        medioPago = "Tarjeta de débito",
-        canal = "Portal de pagos"
+        canal = "APP"
     )
     PagoFlexTheme {
         HistorialContent(
@@ -203,13 +186,13 @@ private sealed interface RegistroHistorial {
     val empresa: String
     val fecha: LocalDateTime
 
-    data class Pago(val comprobante: Comprobante) : RegistroHistorial {
+    data class Pago(val comprobante: PagoHistorialResponse) : RegistroHistorial {
         override val empresa get() = comprobante.empresa
-        override val fecha get() = comprobante.fechaHora
+        override val fecha: LocalDateTime = LocalDateTime.parse(comprobante.fechaHora)
     }
 
-    data class Anulado(val anulacion: AnulacionHistorialRow) : RegistroHistorial {
+    data class Anulado(val anulacion: AnulacionHistorialResponse) : RegistroHistorial {
         override val empresa get() = anulacion.empresa
-        override val fecha get() = anulacion.fecha
+        override val fecha: LocalDateTime = LocalDateTime.parse(anulacion.fecha)
     }
 }

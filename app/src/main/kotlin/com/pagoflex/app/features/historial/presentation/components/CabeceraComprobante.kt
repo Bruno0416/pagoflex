@@ -16,11 +16,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.pagoflex.app.R
-import com.pagoflex.app.core.data.local.entities.Comprobante
+import com.pagoflex.app.features.historial.data.remote.dto.response.ComprobanteHistorialResponse
 import com.pagoflex.app.core.ui.theme.Theme
 
 @Composable
-fun CabeceraComprobante(comprobante: Comprobante) {
+fun CabeceraComprobante(comprobante: ComprobanteHistorialResponse) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,

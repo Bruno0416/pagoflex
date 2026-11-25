@@ -4,16 +4,14 @@ import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pagoflex.app.R
-import com.pagoflex.app.features.pago.data.MetodoPago
-import com.pagoflex.app.features.pago.data.MetodoPagoPreferences
+import com.pagoflex.app.features.pago.data.MetodoPagoModel
 import com.pagoflex.app.features.pago.data.MotivoRechazoPago
 import com.pagoflex.app.features.pago.data.PagoRechazado
 import com.pagoflex.app.features.pago.data.PagoRepository
 import com.pagoflex.app.features.pago.presentation.model.PagoUiState
 import com.pagoflex.app.features.pago.presentation.model.PasoPago
-import com.pagoflex.app.features.pago.presentation.validators.PagoValidators
-import com.pagoflex.app.features.reconocimientos.data.ReconocimientosRepository
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,238 +19,118 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.UUID
 
 class PagoViewModel(
     private val repository: PagoRepository,
-    private val preferences: MetodoPagoPreferences,
-    private val reconocimientosRepository: ReconocimientosRepository
+    private val scope: CoroutineScope? = null
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(PagoUiState())
     val uiState = _uiState.asStateFlow()
     private var preparacion: Job? = null
+    private var llaveIntento: String? = null
+    private var sesionHoja: String? = null
 
-    // ---------- preparacion del pago ----------
-    fun iniciarPago(folio: String, usuarioId: Int) {
-        // 1. cancelar cualquier preparacion anterior y reiniciar el estado
+    fun iniciarPago(folio: String, sesionId: String) {
+        // 1. evitar reiniciar una hoja de pago ya abierta
+        if (sesionHoja == sesionId) return
+        sesionHoja = sesionId
+        // 2. limpiar el intento anterior y solicitar una cotizacion
         preparacion?.cancel()
+        llaveIntento = null
         _uiState.value = PagoUiState()
-        preparacion = viewModelScope.launch {
-            try {
-                // 2. cargar el resumen actualizado del compromiso
-                val resumen = withContext(Dispatchers.IO) {
-                    repository.prepararPago(folio, usuarioId)
-                }
-                _uiState.update { it.copy(cargando = false, resumen = resumen) }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: PagoRechazado) {
-                // 3. presentar los errores de preparacion
-                mostrarError(e)
-            } catch (_: Exception) {
-                // 3. presentar los errores de preparacion
-                establecerError(R.string.pago_error_general)
-            }
+        preparacion = (scope ?: viewModelScope).launch { cargarCotizacion(folio) }
+    }
+
+    private suspend fun cargarCotizacion(folio: String) {
+        // 1. obtener el total y la cotizacion vigentes
+        try {
+            val resumen = withContext(Dispatchers.IO) { repository.prepararPago(folio) }
+            _uiState.update { it.copy(cargando = false, resumen = resumen) }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: PagoRechazado) {
+            // informar si el compromiso no puede cotizarse
+            mostrarError(e)
+        } catch (_: Exception) {
+            // informar si el compromiso no puede cotizarse
+            establecerError(R.string.pago_error_general)
         }
     }
 
-    // ---------- selección del metodo ----------
-    fun seleccionarMetodo(metodo: MetodoPago, usuarioId: Int) {
-        if (_uiState.value.procesando) return
-        // 1. consultar si existe una preferencia guardada para el medio
-        val identificador = preferences.obtenerIdentificador(usuarioId, metodo)
-        // 2. actualizar la selección y limpiar los datos de tarjeta anteriores
+    fun seleccionarMetodo(metodo: MetodoPagoModel) {
         _uiState.update {
-            it.copy(
-                metodo = metodo,
-                identificadorGuardado = identificador,
-                usarGuardado = identificador != null,
-                numeroTarjeta = "",
-                vencimientoTarjeta = "",
-                codigoSeguridad = "",
-                recordar = false,
-                errorNumeroTarjeta = null,
-                errorVencimientoTarjeta = null,
-                errorCodigoSeguridad = null,
-                error = null
-            )
+            if (it.cargando || it.procesando || it.resultadoIncierto || it.comprobanteConfirmado != null) it
+            else it.copy(metodo = metodo, error = null)
         }
-    }
-
-    fun avanzarADatos() {
-        val estado = _uiState.value
-        if (estado.cargando || estado.metodo == null) return
-        _uiState.update { it.copy(paso = PasoPago.DATOS, error = null) }
-    }
-
-    fun usarMetodoGuardado(usar: Boolean) {
-        _uiState.update {
-            it.copy(
-                usarGuardado = usar && it.identificadorGuardado != null,
-                errorNumeroTarjeta = null,
-                errorVencimientoTarjeta = null,
-                errorCodigoSeguridad = null,
-                error = null
-            )
-        }
-    }
-
-    // --- numero de tarjeta ---
-    fun cambiarNumeroTarjeta(valor: String) {
-        val numeros = valor.filter(Char::isDigit).take(16)
-        _uiState.update { it.copy(numeroTarjeta = numeros, errorNumeroTarjeta = null) }
-    }
-
-    fun validarNumeroTarjetaField() {
-        val error = PagoValidators.validarNumeroTarjeta(uiState.value.numeroTarjeta)
-        _uiState.update { it.copy(errorNumeroTarjeta = error) }
-    }
-
-    // --- vencimiento de tarjeta ---
-    fun cambiarVencimientoTarjeta(valor: String) {
-        // 1. conservar solo los dígitos para mantener estable el cursor
-        val numeros = valor.filter(Char::isDigit).take(4)
-        _uiState.update { it.copy(vencimientoTarjeta = numeros, errorVencimientoTarjeta = null) }
-    }
-
-    fun validarVencimientoTarjetaField() {
-        val error = PagoValidators.validarVencimientoTarjeta(uiState.value.vencimientoTarjeta)
-        _uiState.update { it.copy(errorVencimientoTarjeta = error) }
-    }
-
-    // --- codigo de seguridad ---
-    fun cambiarCodigoSeguridad(valor: String) {
-        val numeros = valor.filter(Char::isDigit).take(4)
-        _uiState.update { it.copy(codigoSeguridad = numeros, errorCodigoSeguridad = null) }
-    }
-
-    fun validarCodigoSeguridadField() {
-        val error = PagoValidators.validarCodigoSeguridad(uiState.value.codigoSeguridad)
-        _uiState.update { it.copy(errorCodigoSeguridad = error) }
-    }
-
-    // ---------- opciones del formulario ----------
-    fun limpiarDatosTarjeta() {
-        if (_uiState.value.procesando) return
-        _uiState.update {
-            it.copy(
-                numeroTarjeta = "", vencimientoTarjeta = "", codigoSeguridad = "",
-                errorNumeroTarjeta = null, errorVencimientoTarjeta = null,
-                errorCodigoSeguridad = null
-            )
-        }
-    }
-
-    fun cambiarRecordar(valor: Boolean) {
-        _uiState.update { it.copy(recordar = valor) }
     }
 
     fun avanzarAConfirmacion() {
-        // 1. verificar que el medio y el compromiso estén disponibles
-        val estado = _uiState.value
-        if (estado.metodo == null || estado.resumen == null || estado.procesando) return
-
-        // 2. validar cada campo si se ingresa una tarjeta nueva
-        if (!estado.usarGuardado && estado.metodo != MetodoPago.TRANSFERENCIA) {
-            val errorNumero = PagoValidators.validarNumeroTarjeta(estado.numeroTarjeta)
-            val errorVencimiento = PagoValidators.validarVencimientoTarjeta(estado.vencimientoTarjeta)
-            val errorCodigo = PagoValidators.validarCodigoSeguridad(estado.codigoSeguridad)
-
-            // 3. mostrar los errores y mantener el formulario si hay datos inválidos
-            if (errorNumero != null || errorVencimiento != null || errorCodigo != null) {
-                _uiState.update {
-                    it.copy(
-                        errorNumeroTarjeta = errorNumero,
-                        errorVencimientoTarjeta = errorVencimiento,
-                        errorCodigoSeguridad = errorCodigo
-                    )
-                }
-                return
-            }
+        _uiState.update {
+            if (it.cargando || it.procesando || it.metodo == null || it.resumen == null ||
+                it.comprobanteConfirmado != null) it
+            else it.copy(paso = PasoPago.CONFIRMACION, error = null)
         }
-
-        // 4. avanzar al resumen cuando los campos sean válidos
-        _uiState.update { it.copy(paso = PasoPago.CONFIRMACION, error = null) }
     }
 
     fun volver() {
-        if (_uiState.value.procesando) return
         _uiState.update {
-            it.copy(
-                paso = when (it.paso) {
-                    PasoPago.CONFIRMACION -> PasoPago.DATOS
-                    PasoPago.DATOS, PasoPago.METODO -> PasoPago.METODO
-                },
-                error = null
-            )
+            if (it.procesando || it.resultadoIncierto || it.comprobanteConfirmado != null) it
+            else it.copy(paso = PasoPago.METODO, error = null)
         }
     }
 
-    // ---------- confirmación del pago ----------
-    fun confirmarPago(usuarioId: Int) {
+    fun confirmarPago() {
+        // 1. validar que el pago puede confirmarse
         val estado = _uiState.value
-        if (estado.procesando || estado.paso != PasoPago.CONFIRMACION) return
+        if (estado.procesando || estado.cargando || estado.paso != PasoPago.CONFIRMACION ||
+            estado.comprobanteConfirmado != null) return
         val resumen = estado.resumen ?: return
         val metodo = estado.metodo ?: return
 
-        // 1. impedir confirmaciones duplicadas antes de lanzar la corrutina
+        // 2. conservar la llave de idempotencia entre reintentos
+        val llave = llaveIntento ?: UUID.randomUUID().toString().also { llaveIntento = it }
         _uiState.update { it.copy(procesando = true, error = null) }
-        viewModelScope.launch {
+        // 3. confirmar el pago con los datos de la cotizacion
+        (scope ?: viewModelScope).launch {
             try {
-                // 2. confirmar el pago simulado en la base local
-                val numero = withContext(Dispatchers.IO) {
-                    repository.confirmarPago(usuarioId, resumen, metodo)
+                val comprobante = withContext(Dispatchers.IO) {
+                    repository.confirmarPago(resumen, metodo, llave)
                 }
-                // 3. recordar la preferencia solo después de confirmar el pago
-                if (!estado.usarGuardado && estado.recordar) {
-                    try {
-                        preferences.recordar(usuarioId, metodo, estado.numeroTarjeta)
-                    } catch (_: Exception) {
-                        // 3. conservar el pago confirmado si falla la preferencia
-                    }
-                }
-                // 4. descartar los datos introducidos y publicar el comprobante
+                // 4. mostrar el comprobante devuelto por el backend
                 _uiState.update {
-                    it.copy(
-                        procesando = false,
-                        numeroTarjeta = "",
-                        vencimientoTarjeta = "",
-                        codigoSeguridad = "",
-                        errorNumeroTarjeta = null,
-                        errorVencimientoTarjeta = null,
-                        errorCodigoSeguridad = null,
-                        comprobanteConfirmado = numero
-                    )
-                }
-
-                // 5. evaluar los logros sin afectar un pago confirmado
-                viewModelScope.launch(Dispatchers.IO) {
-                    try {
-                        reconocimientosRepository.evaluar(usuarioId)
-                    } catch (e: CancellationException) {
-                        throw e
-                    } catch (_: Exception) {
-                        // los logros se recuperan al volver a la aplicacion
-                    }
+                    it.copy(procesando = false, resultadoIncierto = false,
+                        comprobanteConfirmado = comprobante)
                 }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: PagoRechazado) {
-                // 6. informar el rechazo de la confirmación
-                mostrarError(e)
+                if (e.motivo == MotivoRechazoPago.MONTO_CAMBIO) {
+                    // 4. pedir nueva cotizacion y exigir otra confirmacion
+                    llaveIntento = null
+                    _uiState.update {
+                        it.copy(procesando = false, cargando = true, resumen = null,
+                            paso = PasoPago.METODO, resultadoIncierto = false, error = null)
+                    }
+                    cargarCotizacion(resumen.folio)
+                    if (_uiState.value.resumen != null) {
+                        _uiState.update { it.copy(error = R.string.pago_error_cambio) }
+                    }
+                } else {
+                    mostrarError(e)
+                }
             } catch (_: Exception) {
-                // 6. informar el rechazo de la confirmación
-                establecerError(R.string.pago_error_general)
+                // 4. conservar la misma llave si el resultado es incierto
+                _uiState.update {
+                    it.copy(procesando = false, resultadoIncierto = true,
+                        error = R.string.pago_error_conexion)
+                }
             }
         }
     }
 
-    fun consumirComprobante() {
-        _uiState.update { it.copy(comprobanteConfirmado = null) }
-    }
-
-    // --- presentar error del pago ---
     private fun mostrarError(error: PagoRechazado) {
-        // 1. resolver el mensaje correspondiente al rechazo
+        // 1. convertir el motivo rechazado en un recurso de mensaje
         val recurso = when (error.motivo) {
             MotivoRechazoPago.NO_DISPONIBLE -> R.string.pago_error_no_disponible
             MotivoRechazoPago.EN_REVISION -> R.string.pago_error_revision
@@ -262,16 +140,14 @@ class PagoViewModel(
             MotivoRechazoPago.MONTO_CAMBIO -> R.string.pago_error_cambio
             MotivoRechazoPago.MEDIO_INVALIDO -> R.string.pago_error_medio
         }
-        // 2. actualizar el estado con el error y el folio bloqueante
+        // 2. restaurar el formulario sin confirmar el pago
         _uiState.update {
-            it.copy(
-                cargando = false, procesando = false,
-                error = recurso, folioBloqueante = error.folioAnterior
-            )
+            it.copy(cargando = false, procesando = false, resultadoIncierto = false,
+                resumen = null, paso = PasoPago.METODO,
+                error = recurso, folioBloqueante = error.folioAnterior)
         }
     }
 
-    // --- establecer error general ---
     private fun establecerError(@StringRes error: Int) {
         _uiState.update { it.copy(cargando = false, procesando = false, error = error) }
     }

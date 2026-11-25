@@ -1,12 +1,12 @@
 package com.pagoflex.app.features.perfil.presentation.screens
 
-import android.content.res.Configuration
 import android.content.ActivityNotFoundException
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,13 +16,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
@@ -39,12 +41,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -62,7 +65,6 @@ import com.pagoflex.app.core.ui.components.feedback.SnackbarHost
 import com.pagoflex.app.core.ui.components.inputs.TextField
 import com.pagoflex.app.core.ui.components.model.ComponentSize
 import com.pagoflex.app.core.ui.components.model.ComponentVariant
-import com.pagoflex.app.core.ui.theme.PagoFlexTheme
 import com.pagoflex.app.core.ui.theme.Theme
 import com.pagoflex.app.features.perfil.data.PerfilRepository
 import com.pagoflex.app.features.perfil.presentation.model.PerfilUiState
@@ -74,7 +76,8 @@ import kotlinx.coroutines.withContext
 @Composable
 fun PerfilScreen(
     onVolver: () -> Unit,
-    onCerrarSesion: () -> Unit
+    onCerrarSesion: () -> Unit,
+    onCambiarContrasena: () -> Unit
 ) {
     // ---------- estado y dependencias ----------
     val repositorio = remember { PerfilRepository() }
@@ -187,7 +190,13 @@ fun PerfilScreen(
         onNombres = viewModel::setNombres,
         onApellidos = viewModel::setApellidos,
         onCorreo = viewModel::setCorreo,
-        onCambiarContrasena = viewModel::limpiarErrorContrasena,
+        onLimpiarErrorContrasena = viewModel::limpiarErrorContrasena,
+        onAbrirCambioContrasena = {
+            if (!viewModel.uiState.value.cambiandoContrasena) {
+                viewModel.abrirCambioContrasena()
+                if (viewModel.uiState.value.cambiandoContrasena) onCambiarContrasena()
+            }
+        },
         onGuardar = viewModel::guardarCambios,
         onReintentar = viewModel::cargarPerfil
     )
@@ -207,7 +216,8 @@ private fun PerfilContent(
     onNombres: (String) -> Unit,
     onApellidos: (String) -> Unit,
     onCorreo: (String) -> Unit,
-    onCambiarContrasena: () -> Unit,
+    onLimpiarErrorContrasena: () -> Unit,
+    onAbrirCambioContrasena: () -> Unit,
     onGuardar: (String) -> Unit,
     onReintentar: () -> Unit
 ) {
@@ -255,7 +265,7 @@ private fun PerfilContent(
             else -> {
                 val perfil = checkNotNull(state.perfil)
                 Column(
-                    modifier = Modifier.fillMaxSize().padding(padding)
+                    modifier = Modifier.fillMaxSize().padding(padding).imePadding()
                         .verticalScroll(rememberScrollState())
                         .padding(Theme.dimens.paddingSides),
                     verticalArrangement = Arrangement.spacedBy(Theme.dimens.spacingM)
@@ -278,7 +288,7 @@ private fun PerfilContent(
                             )
                             Text(
                                 text = "${perfil.nombres} ${perfil.apellidos}".trim().ifBlank { nombreGenerico },
-                                style = Theme.type.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                                style = Theme.type.titleLarge.copy(fontWeight = FontWeight.SemiBold),
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
                                 textAlign = TextAlign.Center
@@ -287,8 +297,9 @@ private fun PerfilContent(
                                 horizontalArrangement = Arrangement.spacedBy(Theme.dimens.spacingS),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Button(
+                                OutlinedButton(
                                     onClick = onTomarFoto,
+                                    variant = ComponentVariant.Secondary,
                                     enabled = !state.guardando && !state.editando,
                                     size = ComponentSize.Small
                                 ) { Text(stringResource(R.string.perfil_cambiar_foto)) }
@@ -308,8 +319,6 @@ private fun PerfilContent(
                                 ) { Text(stringResource(R.string.perfil_eliminar_foto)) }
                             }
                     }
-
-                    HorizontalDivider(color = Theme.colores.outlineVariant)
 
                     // ---------- datos personales ----------
                     Column(
@@ -376,7 +385,7 @@ private fun PerfilContent(
                                         modifier = Modifier.fillMaxWidth(),
                                         value = contrasena,
                                         enabled = !state.guardando,
-                                        onValueChange = { contrasena = it; onCambiarContrasena() },
+                                        onValueChange = { contrasena = it; onLimpiarErrorContrasena() },
                                         label = stringResource(R.string.perfil_contrasena_actual),
                                         containerColor = colorCampo,
                                         outlineColor = bordeCampo,
@@ -415,7 +424,24 @@ private fun PerfilContent(
                             )
                     }
 
-                    HorizontalDivider(color = Theme.colores.outlineVariant)
+                    Spacer(Modifier.size(Theme.dimens.spacingXS))
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                            .clip(RoundedCornerShape(Theme.dimens.radiusS))
+                            .clickable(enabled = !state.guardando && !state.editando, onClick = onAbrirCambioContrasena)
+                            .padding(horizontal = Theme.dimens.spacingXS, vertical = Theme.dimens.spacingM),
+                        horizontalArrangement = Arrangement.spacedBy(Theme.dimens.spacingM),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(Theme.dimens.spacingXXS)) {
+                            Text(stringResource(R.string.perfil_cambiar_contrasena), style = Theme.type.bodyLarge)
+                            Text(stringResource(R.string.perfil_seguridad_descripcion),
+                                style = Theme.type.bodySmall, color = Theme.colores.onSurfaceVariant)
+                        }
+                        Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null,
+                            tint = Theme.colores.onSurfaceVariant)
+                    }
 
                     if (state.guardando) {
                         CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
@@ -425,12 +451,14 @@ private fun PerfilContent(
                     }
 
                     // ---------- sesion ----------
+                    Spacer(Modifier.size(Theme.dimens.spacingS))
                     OutlinedButton(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = onCerrarSesion,
                         enabled = !state.guardando,
                         variant = ComponentVariant.Destructive
                     ) { Text(stringResource(R.string.perfil_cerrar_sesion)) }
+                    Spacer(Modifier.size(Theme.dimens.spacingL))
                 }
             }
         }
@@ -441,9 +469,15 @@ private fun PerfilContent(
 
 @Composable
 private fun DatoPerfil(titulo: String, valor: String) {
-    Column(verticalArrangement = Arrangement.spacedBy(Theme.dimens.spacingXXS)) {
-        Text(titulo, style = Theme.type.labelMedium, color = Theme.colores.onSurfaceVariant)
-        Text(valor, style = Theme.type.bodyLarge)
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = Theme.dimens.spacingXS),
+        horizontalArrangement = Arrangement.spacedBy(Theme.dimens.spacingM),
+        verticalAlignment = Alignment.Top
+    ) {
+        Text(titulo, modifier = Modifier.weight(0.4f), style = Theme.type.bodyMedium,
+            color = Theme.colores.onSurfaceVariant)
+        Text(valor, modifier = Modifier.weight(0.6f), style = Theme.type.bodyMedium,
+            textAlign = TextAlign.End)
     }
 }
 

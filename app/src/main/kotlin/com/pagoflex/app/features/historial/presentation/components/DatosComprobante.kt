@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.pagoflex.app.R
-import com.pagoflex.app.core.data.local.entities.Comprobante
+import com.pagoflex.app.features.historial.data.remote.dto.response.ComprobanteHistorialResponse
 import com.pagoflex.app.core.ui.components.containers.Card
 import com.pagoflex.app.core.ui.components.containers.Divider
 import com.pagoflex.app.core.ui.theme.Theme
@@ -21,7 +21,7 @@ import java.util.Locale
 
 // ---------- datos de comprobante ----------
 @Composable
-fun DatosComprobante(comprobante: Comprobante) {
+fun DatosComprobante(comprobante: ComprobanteHistorialResponse) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -35,18 +35,18 @@ fun DatosComprobante(comprobante: Comprobante) {
         ) {
             FilaComprobante(
                 stringResource(R.string.comprobante_numero),
-                comprobante.numeroComprobante,
+                comprobante.numero,
                 true
             )
             FilaComprobante(
                 stringResource(R.string.comprobante_fecha_hora),
-                comprobante.fechaHora.format(
+                java.time.LocalDateTime.parse(comprobante.fechaPago).format(
                     DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")
                 )
             )
             FilaComprobante(
                 stringResource(R.string.comprobante_pagado_por),
-                "${comprobante.nombrePagador} · ${comprobante.rut.ocultarRut()}"
+                "${comprobante.personaNombre} · ${comprobante.personaRut.ocultarRut()}"
             )
             FilaComprobante(stringResource(R.string.comprobante_empresa), comprobante.empresa)
             FilaComprobante(stringResource(R.string.comprobante_folio), comprobante.folio)
@@ -60,36 +60,36 @@ fun DatosComprobante(comprobante: Comprobante) {
             )
             FilaComprobante(
                 stringResource(R.string.comprobante_vencimiento),
-                comprobante.fechaVencimiento.format(
+                java.time.LocalDate.parse(comprobante.fechaVencimiento).format(
                     DateTimeFormatter.ofPattern("dd-MM-yyyy")
                 )
             )
             Divider()
             FilaComprobante(
                 stringResource(R.string.comprobante_monto_cuota),
-                comprobante.montoCuota.toLong().formatoCLP()
+                comprobante.monto.formatoCLP()
             )
             FilaComprobante(
                 stringResource(R.string.comprobante_recargo),
-                comprobante.recargo.toLong().formatoCLP()
+                comprobante.recargo.formatoCLP()
             )
             FilaComprobante(
                 stringResource(R.string.comprobante_total_pagado),
-                comprobante.montoPagado.toLong().formatoCLP(),
+                comprobante.total.formatoCLP(),
                 true
             )
             Divider()
-            FilaComprobante(stringResource(R.string.comprobante_medio_pago), comprobante.medioPago)
-            FilaComprobante(stringResource(R.string.comprobante_canal), comprobante.canal)
+            FilaComprobante(stringResource(R.string.comprobante_medio_pago), nombreMedioPago(comprobante.medio))
+            FilaComprobante(stringResource(R.string.comprobante_canal), nombreCanalPago(comprobante.canal))
         }
     }
 }
 
-// --- formatear monto en CLP ---
+// --- formatear monto en clp ---
 fun Long.formatoCLP(): String = "$ " +
         NumberFormat.getNumberInstance(Locale.forLanguageTag("es-CL")).format(this)
 
-// --- ocultar RUT ---
+// --- ocultar rut ---
 fun String.ocultarRut(): String {
     val limpio = filter { it.isDigit() || it.equals('k', true) }
     if (limpio.length < 4) return "•••"
@@ -97,4 +97,21 @@ fun String.ocultarRut(): String {
     val oculto = "•".repeat(cuerpo.length - 3) + cuerpo.takeLast(3)
     val formateado = oculto.reversed().chunked(3).joinToString(".").reversed()
     return "$formateado-${limpio.last()}"
+}
+
+/** Presentación localizada de los enums del backend, sin modificar los valores de la API. */
+@Composable
+fun nombreCanalPago(canal: String): String = when (canal) {
+    "APP" -> stringResource(R.string.historial_canal_app)
+    "PORTAL" -> stringResource(R.string.historial_canal_portal)
+    "AGENTE_CONVERSACIONAL" -> stringResource(R.string.historial_canal_agente)
+    else -> canal
+}
+
+@Composable
+private fun nombreMedioPago(medio: String): String = when (medio) {
+    "DEBITO" -> stringResource(R.string.comprobante_medio_debito)
+    "CREDITO" -> stringResource(R.string.comprobante_medio_credito)
+    "TRANSFERENCIA" -> stringResource(R.string.comprobante_medio_transferencia)
+    else -> medio
 }

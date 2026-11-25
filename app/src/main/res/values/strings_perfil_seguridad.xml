@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="perfil_rol_usuario">Usuario final</string>
+    <string name="perfil_rol_agente">Agente</string>
+    <string name="perfil_rol_ejecutivo">Ejecutivo</string>
+    <string name="perfil_cambiar_contrasena">Cambiar contraseña</string>
+    <string name="perfil_seguridad_descripcion">Actualiza la contraseña de tu cuenta.</string>
+    <string name="perfil_guardar_contrasena">Guardar contraseña</string>
+    <string name="perfil_contrasena_diferente">La nueva contraseña debe ser diferente de la actual.</string>
+    <string name="perfil_contrasena_guardada">Contraseña actualizada correctamente.</string>
+    <string name="perfil_error_cambiar_contrasena">No fue posible cambiar la contraseña. Inténtalo nuevamente.</string>
+</resources>

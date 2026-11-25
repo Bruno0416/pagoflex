@@ -7,8 +7,8 @@ import com.pagoflex.app.core.data.local.LocalDatabase
 import com.pagoflex.app.core.data.local.entities.Anulacion
 import com.pagoflex.app.core.data.local.entities.Compromiso
 import com.pagoflex.app.core.data.local.entities.Usuario
-import com.pagoflex.app.core.profiles.ControlAcceso
-import com.pagoflex.app.core.profiles.model.PerfilUsuario
+import com.pagoflex.app.core.data.local.ControlAccesoLocal
+import com.pagoflex.app.core.network.auth.model.PerfilUsuario
 import com.pagoflex.app.core.rules.Accion
 import com.pagoflex.app.core.rules.EstadoReporte
 import com.pagoflex.app.core.rules.MotivoAnulacion
@@ -56,7 +56,7 @@ sealed class ResultadoRegistro {
 // gestión de compromisos del ejecutivo: cobranza (HU-12), registro y anulación (HU-11)
 class CobranzaRepository(private val db: LocalDatabase) {
 
-    private val acceso = ControlAcceso(db)
+    private val acceso = ControlAccesoLocal(db)
 
     // solo un ejecutivo activo entra a la cobranza de su empresa (RN-22)
     suspend fun obtenerEjecutivo(usuarioId: Int): EjecutivoSesion? {

@@ -1,6 +1,7 @@
 package com.pagoflex.app.features.perfil.data.remote
 
 import com.pagoflex.app.features.perfil.data.remote.dto.request.ActualizarPerfilRequest
+import com.pagoflex.app.features.perfil.data.remote.dto.request.CambiarContrasenaRequest
 import com.pagoflex.app.features.perfil.data.remote.dto.response.ActualizarPerfilResponse
 import com.pagoflex.app.features.perfil.data.remote.dto.response.PerfilResponse
 import okhttp3.MultipartBody
@@ -19,6 +20,9 @@ interface PerfilApi {
 
     @PATCH("usuarios/me")
     suspend fun actualizar(@Body request: ActualizarPerfilRequest): ActualizarPerfilResponse
+
+    @PUT("usuarios/me/contrasena")
+    suspend fun cambiarContrasena(@Body request: CambiarContrasenaRequest)
 
     @GET("usuarios/me/avatar")
     suspend fun descargarAvatar(): ResponseBody

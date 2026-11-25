@@ -6,6 +6,7 @@ import com.pagoflex.app.core.network.auth.model.SesionUsuario
 import com.pagoflex.app.core.network.auth.model.TokensSesion
 import com.pagoflex.app.features.perfil.data.remote.PerfilApi
 import com.pagoflex.app.features.perfil.data.remote.dto.request.ActualizarPerfilRequest
+import com.pagoflex.app.features.perfil.data.remote.dto.request.CambiarContrasenaRequest
 import com.pagoflex.app.features.perfil.data.remote.dto.response.PerfilResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -17,8 +18,9 @@ import retrofit2.HttpException
 import retrofit2.create
 import java.io.ByteArrayOutputStream
 
-class PerfilRepository {
-    private val api = RetrofitClient.retrofit.create<PerfilApi>()
+class PerfilRepository(
+    private val api: PerfilApi = RetrofitClient.retrofit.create<PerfilApi>()
+) {
 
     // ---------- consulta y edicion ----------
     suspend fun obtenerPerfil(): PerfilResponse = api.obtenerPerfil()
@@ -37,6 +39,8 @@ class PerfilRepository {
         }
         return respuesta.perfil
     }
+
+    suspend fun cambiarContrasena(request: CambiarContrasenaRequest) = api.cambiarContrasena(request)
 
     // ---------- fotografia ----------
     suspend fun guardarAvatar(imagen: Bitmap): Pair<PerfilResponse, ByteArray> {
@@ -71,7 +75,20 @@ class PerfilRepository {
     fun camposInvalidos(error: HttpException): Map<String, String> {
         val texto = error.response()?.errorBody()?.string().orEmpty()
         return runCatching {
-            val campos = JSONObject(texto).optJSONObject("invalid_fields") ?: return@runCatching emptyMap()
+            val json = JSONObject(texto)
+            val campos = json.optJSONObject("invalid_fields")
+            if (campos == null || campos.length() == 0) {
+                // Los errores de negocio no siempre incluyen invalid_fields.
+                val mensajes = listOf(
+                    json.optString("detail"), json.optString("message"),
+                    json.optString("error"), json.optString("title")
+                )
+                return@runCatching when {
+                    "Contraseña actual incorrecta" in mensajes -> mapOf("contrasenaActual" to "Contraseña actual incorrecta")
+                    "La nueva contraseña debe ser diferente" in mensajes -> mapOf("nuevaContrasena" to "La nueva contraseña debe ser diferente")
+                    else -> emptyMap()
+                }
+            }
             buildMap {
                 val claves = campos.keys()
                 while (claves.hasNext()) {

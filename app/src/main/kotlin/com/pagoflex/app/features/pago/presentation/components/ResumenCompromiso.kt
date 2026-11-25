@@ -15,13 +15,12 @@ import com.pagoflex.app.core.ui.components.containers.Card
 import com.pagoflex.app.core.ui.components.model.ComponentVariant
 import com.pagoflex.app.core.ui.theme.PagoFlexTheme
 import com.pagoflex.app.core.ui.theme.Theme
-import com.pagoflex.app.features.pago.data.ResumenPago
+import com.pagoflex.app.features.pago.data.remote.dto.response.CotizacionPagoResponse
 import java.text.NumberFormat
-import java.time.LocalDate
 import java.util.Locale
 
 @Composable
-internal fun ResumenCompromiso(resumen: ResumenPago) {
+internal fun ResumenCompromiso(resumen: CotizacionPagoResponse) {
     val cuota = if (resumen.numeroCuota != null && resumen.totalCuotas != null) {
         stringResource(R.string.pago_resumen_cuota, resumen.numeroCuota, resumen.totalCuotas)
     } else ""
@@ -34,7 +33,7 @@ internal fun ResumenCompromiso(resumen: ResumenPago) {
             Text(
                 text = stringResource(
                     R.string.pago_resumen_concepto,
-                    resumen.organizacion,
+                    resumen.empresa,
                     resumen.concepto
                 ) + cuota,
                 style = Theme.type.bodyMedium,
@@ -68,7 +67,7 @@ internal fun ResumenCompromiso(resumen: ResumenPago) {
     }
 }
 
-// --- formato CLP ---
+// --- formatear monto en clp ---
 private fun Number.formatoCLP(): String =
     "$ " + NumberFormat.getIntegerInstance(Locale.forLanguageTag("es-CL")).format(toLong())
 
@@ -79,17 +78,18 @@ private fun Number.formatoCLP(): String =
 private fun ResumenCompromisoPreview() {
     PagoFlexTheme {
         ResumenCompromiso(
-            ResumenPago(
+            CotizacionPagoResponse(
                 folio = "CP-2026-0102",
-                organizacion = "Club Los Halcones",
+                empresa = "Club Los Halcones",
                 concepto = "Cuota social octubre",
                 numeroCuota = 10,
                 totalCuotas = 12,
                 monto = 15_000,
                 recargo = 2_000,
                 total = 17_000,
-                fechaVencimiento = LocalDate.of(2026, 10, 5),
-                fechaConsulta = LocalDate.of(2026, 10, 25)
+                fechaVencimiento = "2026-10-05",
+                fechaConsulta = "2026-10-25",
+                cotizacionId = "demo"
             )
         )
     }
