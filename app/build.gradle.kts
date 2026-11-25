@@ -7,6 +7,14 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+import java.util.Properties
+
+// claves de firma fuera del repo: keystore.properties en la raíz junto al .jks (no se sube a GitHub)
+val firma = Properties().apply {
+    val archivo = rootProject.file("keystore.properties")
+    if (archivo.exists()) archivo.inputStream().use { load(it) }
+}
+
 android {
     namespace = "com.pagoflex.app"
     compileSdk {
@@ -23,8 +31,21 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // firma del apk/aab release con pagoflex-release.jks (alias pagoflex)
+    signingConfigs {
+        create("release") {
+            if (!firma.isEmpty) {
+                storeFile = rootProject.file(firma.getProperty("storeFile"))
+                storePassword = firma.getProperty("storePassword")
+                keyAlias = firma.getProperty("keyAlias")
+                keyPassword = firma.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
+            if (!firma.isEmpty) signingConfig = signingConfigs.getByName("release")
             optimization {
                 enable = false
             }
