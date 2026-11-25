@@ -1,5 +1,6 @@
 package com.pagoflex.app.core.navigation
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
@@ -39,6 +40,9 @@ fun AppNavegacion(perfil: PerfilUsuario, onCerrarSesion: () -> Unit) {
         PerfilUsuario.AGENTE -> Ruta.BandejaReportes.ruta
         PerfilUsuario.EJECUTIVO -> Ruta.ResumenCobranza.ruta
     }
+
+    // no retroceder fuera de la pantalla inicial del rol
+    BackHandler(enabled = rutaActual == rutaInicial && navController.previousBackStackEntry == null) { }
 
     Scaffold(
         containerColor = Theme.colores.background,

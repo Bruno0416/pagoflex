@@ -21,11 +21,6 @@ android {
         versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        // gateway del backend; 10.0.2.2 es el pc visto desde el emulador.
-        // en un celular: pagoflex.apiUrl=http://IP-DEL-PC:8080/ en gradle.properties
-        val apiUrl = providers.gradleProperty("pagoflex.apiUrl").getOrElse("http://10.0.2.2:8080/")
-        buildConfigField("String", "API_URL", "\"$apiUrl\"")
     }
 
     buildTypes {
@@ -42,7 +37,6 @@ android {
     }
     buildFeatures {
         compose = true
-        buildConfig = true
     }
 }
 
@@ -57,6 +51,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
 
     // --- compose ---
     implementation(platform(libs.androidx.compose.bom))
@@ -83,6 +78,9 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
 
+    // --- mostrar foto servidor ---
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
 
     // --- herramientas de depuración compose ---
     debugImplementation(libs.androidx.compose.ui.tooling)
@@ -96,15 +94,6 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-
-    // --- retrofit dependencias ---
-    implementation("com.squareup.retrofit2:retrofit:3.0.0")
-    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
-
-    // --- mostrar foto servidor ---
-    implementation("io.coil-kt.coil3:coil-compose:3.4.0")
-    implementation("io.coil-kt.coil3:coil-network-okhttp:3.4.0")
 }
 
 room3 {

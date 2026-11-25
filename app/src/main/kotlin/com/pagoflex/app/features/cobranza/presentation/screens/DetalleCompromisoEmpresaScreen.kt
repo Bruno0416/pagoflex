@@ -25,7 +25,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -67,8 +67,7 @@ fun DetalleCompromisoEmpresaScreen(
     onVolver: () -> Unit,
 ) {
     // ---------- dependencias ----------
-    val contexto = LocalContext.current.applicationContext
-    val repositorio = remember(db) { CobranzaRepository(CobranzaRemoto.crear(contexto), CuentaRemota.crear(contexto)) }
+    val repositorio = remember(db) { CobranzaRepository(CobranzaRemoto.crear(), CuentaRemota.crear()) }
     val viewModel: DetalleCompromisoViewModel = viewModel(
         key = "detalle-$folio",
         factory = viewModelFactory {
@@ -77,7 +76,7 @@ fun DetalleCompromisoEmpresaScreen(
     )
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
-    val context = LocalContext.current
+    val resources = LocalResources.current
     // número del reporte cuyo chat está abierto
     var chatReporte by rememberSaveable { mutableStateOf<String?>(null) }
 
@@ -88,7 +87,7 @@ fun DetalleCompromisoEmpresaScreen(
     // mostrar el aviso de anulación una sola vez
     LaunchedEffect(uiState.mensaje) {
         uiState.mensaje?.let {
-            snackbar.showSnackbar(context.getString(it))
+            snackbar.showSnackbar(resources.getString(it))
             viewModel.mensajeMostrado()
         }
     }

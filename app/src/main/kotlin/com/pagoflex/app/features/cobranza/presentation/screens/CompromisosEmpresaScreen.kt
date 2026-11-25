@@ -19,7 +19,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -45,8 +44,7 @@ fun CompromisosEmpresaScreen(
     onVerCompromiso: (String) -> Unit,
 ) {
     // ---------- dependencias ----------
-    val contexto = LocalContext.current.applicationContext
-    val repositorio = remember(db) { CobranzaRepository(CobranzaRemoto.crear(contexto), CuentaRemota.crear(contexto)) }
+    val repositorio = remember(db) { CobranzaRepository(CobranzaRemoto.crear(), CuentaRemota.crear()) }
     val viewModel: CompromisosEmpresaViewModel = viewModel(
         factory = viewModelFactory {
             initializer { CompromisosEmpresaViewModel(repositorio) }

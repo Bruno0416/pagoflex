@@ -29,7 +29,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -64,8 +63,7 @@ fun RegistrarCompromisoScreen(
     onVolverResumen: () -> Unit,
 ) {
     // ---------- dependencias ----------
-    val contexto = LocalContext.current.applicationContext
-    val repositorio = remember(db) { CobranzaRepository(CobranzaRemoto.crear(contexto), CuentaRemota.crear(contexto)) }
+    val repositorio = remember(db) { CobranzaRepository(CobranzaRemoto.crear(), CuentaRemota.crear()) }
     val viewModel: RegistrarCompromisoViewModel = viewModel(
         factory = viewModelFactory {
             initializer { RegistrarCompromisoViewModel(repositorio) }
@@ -97,7 +95,7 @@ fun RegistrarCompromisoScreen(
             text = stringResource(
                 R.string.cob_registrado_texto,
                 compromiso.folio,
-                compromiso.monto.toLong().aPesos(),
+                compromiso.monto.aPesos(),
                 compromiso.fechaVencimiento.aTexto()
             ),
             confirmText = stringResource(R.string.cob_volver_resumen),

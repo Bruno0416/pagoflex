@@ -25,7 +25,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -66,8 +66,7 @@ fun DetalleReporteScreen(
     onVolver: () -> Unit,
 ) {
     // ---------- dependencias ----------
-    val contexto = LocalContext.current.applicationContext
-    val repositorio = remember(db) { ReportesRepository(ReportesRemoto.crear(contexto), CuentaRemota.crear(contexto)) }
+    val repositorio = remember(db) { ReportesRepository(ReportesRemoto.crear(), CuentaRemota.crear()) }
     val viewModel: DetalleReporteViewModel = viewModel(
         key = "reporte-$numero",
         factory = viewModelFactory {
@@ -76,7 +75,7 @@ fun DetalleReporteScreen(
     )
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
-    val context = LocalContext.current
+    val resources = LocalResources.current
     var chatAbierto by rememberSaveable { mutableStateOf(false) }
     var comprobanteAbierto by rememberSaveable { mutableStateOf(false) }
 
@@ -86,7 +85,7 @@ fun DetalleReporteScreen(
 
     LaunchedEffect(uiState.mensaje) {
         uiState.mensaje?.let {
-            snackbar.showSnackbar(context.getString(it))
+            snackbar.showSnackbar(resources.getString(it))
             viewModel.mensajeMostrado()
         }
     }

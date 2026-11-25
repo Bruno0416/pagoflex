@@ -28,7 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -89,7 +89,6 @@ fun ChatReporte(
 ) {
     // ---------- dependencias ----------
     // el viewmodel vive solo mientras el chat está abierto: al cerrarlo se corta el canal en vivo
-    val contexto = LocalContext.current.applicationContext
     val dueno = remember(numero) {
         object : ViewModelStoreOwner {
             override val viewModelStore = ViewModelStore()
@@ -99,7 +98,7 @@ fun ChatReporte(
         onDispose { dueno.viewModelStore.clear() }
     }
     val repositorio = remember(numero, rolPropio) {
-        MensajeriaRepository(MensajeriaRemoto.crear(contexto), rolPropio)
+        MensajeriaRepository(MensajeriaRemoto.crear(), rolPropio)
     }
     val viewModel: ChatViewModel = viewModel(
         viewModelStoreOwner = dueno,
@@ -110,7 +109,7 @@ fun ChatReporte(
     )
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
-    val context = LocalContext.current
+    val resources = LocalResources.current
 
     // escuchar en vivo solo con la app a la vista
     LifecycleStartEffect(viewModel) {
@@ -120,7 +119,7 @@ fun ChatReporte(
 
     LaunchedEffect(uiState.aviso) {
         uiState.aviso?.let {
-            snackbar.showSnackbar(context.getString(it))
+            snackbar.showSnackbar(resources.getString(it))
             viewModel.avisoMostrado()
         }
     }

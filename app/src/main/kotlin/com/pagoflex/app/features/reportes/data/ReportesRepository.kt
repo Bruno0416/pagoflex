@@ -85,12 +85,10 @@ class ReportesRepository(
         remoto.detalle(numero, hoy)
 
     // queda registrado como responsable (RN-23)
-    @StringRes
     @Suppress("UNUSED_PARAMETER")
     suspend fun tomar(numero: String, agenteId: Int, ahora: LocalDateTime): Int? = remoto.tomar(numero)
 
     // solo lo resuelve el agente responsable y con respuesta para el usuario (RN-23)
-    @StringRes
     @Suppress("UNUSED_PARAMETER")
     suspend fun resolver(numero: String, agenteId: Int, respuesta: String, ahora: LocalDateTime): Int? {
         if (respuesta.isBlank()) return R.string.rep_error_sin_respuesta

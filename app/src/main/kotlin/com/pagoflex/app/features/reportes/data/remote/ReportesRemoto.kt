@@ -1,9 +1,7 @@
 package com.pagoflex.app.features.reportes.data.remote
 
-import android.content.Context
-import androidx.annotation.StringRes
 import com.pagoflex.app.R
-import com.pagoflex.app.core.data.remote.ApiCliente
+import com.pagoflex.app.core.network.RetrofitClient
 import com.pagoflex.app.core.data.remote.ErrorApi
 import com.pagoflex.app.core.data.remote.llamar
 import com.pagoflex.app.core.data.remote.llamarONulo
@@ -29,7 +27,10 @@ class ReportesRemoto(
 ) {
 
     companion object {
-        fun crear(context: Context): ReportesRemoto = ReportesRemoto(ApiCliente.api(context), ApiCliente.api(context))
+        fun crear(): ReportesRemoto = ReportesRemoto(
+            RetrofitClient.retrofit.create(SoporteApi::class.java),
+            RetrofitClient.retrofit.create(CobranzaApi::class.java)
+        )
     }
 
     // ---------- usuario final ----------
@@ -87,12 +88,10 @@ class ReportesRemoto(
     suspend fun comprobante(numero: String): ByteArray = llamar { soporte.comprobante(numero) }.bytes()
 
     // al tomarlo queda asignado y en atención; en la app se ve como en gestión
-    @StringRes
     suspend fun tomar(numero: String): Int? =
         gestionar { soporte.asignar(numero) } ?: gestionar { soporte.atender(numero) }
 
     // si quedó solo asignado se inicia la atención antes de resolver
-    @StringRes
     suspend fun resolver(numero: String, respuesta: String): Int? {
         val actual = try {
             llamarONulo { soporte.detalle(numero) }
@@ -108,7 +107,6 @@ class ReportesRemoto(
     // ---------- helpers privados ----------
 
     // null si salió bien o el mensaje según lo que respondió el backend (RN-23)
-    @StringRes
     private suspend fun gestionar(peticion: suspend () -> retrofit2.Response<ReporteDto>): Int? =
         try {
             llamar(peticion)

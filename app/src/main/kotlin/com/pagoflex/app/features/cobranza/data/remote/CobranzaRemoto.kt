@@ -1,9 +1,8 @@
 package com.pagoflex.app.features.cobranza.data.remote
 
-import android.content.Context
 import androidx.annotation.StringRes
 import com.pagoflex.app.R
-import com.pagoflex.app.core.data.remote.ApiCliente
+import com.pagoflex.app.core.network.RetrofitClient
 import com.pagoflex.app.core.data.remote.ErrorApi
 import com.pagoflex.app.core.data.remote.llamar
 import com.pagoflex.app.core.data.remote.llamarONulo
@@ -32,8 +31,11 @@ class CobranzaRemoto(
 ) {
 
     companion object {
-        fun crear(context: Context): CobranzaRemoto =
-            CobranzaRemoto(ApiCliente.api(context), ApiCliente.api(context))
+        fun crear(): CobranzaRemoto =
+            CobranzaRemoto(
+                RetrofitClient.retrofit.create(CobranzaApi::class.java),
+                RetrofitClient.retrofit.create(SoporteApi::class.java)
+            )
     }
 
     // reporte sin resolver del cobro; lo lleva soporte-service (RN-22)
@@ -80,7 +82,7 @@ class CobranzaRemoto(
                         correo = formulario.correo.trim().lowercase().takeIf { personaNueva },
                         telefono = formulario.telefono.trim().takeIf { personaNueva },
                         concepto = formulario.concepto.trim(),
-                        monto = Validaciones.parsearMonto(formulario.monto)!!.toLong(),
+                        monto = Validaciones.parsearMonto(formulario.monto)!!,
                         fechaVencimiento = Validaciones.parsearFecha(formulario.vencimiento)!!.toString(),
                         numeroCuota = formulario.numeroCuota.trim().toIntOrNull(),
                         totalCuotas = formulario.totalCuotas.trim().toIntOrNull(),
@@ -97,7 +99,6 @@ class CobranzaRemoto(
         }
 
     // devuelve el id del mensaje de error o null si se anuló
-    @StringRes
     suspend fun anular(folio: String, motivo: MotivoAnulacion, comentario: String): Int? =
         try {
             llamar { api.anular(folio, AnularCompromisoBody(motivo.name, comentario.trim().ifBlank { null })) }

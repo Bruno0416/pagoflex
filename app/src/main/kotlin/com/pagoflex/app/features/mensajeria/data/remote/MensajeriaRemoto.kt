@@ -1,8 +1,7 @@
 package com.pagoflex.app.features.mensajeria.data.remote
 
-import android.content.Context
 import com.google.gson.Gson
-import com.pagoflex.app.core.data.remote.ApiCliente
+import com.pagoflex.app.core.network.RetrofitClient
 import com.pagoflex.app.core.data.remote.ErrorApi
 import com.pagoflex.app.core.data.remote.llamar
 import kotlinx.coroutines.CancellationException
@@ -47,9 +46,9 @@ class MensajeriaRemoto(
         private const val ESPERA_INICIAL = 1_000L
         private const val ESPERA_MAXIMA = 15_000L
 
-        // mismo cliente de bruno (token y renovación) pero sin límite de lectura para el stream
-        fun crear(context: Context): MensajeriaRemoto {
-            val retrofit = ApiCliente.retrofit(context)
+        // mismo cliente autenticado, sin límite de lectura para el stream
+        fun crear(): MensajeriaRemoto {
+            val retrofit = RetrofitClient.retrofit
             val cliente = (retrofit.callFactory() as OkHttpClient).newBuilder()
                 .readTimeout(0, TimeUnit.MILLISECONDS)
                 .build()

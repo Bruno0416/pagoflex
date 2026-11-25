@@ -142,7 +142,6 @@ class CobranzaRepository(
     // ---------- anulación (HU-11, RN-21) ----------
 
     // devuelve el id del mensaje de error o null si se anuló; empresa y estado los revisa el backend
-    @StringRes
     @Suppress("UNUSED_PARAMETER")
     suspend fun anular(
         folio: String,
