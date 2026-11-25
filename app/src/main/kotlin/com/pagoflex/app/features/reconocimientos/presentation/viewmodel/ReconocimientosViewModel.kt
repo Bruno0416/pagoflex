@@ -19,14 +19,13 @@ class ReconocimientosViewModel(
     private val _uiState = MutableStateFlow(ReconocimientosUiState())
     val uiState = _uiState.asStateFlow()
 
-    fun cargarReconocimientos(usuarioId: Int) {
-        if (usuarioId <= 0) return
+    fun cargarReconocimientos() {
         viewModelScope.launch {
             _uiState.update { it.copy(cargando = true, mensajeError = null) }
             try {
-                // 1. actualizar y consultar los logros reales del usuario
+                // 1. consultar los logros reales del usuario
                 val reconocimientos = withContext(Dispatchers.IO) {
-                    repositorio.evaluarYObtener(usuarioId)
+                    repositorio.obtenerReconocimientos()
                 }
                 // 2. mostrar los reconocimientos guardados
                 _uiState.update { it.copy(cargando = false, reconocimientos = reconocimientos) }

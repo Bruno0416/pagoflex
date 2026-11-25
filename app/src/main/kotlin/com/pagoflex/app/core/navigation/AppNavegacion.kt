@@ -1,6 +1,8 @@
 package com.pagoflex.app.core.navigation
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
@@ -106,7 +108,11 @@ fun AppNavegacion(perfil: PerfilUsuario, onCerrarSesion: () -> Unit) {
         NavHost(
             navController = navController,
             startDestination = rutaInicial,
-            modifier = Modifier.padding(padding).consumeWindowInsets(padding)
+            modifier = Modifier.padding(padding).consumeWindowInsets(padding),
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None },
+            popEnterTransition = { EnterTransition.None },
+            popExitTransition = { ExitTransition.None }
         ) {
             when (perfil) {
                 PerfilUsuario.USUARIO_FINAL -> grafoUsuario(db, navController, onCerrarSesion)

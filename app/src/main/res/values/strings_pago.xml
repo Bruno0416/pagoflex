@@ -24,6 +24,7 @@
     <string name="pago_no_pagable_revision">Este compromiso está en revisión y no puede pagarse por ahora.</string>
     <string name="pago_no_pagable_anulado">Este compromiso fue anulado y no requiere pago.</string>
     <string name="pago_simulacion">Pago simulado. No necesitas ingresar información bancaria.</string>
+    <string name="pago_procesando">Procesando pago…</string>
     <string name="pago_exito_titulo">Pago confirmado</string>
     <string name="pago_exito_comprobante">Comprobante: %1$s</string>
     <string name="pago_error_conexion">No pudimos confirmar el resultado. Puedes reintentar de forma segura.</string>

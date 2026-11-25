@@ -32,7 +32,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.pagoflex.app.R
-import com.pagoflex.app.core.data.local.LocalDatabase
 import com.pagoflex.app.core.ui.components.buttons.IconButton
 import com.pagoflex.app.core.ui.components.feedback.CircularProgressIndicator
 import com.pagoflex.app.core.ui.components.model.ComponentVariant
@@ -46,11 +45,9 @@ import kotlin.collections.forEach
 
 @Composable
 fun ReconocimientosScreen(
-    db: LocalDatabase,
-    usuarioId: Int,
     onVolver: () -> Unit
 ) {
-    val repositorio = remember(db) { ReconocimientosRepository(db) }
+    val repositorio = remember { ReconocimientosRepository() }
     val viewModel: ReconocimientosViewModel = viewModel(
         factory = viewModelFactory {
             initializer { ReconocimientosViewModel(repositorio) }
@@ -60,7 +57,7 @@ fun ReconocimientosScreen(
 
     // 1. actualizar los logros al abrir la pantalla
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
-        viewModel.cargarReconocimientos(usuarioId)
+        viewModel.cargarReconocimientos()
     }
 
     ReconocimientosContent(

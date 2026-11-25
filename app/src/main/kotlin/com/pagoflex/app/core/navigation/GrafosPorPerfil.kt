@@ -19,6 +19,7 @@ import com.pagoflex.app.features.home.presentation.screens.HomeScreen
 import com.pagoflex.app.features.home.presentation.screens.ListaCompromisosScreen
 import com.pagoflex.app.features.perfil.presentation.screens.CambiarContrasenaScreen
 import com.pagoflex.app.features.perfil.presentation.screens.PerfilScreen
+import com.pagoflex.app.features.reconocimientos.presentation.screens.ReconocimientosScreen
 import com.pagoflex.app.features.reportes.presentation.screens.BandejaReportesScreen
 import com.pagoflex.app.features.reportes.presentation.screens.DetalleReporteScreen
 import com.pagoflex.app.features.reportes.presentation.screens.MisReportesScreen
@@ -145,7 +146,17 @@ fun NavGraphBuilder.grafoUsuario(
     }
     composable(Ruta.Cumplimiento.ruta) {
         CumplimientoScreen(
-            onVolver = { navController.volverDesde(Ruta.Cumplimiento.ruta) }
+            onVolver = { navController.volverDesde(Ruta.Cumplimiento.ruta) },
+            onVerReconocimientos = {
+                if (navController.currentDestination?.route == Ruta.Cumplimiento.ruta) {
+                    navController.navigate(Ruta.Reconocimientos.ruta) { launchSingleTop = true }
+                }
+            }
+        )
+    }
+    composable(Ruta.Reconocimientos.ruta) {
+        ReconocimientosScreen(
+            onVolver = { navController.volverDesde(Ruta.Reconocimientos.ruta) }
         )
     }
 
